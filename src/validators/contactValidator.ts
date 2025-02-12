@@ -49,6 +49,12 @@ export class ContactValidator {
 
     validatePublishDate(publishDate: string): string[] {
         const errorMessages: string[] = []
+        const regex = /^([0-9]{2})\/([0-9]{2})\/([0-9]{4})$/
+
+        if (!regex.test(publishDate)) {
+            errorMessages.push('Publish date must be in the format DD/MM/YYYY')
+            return errorMessages
+        }
 
         const publishDateFormatted = dateFormatToYYYYMMDD(publishDate)
         const publishDateTypeDate = new Date(publishDateFormatted)
@@ -66,20 +72,23 @@ export class ContactValidator {
     }
     validatePublishTime(publishTime: string): string[] {
         const errorMessages: string[] = []
+        const regex = /^(0?[1-9]|1[0-2]):([0-5][0-9]) (AM|PM)$/i
 
-        const publishTimeFormatted = hourFormatTo24H(publishTime)
-        const publishTimeParts = publishTimeFormatted.split(':')
-        const hours = parseInt(publishTimeParts[0])
-        const minutes = parseInt(publishTimeParts[1])
-
-        if (isNaN(hours) || isNaN(minutes)) {
-            errorMessages.push('Publish time is not a valid time')
+        if (!regex.test(publishTime)) {
+            errorMessages.push('Publish time must be in the format HH:MM AM/PM')
+            return errorMessages
         }
-        if (hours < 0 || hours > 23) {
-            errorMessages.push('Publish time hours is not a valid number (<0 or >23)')
+
+        const [time, period] = publishTime.split(' ')
+        const [hour, minute] = time.split(':')
+        const hours = parseInt(hour)
+        const minutes = parseInt(minute)
+
+        if (hours < 1 || hours > 12) {
+            errorMessages.push('Publish time hours must be between 1 and 12');
         }
         if (minutes < 0 || minutes > 59) {
-            errorMessages.push('Publish time minutes is not a valid number (<0 or >59)')
+            errorMessages.push('Publish time minutes must be between 00 and 59');
         }
 
         return errorMessages

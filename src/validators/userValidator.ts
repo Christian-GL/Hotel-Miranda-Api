@@ -97,6 +97,12 @@ export class UserValidator {
     }
     validateStartDate(startDate: string): string[] {
         const errorMessages: string[] = []
+        const regex = /^([0-9]{2})\/([0-9]{2})\/([0-9]{4})$/
+
+        if (!regex.test(startDate)) {
+            errorMessages.push('Start date must be in the format DD/MM/YYYY')
+            return errorMessages
+        }
 
         const startDateFormatted = dateFormatToYYYYMMDD(startDate)
         const startDateTypeDate = new Date(startDateFormatted)

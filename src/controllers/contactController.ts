@@ -8,11 +8,82 @@ import { ContactValidator } from '../validators/contactValidator'
 export const contactRouter = Router()
 const contactService = new ContactService()
 
+/**
+ * @swagger
+ * /api-dashboard/v1/contacts:
+ *   get:
+ *     summary: Obtener todos los contactos
+ *     tags: [Contacts]
+ *     responses:
+ *       200:
+ *         description: Lista de contactos
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                   publish_date:
+ *                     type: string
+ *                     format: date
+ *                   publish_time:
+ *                     type: string
+ *                   full_name:
+ *                     type: string
+ *                   email:
+ *                     type: string
+ *                   contact:
+ *                     type: string
+ *                   comment:
+ *                     type: string
+ */
 contactRouter.get('/', (req: Request, res: Response) => {
     const contactList = contactService.fetchAll()
     res.json(contactList)
 })
 
+/**
+ * @swagger
+ * /api-dashboard/v1/contacts/{id}:
+ *   get:
+ *     summary: Obtener un contacto por ID
+ *     tags: [Contacts]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: ID del contacto
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Detalles del contacto
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                 publish_date:
+ *                   type: string
+ *                   format: date
+ *                 publish_time:
+ *                   type: string
+ *                 full_name:
+ *                   type: string
+ *                 email:
+ *                   type: string
+ *                 contact:
+ *                   type: string
+ *                 comment:
+ *                   type: string
+ *       404:
+ *         description: Contacto no encontrado
+ */
 contactRouter.get('/:id', (req: Request, res: Response) => {
     const contact = contactService.fetchById(parseInt(req.params.id))
     if (contact !== undefined) {
@@ -22,6 +93,58 @@ contactRouter.get('/:id', (req: Request, res: Response) => {
     }
 })
 
+/**
+ * @swagger
+ * /api-dashboard/v1/contacts:
+ *   post:
+ *     summary: Crear un nuevo contacto
+ *     tags: [Contacts]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               publish_date:
+ *                 type: string
+ *                 format: date
+ *               publish_time:
+ *                 type: string
+ *               full_name:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               contact:
+ *                 type: string
+ *               comment:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Contacto creado exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                 publish_date:
+ *                   type: string
+ *                   format: date
+ *                 publish_time:
+ *                   type: string
+ *                 full_name:
+ *                   type: string
+ *                 email:
+ *                   type: string
+ *                 contact:
+ *                   type: string
+ *                 comment:
+ *                   type: string
+ *       400:
+ *         description: Datos inválidos
+ */
 contactRouter.post('/', (req: Request, res: Response) => {
     const contactValidator = new ContactValidator()
     const validation = contactValidator.validateContact(req.body)
@@ -36,6 +159,42 @@ contactRouter.post('/', (req: Request, res: Response) => {
     }
 })
 
+/**
+ * @swagger
+ * /api-dashboard/v1/contacts:
+ *   put:
+ *     summary: Actualizar un contacto existente
+ *     tags: [Contacts]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               id:
+ *                 type: integer
+ *               publish_date:
+ *                 type: string
+ *                 format: date
+ *               publish_time:
+ *                 type: string
+ *               full_name:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               contact:
+ *                 type: string
+ *               comment:
+ *                 type: string
+ *     responses:
+ *       204:
+ *         description: Contacto actualizado exitosamente
+ *       400:
+ *         description: Datos inválidos
+ *       404:
+ *         description: Contacto no encontrado
+ */
 contactRouter.put('/', (req: Request, res: Response) => {
     const contactValidator = new ContactValidator()
     const updatedContact = contactService.update(req.body)
@@ -53,6 +212,25 @@ contactRouter.put('/', (req: Request, res: Response) => {
     }
 })
 
+/**
+ * @swagger
+ * /api-dashboard/v1/contacts/{id}:
+ *   delete:
+ *     summary: Eliminar un contacto por ID
+ *     tags: [Contacts]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: ID del contacto
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       204:
+ *         description: Contacto eliminado exitosamente
+ *       404:
+ *         description: Contacto no encontrado
+ */
 contactRouter.delete('/:id', (req: Request, res: Response) => {
     const deletedContact = contactService.delete(parseInt(req.params.id))
     if (deletedContact) {

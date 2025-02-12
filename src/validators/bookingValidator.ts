@@ -101,6 +101,13 @@ export class BookingValidator {
     validateOrderDate(orderDate: string): string[] {
         const errorMessages: string[] = []
 
+        const regex = /^([0-9]{2})\/([0-9]{2})\/([0-9]{4})$/
+
+        if (!regex.test(orderDate)) {
+            errorMessages.push('Order date must be in the format DD/MM/YYYY')
+            return errorMessages
+        }
+
         const orderDateFormatted = dateFormatToYYYYMMDD(orderDate)
         const orderDateTypeDate = new Date(orderDateFormatted)
         const currentDate = new Date()
@@ -117,26 +124,35 @@ export class BookingValidator {
     }
     validateOrderTime(orderTime: string): string[] {
         const errorMessages: string[] = []
+        const regex = /^(0?[1-9]|1[0-2]):([0-5][0-9]) (AM|PM)$/i
 
-        const orderTimeFormatted = hourFormatTo24H(orderTime)
-        const orderTimeParts = orderTimeFormatted.split(':')
-        const hours = parseInt(orderTimeParts[0])
-        const minutes = parseInt(orderTimeParts[1])
-
-        if (isNaN(hours) || isNaN(minutes)) {
-            errorMessages.push('Order time is not a valid time')
+        if (!regex.test(orderTime)) {
+            errorMessages.push('Order time must be in the format HH:MM AM/PM')
+            return errorMessages
         }
-        if (hours < 0 || hours > 23) {
-            errorMessages.push('Order time hours is not a valid number (<0 or >23)')
+
+        const [time, period] = orderTime.split(' ')
+        const [hour, minute] = time.split(':')
+        const hours = parseInt(hour)
+        const minutes = parseInt(minute)
+
+        if (hours < 1 || hours > 12) {
+            errorMessages.push('Order time hours must be between 1 and 12');
         }
         if (minutes < 0 || minutes > 59) {
-            errorMessages.push('Order time minutes is not a valid number (<0 or >59)')
+            errorMessages.push('Order time minutes must be between 00 and 59');
         }
 
         return errorMessages
     }
     validateCheckInDate(checkInDate: string): string[] {
         const errorMessages: string[] = []
+        const regex = /^([0-9]{2})\/([0-9]{2})\/([0-9]{4})$/
+
+        if (!regex.test(checkInDate)) {
+            errorMessages.push('Check in date must be in the format DD/MM/YYYY')
+            return errorMessages
+        }
 
         const checkInDateFormatted = dateFormatToYYYYMMDD(checkInDate)
         const checkInDateTypeDate = new Date(checkInDateFormatted)
@@ -154,26 +170,35 @@ export class BookingValidator {
     }
     validateCheckInTime(checkInTime: string): string[] {
         const errorMessages: string[] = []
+        const regex = /^(0?[1-9]|1[0-2]):([0-5][0-9]) (AM|PM)$/i
 
-        const checkInTimeFormatted = hourFormatTo24H(checkInTime)
-        const checkInTimeParts = checkInTimeFormatted.split(':')
-        const hours = parseInt(checkInTimeParts[0])
-        const minutes = parseInt(checkInTimeParts[1])
-
-        if (isNaN(hours) || isNaN(minutes)) {
-            errorMessages.push('Check in time is not a valid time')
+        if (!regex.test(checkInTime)) {
+            errorMessages.push('Check in time must be in the format HH:MM AM/PM')
+            return errorMessages
         }
-        if (hours < 0 || hours > 23) {
-            errorMessages.push('Check in time hours is not a valid number (<0 or >23)')
+
+        const [time, period] = checkInTime.split(' ')
+        const [hour, minute] = time.split(':')
+        const hours = parseInt(hour)
+        const minutes = parseInt(minute)
+
+        if (hours < 1 || hours > 12) {
+            errorMessages.push('Check in time hours must be between 1 and 12');
         }
         if (minutes < 0 || minutes > 59) {
-            errorMessages.push('Check in time minutes is not a valid number (<0 or >59)')
+            errorMessages.push('Check in time minutes must be between 00 and 59');
         }
 
         return errorMessages
     }
     validateCheckOutDate(checkOutDate: string): string[] {
         const errorMessages: string[] = []
+        const regex = /^([0-9]{2})\/([0-9]{2})\/([0-9]{4})$/
+
+        if (!regex.test(checkOutDate)) {
+            errorMessages.push('Check out date must be in the format DD/MM/YYYY')
+            return errorMessages
+        }
 
         const checkOutDateFormatted = dateFormatToYYYYMMDD(checkOutDate)
         const checkOutDateTypeDate = new Date(checkOutDateFormatted)
@@ -191,20 +216,23 @@ export class BookingValidator {
     }
     validateCheckOutTime(checkOutTime: string): string[] {
         const errorMessages: string[] = []
+        const regex = /^(0?[1-9]|1[0-2]):([0-5][0-9]) (AM|PM)$/i
 
-        const checkOutTimeFormatted = hourFormatTo24H(checkOutTime)
-        const checkOutTimeParts = checkOutTimeFormatted.split(':')
-        const hours = parseInt(checkOutTimeParts[0])
-        const minutes = parseInt(checkOutTimeParts[1])
-
-        if (isNaN(hours) || isNaN(minutes)) {
-            errorMessages.push('Check out time is not a valid time')
+        if (!regex.test(checkOutTime)) {
+            errorMessages.push('Check out time must be in the format HH:MM AM/PM')
+            return errorMessages
         }
-        if (hours < 0 || hours > 23) {
-            errorMessages.push('Check out time hours is not a valid number (<0 or >23)')
+
+        const [time, period] = checkOutTime.split(' ')
+        const [hour, minute] = time.split(':')
+        const hours = parseInt(hour)
+        const minutes = parseInt(minute)
+
+        if (hours < 1 || hours > 12) {
+            errorMessages.push('Check out time hours must be between 1 and 12');
         }
         if (minutes < 0 || minutes > 59) {
-            errorMessages.push('Check out time minutes is not a valid number (<0 or >59)')
+            errorMessages.push('Check out time minutes must be between 00 and 59');
         }
 
         return errorMessages
