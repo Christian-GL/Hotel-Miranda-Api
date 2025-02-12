@@ -3,10 +3,13 @@ import { Request, Response } from 'express'
 import Router from 'express'
 import { BookingService } from '../services/bookingService'
 import { BookingValidator } from '../validators/bookingValidator'
+import { authMiddleware } from '../middleware/authMiddleware'
 
 
 export const bookingRouter = Router()
 const bookingService = new BookingService()
+
+bookingRouter.use(authMiddleware)
 
 /**
  * @swagger

@@ -3,10 +3,13 @@ import { Request, Response } from 'express'
 import Router from 'express'
 import { UserService } from '../services/userService'
 import { UserValidator } from '../validators/userValidator'
+import { authMiddleware } from '../middleware/authMiddleware'
 
 
 export const userRouter = Router()
 const userService = new UserService()
+
+userRouter.use(authMiddleware)
 
 /**
  * @swagger

@@ -3,10 +3,13 @@ import { Request, Response } from 'express'
 import Router from 'express'
 import { RoomService } from '../services/roomService'
 import { RoomValidator } from '../validators/roomValidator'
+import { authMiddleware } from '../middleware/authMiddleware'
 
 
 export const roomRouter = Router()
 const roomService = new RoomService()
+
+roomRouter.use(authMiddleware)
 
 /**
  * @swagger

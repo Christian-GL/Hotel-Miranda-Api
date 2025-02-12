@@ -3,10 +3,13 @@ import { Request, Response } from 'express'
 import Router from 'express'
 import { ContactService } from '../services/contactService'
 import { ContactValidator } from '../validators/contactValidator'
+import { authMiddleware } from '../middleware/authMiddleware'
 
 
 export const contactRouter = Router()
 const contactService = new ContactService()
+
+contactRouter.use(authMiddleware)
 
 /**
  * @swagger
