@@ -43,5 +43,18 @@ export class RoomService implements ServiceInterface<RoomInterface> {
         }
         return false
     }
+    // delete(id: number): boolean {
+    //     const roomToDelete = this.rooms.find(room => room.id === id)
+    //     if (roomToDelete) {
+    //         roomToDelete.booking_list.map(bookingId => {
+    //             this.bookings = this.bookings.filter(booking => booking.id !== bookingId)
+    //         })
+    //         this.rooms = this.rooms.filter(room => room.id !== id)
+    //         // console.log(this.bookings)
+    //         // console.log('============================')
+    //         return true
+    //     }
+    //     return false
+    // }
 
 }

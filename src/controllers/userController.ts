@@ -45,6 +45,9 @@ userRouter.use(authMiddleware)
  *                   photo:
  *                     type: string
  *                     format: uri
+ *                   password:
+ *                     type: string
+ *                     description: Contraseña encriptada del usuario
  */
 userRouter.get('/', (req: Request, res: Response) => {
     const userList = userService.fetchAll()
@@ -90,6 +93,9 @@ userRouter.get('/', (req: Request, res: Response) => {
  *                 photo:
  *                   type: string
  *                   format: uri
+ *                 password:
+ *                   type: string
+ *                   description: Contraseña encriptada del usuario
  *       404:
  *         description: Usuario no encontrado
  */
@@ -131,6 +137,9 @@ userRouter.get('/:id', (req: Request, res: Response) => {
  *               photo:
  *                 type: string
  *                 format: uri
+ *               password:
+ *                 type: string
+ *                 description: Contraseña encriptada del usuario
  *     responses:
  *       201:
  *         description: Usuario creado exitosamente
@@ -180,6 +189,9 @@ userRouter.post('/', (req: Request, res: Response) => {
  *               photo:
  *                 type: string
  *                 format: uri
+ *               password:
+ *                 type: string
+ *                 description: Contraseña encriptada del usuario
  *     responses:
  *       204:
  *         description: Usuario actualizado exitosamente

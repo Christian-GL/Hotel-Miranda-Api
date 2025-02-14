@@ -1,6 +1,6 @@
 
 import { Request, Response, Router } from "express"
-import accountsData from '../data/accountsData.json'
+import userData from '../data/userData.json'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import { AccountInterface } from "../interfaces/accountInterface"
@@ -51,7 +51,7 @@ export const loginRouter = Router()
 loginRouter.post('', (req: Request, res: Response) => {
     const { email, password } = req.body
 
-    const user: AccountInterface[] = accountsData.filter(u => u.email === email)
+    const user: AccountInterface[] = userData.filter(u => u.email === email)
     if (user.length === 0) {
         res.status(404).send('User not found')
     }
@@ -75,7 +75,7 @@ loginRouter.post('', (req: Request, res: Response) => {
                 return
             }
             else {
-                const token = jwt.sign({ email: user[0].email }, process.env.TOKEN_SECRET as string, { expiresIn: '1h' })
+                const token = jwt.sign({ email: user[0].email }, process.env.TOKEN_SECRET as string, { expiresIn: '1w' })
                 res.status(200).send({ token: token })
             }
         })

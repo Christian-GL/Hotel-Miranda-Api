@@ -1,7 +1,6 @@
 
 import { BookingInterface } from "../interfaces/bookingInterface"
 import { dateFormatToYYYYMMDD } from "../utils/utils"
-import { hourFormatTo24H } from "../utils/utils"
 
 
 export class BookingValidator {
