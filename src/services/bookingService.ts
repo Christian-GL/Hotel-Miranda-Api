@@ -2,7 +2,7 @@
 import bookingData from '../data/bookingData.json'
 import { BookingInterface } from '../interfaces/bookingInterface'
 import { ServiceInterface } from '../interfaces/serviceInterface'
-import { checkFirstIDAvailable } from '../utils/utils'
+import { checkFirstIDAvailable } from '../utils/dateUtils'
 
 
 export class BookingService implements ServiceInterface<BookingInterface> {
@@ -13,8 +13,9 @@ export class BookingService implements ServiceInterface<BookingInterface> {
         return this.bookings
     }
 
-    fetchById(id: number): BookingInterface | undefined {
-        return this.bookings.find(booking => booking.id === id)
+    fetchById(id: number): BookingInterface | null {
+        const booking = this.bookings.find(booking => booking.id === id)
+        return booking === undefined ? null : booking
     }
 
     create(booking: BookingInterface): BookingInterface {
@@ -23,7 +24,7 @@ export class BookingService implements ServiceInterface<BookingInterface> {
         return newBooking
     }
 
-    update(bookingIn: BookingInterface): BookingInterface | undefined {
+    update(bookingIn: BookingInterface): BookingInterface | null {
         const bookingToUpdate = this.bookings.find(booking => booking.id === bookingIn.id)
         if (bookingToUpdate) {
             const updatedBooking = { ...bookingToUpdate, ...bookingIn }
@@ -32,7 +33,7 @@ export class BookingService implements ServiceInterface<BookingInterface> {
             )
             return updatedBooking
         }
-        else return undefined
+        else return null
     }
 
     delete(id: number): boolean {

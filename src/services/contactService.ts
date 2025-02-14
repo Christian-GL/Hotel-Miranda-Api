@@ -2,7 +2,7 @@
 import contactData from '../data/contactData.json'
 import { ContactInterface } from '../interfaces/contactInterface'
 import { ServiceInterface } from '../interfaces/serviceInterface'
-import { checkFirstIDAvailable } from '../utils/utils'
+import { checkFirstIDAvailable } from '../utils/dateUtils'
 
 
 export class ContactService implements ServiceInterface<ContactInterface> {
@@ -13,8 +13,9 @@ export class ContactService implements ServiceInterface<ContactInterface> {
         return this.contacts
     }
 
-    fetchById(id: number): ContactInterface | undefined {
-        return this.contacts.find(contact => contact.id === id)
+    fetchById(id: number): ContactInterface | null {
+        const contact = this.contacts.find(contact => contact.id === id)
+        return contact === undefined ? null : contact
     }
 
     create(contact: ContactInterface): ContactInterface {
@@ -23,7 +24,7 @@ export class ContactService implements ServiceInterface<ContactInterface> {
         return newContact
     }
 
-    update(contactIn: ContactInterface): ContactInterface | undefined {
+    update(contactIn: ContactInterface): ContactInterface | null {
         const contactToUpdate = this.contacts.find(contact => contact.id === contactIn.id)
         if (contactToUpdate) {
             const updatedContact = { ...contactToUpdate, ...contactIn }
@@ -32,7 +33,7 @@ export class ContactService implements ServiceInterface<ContactInterface> {
             )
             return updatedContact
         }
-        else return undefined
+        else return null
     }
 
     delete(id: number): boolean {

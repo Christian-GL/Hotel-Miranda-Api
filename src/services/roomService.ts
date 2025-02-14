@@ -2,7 +2,7 @@
 import roomData from '../data/roomData.json'
 import { RoomInterface } from '../interfaces/roomInterface'
 import { ServiceInterface } from '../interfaces/serviceInterface'
-import { checkFirstIDAvailable } from '../utils/utils'
+import { checkFirstIDAvailable } from '../utils/dateUtils'
 
 
 export class RoomService implements ServiceInterface<RoomInterface> {
@@ -13,8 +13,9 @@ export class RoomService implements ServiceInterface<RoomInterface> {
         return this.rooms
     }
 
-    fetchById(id: number): RoomInterface | undefined {
-        return this.rooms.find(room => room.id === id)
+    fetchById(id: number): RoomInterface | null {
+        const room = this.rooms.find(room => room.id === id)
+        return room === undefined ? null : room
     }
 
     create(room: RoomInterface): RoomInterface {
@@ -23,7 +24,7 @@ export class RoomService implements ServiceInterface<RoomInterface> {
         return newRoom
     }
 
-    update(roomIn: RoomInterface): RoomInterface | undefined {
+    update(roomIn: RoomInterface): RoomInterface | null {
         const roomToUpdate = this.rooms.find(room => room.id === roomIn.id)
         if (roomToUpdate) {
             const updatedRoom = { ...roomToUpdate, ...roomIn }
@@ -32,7 +33,7 @@ export class RoomService implements ServiceInterface<RoomInterface> {
             )
             return updatedRoom
         }
-        else return undefined
+        else return null
     }
 
     delete(id: number): boolean {

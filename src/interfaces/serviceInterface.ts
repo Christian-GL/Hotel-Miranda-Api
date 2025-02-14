@@ -1,8 +1,8 @@
 
 export interface ServiceInterface<T> {
     fetchAll(): T[]
-    fetchById(id: number): T | undefined
+    fetchById(id: number): T | null
     create(item: T): T
-    update(item: T): T | undefined
+    update(item: T): T | null
     delete(id: number): boolean
 }

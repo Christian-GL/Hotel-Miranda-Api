@@ -1,5 +1,7 @@
 
 import { RoomInterface } from "../interfaces/roomInterface"
+import { RoomType } from "../enums/roomType"
+import { RoomAmenities } from "../enums/roomAmenities"
 
 
 export class RoomValidator {
@@ -66,12 +68,6 @@ export class RoomValidator {
     }
     validateRoomType(type: string): string[] {
         const errorMessages: string[] = []
-        enum RoomType {
-            suite = "Suite",
-            singleBed = "Single Bed",
-            doubleBed = "Double Bed",
-            doubleSuperior = "Double Superior"
-        }
 
         if (typeof type !== "string") {
             errorMessages.push('Room Type is not a String')
@@ -84,21 +80,6 @@ export class RoomValidator {
     }
     validateAmenities(type: string[]): string[] {
         const errorMessages: string[] = []
-        enum RoomAmenities {
-            bedSpace3 = "3 Bed Space",
-            bathroom2 = "2 Bathroom",
-            wiFi = "WiFi",
-            tv = "TV",
-            ledTv = "LED TV",
-            airConditioner = "Air Conditioner",
-            minibar = "Minibar",
-            balcony = "Balcony",
-            shower = "Shower",
-            towel = "Towel",
-            bathtub = "Bathup",
-            coffeeSet = "Cofee Set",
-            guard24Hours = "24 Hours Guard"
-        }
 
         if (!Array.isArray(type)) {
             errorMessages.push('Amenities is not an array of strings')

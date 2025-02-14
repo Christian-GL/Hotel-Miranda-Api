@@ -2,7 +2,7 @@
 import userData from '../data/userData.json'
 import { UserInterface } from '../interfaces/userInterface'
 import { ServiceInterface } from '../interfaces/serviceInterface'
-import { checkFirstIDAvailable } from '../utils/utils'
+import { checkFirstIDAvailable } from '../utils/dateUtils'
 
 
 export class UserService implements ServiceInterface<UserInterface> {
@@ -13,8 +13,9 @@ export class UserService implements ServiceInterface<UserInterface> {
         return this.users
     }
 
-    fetchById(id: number): UserInterface | undefined {
-        return this.users.find(user => user.id === id)
+    fetchById(id: number): UserInterface | null {
+        const user = this.users.find(user => user.id === id)
+        return user === undefined ? null : user
     }
 
     create(user: UserInterface): UserInterface {
@@ -23,19 +24,16 @@ export class UserService implements ServiceInterface<UserInterface> {
         return newUser
     }
 
-    update(userIn: UserInterface): UserInterface | undefined {
+    update(userIn: UserInterface): UserInterface | null {
         const userToUpdate = this.users.find(user => user.id === userIn.id)
         if (userToUpdate) {
             const updatedUser = { ...userToUpdate, ...userIn }
-            // const finalList = this.users.filter(user => user.id == userIn.id)
-            // finalList.push(updatedUser)
-            // this.users = finalList
             this.users = this.users.map(user =>
                 user.id === userIn.id ? updatedUser : user
             )
             return updatedUser
         }
-        else return undefined
+        else return null
     }
 
     delete(id: number): boolean {

@@ -1,4 +1,7 @@
 
+import { RoomInterface } from "./roomInterface"
+
+
 export interface BookingInterface {
     id: number
     photo: string
@@ -9,8 +12,7 @@ export interface BookingInterface {
     check_in_time: string
     check_out_date: string
     check_out_time: string
-    room_id: number
-    room_type: string
+    room: Partial<RoomInterface>,
     room_booking_status: string
     special_request: string
 }

@@ -105,7 +105,7 @@ roomRouter.get('/', (req: Request, res: Response) => {
  */
 roomRouter.get('/:id', (req: Request, res: Response) => {
     const room = roomService.fetchById(parseInt(req.params.id))
-    if (room !== undefined) {
+    if (room !== null) {
         res.json(room)
     } else {
         res.status(404).json({ message: `Room  #${req.params.id} not found` })
@@ -182,14 +182,14 @@ roomRouter.get('/:id', (req: Request, res: Response) => {
  */
 roomRouter.post('/', (req: Request, res: Response) => {
     const roomValidator = new RoomValidator()
-    const validation = roomValidator.validateRoom(req.body)
-    if (validation.length === 0) {
+    const totalErrors = roomValidator.validateRoom(req.body)
+    if (totalErrors.length === 0) {
         const newRoom = roomService.create(req.body)
         res.status(201).json(newRoom)
     }
     else {
         res.status(400).json({
-            message: validation.join(', ')
+            message: totalErrors.join(', ')
         })
     }
 })
@@ -241,17 +241,17 @@ roomRouter.post('/', (req: Request, res: Response) => {
 roomRouter.put('/', (req: Request, res: Response) => {
     const roomValidator = new RoomValidator()
     const updatedRoom = roomService.update(req.body)
-    if (updatedRoom !== undefined) {
-        const validation = roomValidator.validateRoom(req.body)
-        if (validation.length === 0) {
+    if (updatedRoom !== null) {
+        const totalErrors = roomValidator.validateRoom(req.body)
+        if (totalErrors.length === 0) {
             res.status(204).json(updatedRoom)
         }
         else {
-            res.status(400).json({ message: validation.join(', ') })
+            res.status(400).json({ message: totalErrors.join(', ') })
         }
     }
     else {
-        res.status(404).json({ message: `Room #${req.params.id} not found` })
+        res.status(404).json({ message: `Room #${req.body.id} not found` })
     }
 })
 
@@ -277,7 +277,7 @@ roomRouter.put('/', (req: Request, res: Response) => {
 roomRouter.delete('/:id', (req: Request, res: Response) => {
     const deletedRoom = roomService.delete(parseInt(req.params.id))
     if (deletedRoom) {
-        res.status(204).json({ message: `Room #${req.params.id} deleted` })
+        res.status(204).json()
     } else {
         res.status(404).json({ message: `Room #${req.params.id} not found` })
     }

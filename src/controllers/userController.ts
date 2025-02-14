@@ -101,7 +101,7 @@ userRouter.get('/', (req: Request, res: Response) => {
  */
 userRouter.get('/:id', (req: Request, res: Response) => {
     const user = userService.fetchById(parseInt(req.params.id))
-    if (user !== undefined) {
+    if (user !== null) {
         res.json(user)
     } else {
         res.status(404).json({ message: `User #${req.params.id} not found` })
@@ -146,14 +146,14 @@ userRouter.get('/:id', (req: Request, res: Response) => {
  */
 userRouter.post('/', (req: Request, res: Response) => {
     const userValidator = new UserValidator()
-    const validation = userValidator.validateUser(req.body)
-    if (validation.length === 0) {
+    const totalErrors = userValidator.validateUser(req.body)
+    if (totalErrors.length === 0) {
         const newUser = userService.create(req.body)
         res.status(201).json(newUser)
     }
     else {
         res.status(400).json({
-            message: validation.join(', ')
+            message: totalErrors.join(', ')
         })
     }
 })
@@ -203,17 +203,17 @@ userRouter.post('/', (req: Request, res: Response) => {
 userRouter.put('/', (req: Request, res: Response) => {
     const userValidator = new UserValidator()
     const updatedUser = userService.update(req.body)
-    if (updatedUser !== undefined) {
-        const validation = userValidator.validateUser(req.body)
-        if (validation.length === 0) {
+    if (updatedUser !== null) {
+        const totalErrors = userValidator.validateUser(req.body)
+        if (totalErrors.length === 0) {
             res.status(204).json(updatedUser)
         }
         else {
-            res.status(400).json({ message: validation.join(', ') })
+            res.status(400).json({ message: totalErrors.join(', ') })
         }
     }
     else {
-        res.status(404).json({ message: `User #${req.params.id} not found` })
+        res.status(404).json({ message: `User #${req.body.id} not found` })
     }
 })
 
@@ -239,7 +239,7 @@ userRouter.put('/', (req: Request, res: Response) => {
 userRouter.delete('/:id', (req: Request, res: Response) => {
     const deletedUser = userService.delete(parseInt(req.params.id))
     if (deletedUser) {
-        res.status(204).json({ message: `User #${req.params.id} deleted` })
+        res.status(204).json()
     } else {
         res.status(404).json({ message: `User #${req.params.id} not found` })
     }

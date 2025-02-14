@@ -48,3 +48,24 @@ export const hourFormatTo24H = (time12H: string) => {
     }
     return `${hoursNumber < 10 ? '0' + hours : hours}:${minutes}`
 }
+
+// const checkIsOccupied = (roomAll: string[], bookingAll: string[], nextIdAvailable: number) => {
+
+//     const room = roomAll.find(room => room.id === nextIdAvailable)
+//     if (!room) { return }
+
+//     const bookings = bookingAll.filter(booking => room.booking_list.includes(booking.id))
+//     if (!bookings) { return }
+
+//     const bookingDataCheckIn = new Date(`${dateFormatToYYYYMMDD(newBooking.check_in_date)}T${hourFormatTo24H(newBooking.check_in_time)}:00`)
+//     const bookingDataCheckOut = new Date(`${dateFormatToYYYYMMDD(newBooking.check_out_date)}T${hourFormatTo24H(newBooking.check_out_time)}:00`)
+//     for (let booking of bookings) {
+//         const bookingCheckIn = new Date(`${dateFormatToYYYYMMDD(booking.check_in_date)}T${hourFormatTo24H(booking.check_in_time)}:00`)
+//         const bookingCheckOut = new Date(`${dateFormatToYYYYMMDD(booking.check_out_date)}T${hourFormatTo24H(booking.check_out_time)}:00`)
+
+//         if ((bookingDataCheckIn < bookingCheckOut) && (bookingDataCheckOut > bookingCheckIn)) {
+//             return true
+//         }
+//     }
+//     return false
+// }

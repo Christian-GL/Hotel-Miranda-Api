@@ -89,7 +89,7 @@ contactRouter.get('/', (req: Request, res: Response) => {
  */
 contactRouter.get('/:id', (req: Request, res: Response) => {
     const contact = contactService.fetchById(parseInt(req.params.id))
-    if (contact !== undefined) {
+    if (contact !== null) {
         res.json(contact)
     } else {
         res.status(404).json({ message: `Contact #${req.params.id} not found` })
@@ -150,14 +150,14 @@ contactRouter.get('/:id', (req: Request, res: Response) => {
  */
 contactRouter.post('/', (req: Request, res: Response) => {
     const contactValidator = new ContactValidator()
-    const validation = contactValidator.validateContact(req.body)
-    if (validation.length === 0) {
+    const totalErrors = contactValidator.validateContact(req.body)
+    if (totalErrors.length === 0) {
         const newContact = contactService.create(req.body)
         res.status(201).json(newContact)
     }
     else {
         res.status(400).json({
-            message: validation.join(', ')
+            message: totalErrors.join(', ')
         })
     }
 })
@@ -201,17 +201,17 @@ contactRouter.post('/', (req: Request, res: Response) => {
 contactRouter.put('/', (req: Request, res: Response) => {
     const contactValidator = new ContactValidator()
     const updatedContact = contactService.update(req.body)
-    if (updatedContact !== undefined) {
-        const validation = contactValidator.validateContact(req.body)
-        if (validation.length === 0) {
+    if (updatedContact !== null) {
+        const totalErrors = contactValidator.validateContact(req.body)
+        if (totalErrors.length === 0) {
             res.status(204).json(updatedContact)
         }
         else {
-            res.status(400).json({ message: validation.join(', ') })
+            res.status(400).json({ message: totalErrors.join(', ') })
         }
     }
     else {
-        res.status(404).json({ message: `Contact #${req.params.id} not found` })
+        res.status(404).json({ message: `Contact #${req.body.id} not found` })
     }
 })
 
@@ -237,7 +237,7 @@ contactRouter.put('/', (req: Request, res: Response) => {
 contactRouter.delete('/:id', (req: Request, res: Response) => {
     const deletedContact = contactService.delete(parseInt(req.params.id))
     if (deletedContact) {
-        res.status(204).json({ message: `Contact #${req.params.id} deleted` })
+        res.status(204).json()
     } else {
         res.status(404).json({ message: `Contact #${req.params.id} not found` })
     }

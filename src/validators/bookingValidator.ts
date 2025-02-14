@@ -1,17 +1,25 @@
 
 import { BookingInterface } from "../interfaces/bookingInterface"
-import { dateFormatToYYYYMMDD } from "../utils/utils"
+import { dateFormatToYYYYMMDD } from "../utils/dateUtils"
+import { BookingStatus } from "../enums/bookingStatus"
+import { RoomType } from "../enums/roomType"
 
 
 export class BookingValidator {
 
     validateProperties(booking: BookingInterface): string[] {
         const errorMessages: string[] = []
-        const requiredProperties: string[] = ['photo', 'full_name_guest', 'order_date', 'order_time', 'check_in_date', 'check_in_time',
-            'check_out_date', 'check_out_time', 'room_id', 'room_type', 'room_booking_status', 'special_request']
-        requiredProperties.map((property) => {
+        const bookingRequiredProperties: string[] = ['photo', 'full_name_guest', 'order_date', 'order_time', 'check_in_date', 'check_in_time',
+            'check_out_date', 'check_out_time', 'room', 'room_booking_status', 'special_request']
+        const roomRequiredProperties: string[] = ['id', 'type']
+        bookingRequiredProperties.map(property => {
             if (!(property in booking)) {
                 errorMessages.push(`Property [${property}] is required in Booking`)
+            }
+        })
+        roomRequiredProperties.map(property => {
+            if (!(property in booking.room)) {
+                errorMessages.push(`Property [${property}] is required in Booking.room`)
             }
         })
         return errorMessages
@@ -49,12 +57,16 @@ export class BookingValidator {
         this.validateCheckOutTime(booking.check_out_time).map(
             error => allErrorMessages.push(error)
         )
-        this.validateRoomId(booking.room_id).map(
-            error => allErrorMessages.push(error)
-        )
-        this.validateRoomType(booking.room_type).map(
-            error => allErrorMessages.push(error)
-        )
+        if (booking.room.id) {
+            this.validateRoomId(booking.room.id).map(
+                error => allErrorMessages.push(error)
+            )
+        }
+        if (booking.room.type) {
+            this.validateRoomType(booking.room.type).map(
+                error => allErrorMessages.push(error)
+            )
+        }
         this.validateBookingStatus(booking.room_booking_status).map(
             error => allErrorMessages.push(error)
         )
@@ -247,12 +259,6 @@ export class BookingValidator {
     }
     validateRoomType(type: string): string[] {
         const errorMessages: string[] = []
-        enum RoomType {
-            suite = "Suite",
-            singleBed = "Single Bed",
-            doubleBed = "Double Bed",
-            doubleSuperior = "Double Superior"
-        }
 
         if (typeof type !== "string") {
             errorMessages.push('Room Type is not a String')
@@ -265,16 +271,11 @@ export class BookingValidator {
     }
     validateBookingStatus(type: string): string[] {
         const errorMessages: string[] = []
-        enum RoomType {
-            checkIn = "Check In",
-            inProgress = "In Progress",
-            checkOut = "Check Out"
-        }
 
         if (typeof type !== "string") {
             errorMessages.push('Booking status is not a String')
         }
-        if (!Object.values(RoomType).includes(type as RoomType)) {
+        if (!Object.values(BookingStatus).includes(type as BookingStatus)) {
             errorMessages.push('Booking status is not a valid value')
         }
 

@@ -1,6 +1,6 @@
 
 import { UserInterface } from "../interfaces/userInterface"
-import { dateFormatToYYYYMMDD } from "../utils/utils"
+import { dateFormatToYYYYMMDD } from "../utils/dateUtils"
 
 
 export class UserValidator {

@@ -2,12 +2,14 @@
 import { Request, Response } from 'express'
 import Router from 'express'
 import { BookingService } from '../services/bookingService'
+import { RoomService } from '../services/roomService'
 import { BookingValidator } from '../validators/bookingValidator'
 import { authMiddleware } from '../middleware/authMiddleware'
 
 
 export const bookingRouter = Router()
 const bookingService = new BookingService()
+const roomService = new RoomService()
 
 bookingRouter.use(authMiddleware)
 
@@ -48,10 +50,13 @@ bookingRouter.use(authMiddleware)
  *                     format: date
  *                   check_out_time:
  *                     type: string
- *                   room_id:
- *                     type: integer
- *                   room_type:
- *                     type: string
+ *                   room:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                       type:
+ *                         type: string
  *                   room_booking_status:
  *                     type: string
  *                   special_request:
@@ -63,61 +68,64 @@ bookingRouter.get('/', (req: Request, res: Response) => {
 })
 
 /**
- * @swagger
- * /api-dashboard/v1/bookings/{id}:
- *   get:
- *     summary: Obtener una reserva por ID
- *     tags: [Bookings]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         description: ID de la reserva
- *         schema:
- *           type: integer
- *     responses:
- *       200:
- *         description: Detalles de la reserva
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 id:
- *                   type: integer
- *                 photo:
- *                   type: string
- *                 full_name_guest:
- *                   type: string
- *                 order_date:
- *                   type: string
- *                   format: date
- *                 order_time:
- *                   type: string
- *                 check_in_date:
- *                   type: string
- *                   format: date
- *                 check_in_time:
- *                   type: string
- *                 check_out_date:
- *                   type: string
- *                   format: date
- *                 check_out_time:
- *                   type: string
- *                 room_id:
- *                   type: integer
- *                 room_type:
- *                   type: string
- *                 room_booking_status:
- *                   type: string
- *                 special_request:
- *                   type: string
- *       404:
- *         description: Reserva no encontrada
- */
+* @swagger
+* /api-dashboard/v1/bookings/{id}:
+*   get:
+*     summary: Obtener una reserva por ID
+*     tags: [Bookings]
+*     parameters:
+*       - in: path
+*         name: id
+*         required: true
+*         description: ID de la reserva
+*         schema:
+*           type: integer
+*     responses:
+*       200:
+*         description: Detalles de la reserva
+*         content:
+*           application/json:
+*             schema:
+*               type: object
+*               properties:
+*                 id:
+*                   type: integer
+*                 photo:
+*                   type: string
+*                 full_name_guest:
+*                   type: string
+*                 order_date:
+*                   type: string
+*                   format: date
+*                 order_time:
+*                   type: string
+*                 check_in_date:
+*                   type: string
+*                   format: date
+*                 check_in_time:
+*                   type: string
+*                 check_out_date:
+*                   type: string
+*                   format: date
+*                 check_out_time:
+*                   type: string
+*                 room:
+*                   type: object
+*                   properties:
+*                     id:
+*                       type: integer
+*                     type:
+*                       type: string
+*                 room_booking_status:
+*                   type: string
+*                 special_request:
+*                   type: string
+*       404:
+*         description: Reserva no encontrada
+*/
 bookingRouter.get('/:id', (req: Request, res: Response) => {
     const booking = bookingService.fetchById(parseInt(req.params.id))
-    if (booking !== undefined) {
+    if (booking !== null) {
         res.json(booking)
     } else {
         res.status(404).json({ message: `Booking #${req.params.id} not found` })
@@ -156,10 +164,13 @@ bookingRouter.get('/:id', (req: Request, res: Response) => {
  *                 format: date
  *               check_out_time:
  *                 type: string
- *               room_id:
- *                 type: integer
- *               room_type:
- *                 type: string
+ *               room:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                   type:
+ *                     type: string
  *               room_booking_status:
  *                 type: string
  *               special_request:
@@ -193,10 +204,13 @@ bookingRouter.get('/:id', (req: Request, res: Response) => {
  *                   format: date
  *                 check_out_time:
  *                   type: string
- *                 room_id:
- *                   type: integer
- *                 room_type:
- *                   type: string
+ *                 room:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                     type:
+ *                       type: string
  *                 room_booking_status:
  *                   type: string
  *                 special_request:
@@ -206,16 +220,18 @@ bookingRouter.get('/:id', (req: Request, res: Response) => {
  */
 bookingRouter.post('/', (req: Request, res: Response) => {
     const bookingValidator = new BookingValidator()
-    const validation = bookingValidator.validateBooking(req.body)
-    if (validation.length === 0) {
-        const newBooking = bookingService.create(req.body)
-        res.status(201).json(newBooking)
+    const totalErrors = bookingValidator.validateBooking(req.body)
+    const roomOfBooking = roomService.fetchById(req.body.room.id)
+
+    if (roomOfBooking !== null) {
+        if (totalErrors.length === 0) {
+            const newBooking = bookingService.create(req.body)
+            res.status(201).json(newBooking)
+        }
+        else { res.status(400).json({ message: totalErrors.join(', ') }) }
     }
-    else {
-        res.status(400).json({
-            message: validation.join(', ')
-        })
-    }
+    else { res.status(404).json({ message: `Room #${req.body.room.id} needed for #${req.body.id} not found` }) }
+
 })
 
 /**
@@ -252,10 +268,13 @@ bookingRouter.post('/', (req: Request, res: Response) => {
  *                 format: date
  *               check_out_time:
  *                 type: string
- *               room_id:
- *                 type: integer
- *               room_type:
- *                 type: string
+ *               room:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                   type:
+ *                     type: string
  *               room_booking_status:
  *                 type: string
  *               special_request:
@@ -271,18 +290,21 @@ bookingRouter.post('/', (req: Request, res: Response) => {
 bookingRouter.put('/', (req: Request, res: Response) => {
     const bookingValidator = new BookingValidator()
     const updatedBooking = bookingService.update(req.body)
-    if (updatedBooking !== undefined) {
-        const validation = bookingValidator.validateBooking(req.body)
-        if (validation.length === 0) {
-            res.status(204).json(updatedBooking)
-        }
-        else {
-            res.status(400).json({ message: validation.join(', ') })
+
+    if (updatedBooking !== null) {
+        if (updatedBooking.room.id) {
+            const roomOfBooking = roomService.fetchById(updatedBooking.room.id)
+            if (roomOfBooking !== null) {
+                const totalErrors = bookingValidator.validateBooking(req.body)
+                if (totalErrors.length === 0) {
+                    res.status(204).json(updatedBooking)
+                }
+                else { res.status(400).json({ message: totalErrors.join(', ') }) }
+            }
+            else { res.status(404).json({ message: `Room #${updatedBooking.room.id} needed for #${req.body.id} not found` }) }
         }
     }
-    else {
-        res.status(404).json({ message: `Booking #${req.params.id} not found` })
-    }
+    else { res.status(404).json({ message: `Booking #${req.body.id} not found` }) }
 })
 
 /**
@@ -307,7 +329,7 @@ bookingRouter.put('/', (req: Request, res: Response) => {
 bookingRouter.delete('/:id', (req: Request, res: Response) => {
     const deletedBooking = bookingService.delete(parseInt(req.params.id))
     if (deletedBooking) {
-        res.status(204).json({ message: `Booking #${req.params.id} deleted` })
+        res.status(204).json()
     } else {
         res.status(404).json({ message: `Booking #${req.params.id} not found` })
     }

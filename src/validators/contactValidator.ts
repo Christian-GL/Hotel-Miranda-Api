@@ -1,7 +1,7 @@
 
 import { ContactInterface } from "../interfaces/contactInterface"
-import { dateFormatToYYYYMMDD } from "../utils/utils"
-import { hourFormatTo24H } from "../utils/utils"
+import { dateFormatToYYYYMMDD } from "../utils/dateUtils"
+import { hourFormatTo24H } from "../utils/dateUtils"
 
 
 export class ContactValidator {
