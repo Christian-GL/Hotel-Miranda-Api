@@ -1,61 +1,72 @@
 
-import roomData from '../data/roomData.json'
+import { RoomModel } from '../models/roomModel'
 import { RoomInterface } from '../interfaces/roomInterface'
 import { ServiceInterface } from '../interfaces/serviceInterface'
-import { checkFirstIDAvailable } from '../utils/dateUtils'
 
 
 export class RoomService implements ServiceInterface<RoomInterface> {
 
-    private rooms: RoomInterface[] = roomData as RoomInterface[]
-
-    fetchAll(): RoomInterface[] {
-        return this.rooms
+    async fetchAll(): Promise<RoomInterface[]> {
+        try {
+            const rooms: RoomInterface[] = await RoomModel.find()
+            return rooms
+        }
+        catch (error) {
+            console.error('Error in fetchAll of roomService', error)
+            throw error
+        }
     }
 
-    fetchById(id: number): RoomInterface | null {
-        const room = this.rooms.find(room => room.id === id)
-        return room === undefined ? null : room
+    async fetchById(id: number): Promise<RoomInterface | null> {
+        try {
+            const room: RoomInterface | null = await RoomModel.findById(id)
+            if (room) return room
+            else throw new Error('Room not found')
+        }
+        catch (error) {
+            console.error('Error in fetchById of roomService', error)
+            throw error
+        }
     }
 
-    create(room: RoomInterface): RoomInterface {
-        const newRoom = { ...room, id: checkFirstIDAvailable(this.rooms.map(item => item.id)) }
-        this.rooms.push(newRoom)
-        return newRoom
+    async create(room: RoomInterface): Promise<RoomInterface> {
+        try {
+            const newRoom: RoomInterface = new RoomModel(room)
+            await newRoom.save()
+            return newRoom
+        }
+        catch (error) {
+            console.error('Error in create of roomService', error)
+            throw error
+        }
     }
 
-    update(roomIn: RoomInterface): RoomInterface | null {
-        const roomToUpdate = this.rooms.find(room => room.id === roomIn.id)
-        if (roomToUpdate) {
-            const updatedRoom = { ...roomToUpdate, ...roomIn }
-            this.rooms = this.rooms.map(room =>
-                room.id === roomIn.id ? updatedRoom : room
+    async update(room: RoomInterface): Promise<RoomInterface | null> {
+        try {
+            const updatedRoom: RoomInterface | null = await RoomModel.findOneAndUpdate(
+                { _id: room.id },
+                room,
+                { new: true }
             )
-            return updatedRoom
+            if (updatedRoom) return updatedRoom
+            else return null
         }
-        else return null
+        catch (error) {
+            console.error('Error in update of roomService', error)
+            throw error
+        }
     }
 
-    delete(id: number): boolean {
-        const roomToDelete = this.rooms.find(room => room.id === id)
-        if (roomToDelete) {
-            this.rooms = this.rooms.filter(room => room.id !== id)
-            return true
+    async delete(id: number): Promise<boolean> {
+        try {
+            const deletedRoom = await RoomModel.findByIdAndDelete(id)
+            if (deletedRoom) return true
+            else return false
         }
-        return false
+        catch (error) {
+            console.error('Error in delete of roomService', error)
+            throw error
+        }
     }
-    // delete(id: number): boolean {
-    //     const roomToDelete = this.rooms.find(room => room.id === id)
-    //     if (roomToDelete) {
-    //         roomToDelete.booking_list.map(bookingId => {
-    //             this.bookings = this.bookings.filter(booking => booking.id !== bookingId)
-    //         })
-    //         this.rooms = this.rooms.filter(room => room.id !== id)
-    //         // console.log(this.bookings)
-    //         // console.log('============================')
-    //         return true
-    //     }
-    //     return false
-    // }
 
 }

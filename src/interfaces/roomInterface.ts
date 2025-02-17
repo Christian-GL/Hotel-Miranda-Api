@@ -1,8 +1,9 @@
 
+import mongoose from "mongoose"
 import { RoomType } from "../enums/roomType"
 
 
-export interface RoomInterface {
+export interface RoomInterface extends mongoose.Document {
     id: number
     photos: string[]
     type: RoomType

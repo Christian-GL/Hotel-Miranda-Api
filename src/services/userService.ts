@@ -12,10 +12,9 @@ export class UserService implements ServiceInterface<UserInterface> {
             return users
         }
         catch (error) {
-            console.error('Error in fetchAll of Users', error)
+            console.error('Error in fetchAll of userService', error)
             throw error
         }
-
     }
 
     async fetchById(id: number): Promise<UserInterface | null> {
@@ -23,22 +22,21 @@ export class UserService implements ServiceInterface<UserInterface> {
             const user: UserInterface | null = await UserModel.findById(id)
             if (user) return user
             else throw new Error('User not found')
-
         }
         catch (error) {
-            console.error('Error in fetchById of users', error)
+            console.error('Error in fetchById of userService', error)
             throw error
         }
     }
 
     async create(user: UserInterface): Promise<UserInterface> {
         try {
-            const newUser: UserInterface = await UserModel.create(user)
+            const newUser: UserInterface = new UserModel(user)
             await newUser.save()
             return newUser
         }
         catch (error) {
-            console.error('Error in create of users', error)
+            console.error('Error in create of userService', error)
             throw error
         }
     }
@@ -54,7 +52,7 @@ export class UserService implements ServiceInterface<UserInterface> {
             else return null
         }
         catch (error) {
-            console.error('Error in update of users', error)
+            console.error('Error in update of userService', error)
             throw error
         }
     }
@@ -66,7 +64,7 @@ export class UserService implements ServiceInterface<UserInterface> {
             else return false
         }
         catch (error) {
-            console.error('Error in delete of users', error)
+            console.error('Error in delete of userService', error)
             throw error
         }
     }

@@ -1,48 +1,72 @@
 
-import bookingData from '../data/bookingData.json'
+import { BookingModel } from '../models/bookingModel'
 import { BookingInterface } from '../interfaces/bookingInterface'
 import { ServiceInterface } from '../interfaces/serviceInterface'
-import { checkFirstIDAvailable } from '../utils/dateUtils'
 
 
 export class BookingService implements ServiceInterface<BookingInterface> {
 
-    private bookings: BookingInterface[] = bookingData as BookingInterface[]
-
-    fetchAll(): BookingInterface[] {
-        return this.bookings
+    async fetchAll(): Promise<BookingInterface[]> {
+        try {
+            const bookings: BookingInterface[] = await BookingModel.find()
+            return bookings
+        }
+        catch (error) {
+            console.error('Error in fetchAll of bookingService', error)
+            throw error
+        }
     }
 
-    fetchById(id: number): BookingInterface | null {
-        const booking = this.bookings.find(booking => booking.id === id)
-        return booking === undefined ? null : booking
+    async fetchById(id: number): Promise<BookingInterface | null> {
+        try {
+            const booking: BookingInterface | null = await BookingModel.findById(id)
+            if (booking) return booking
+            else throw new Error('Booking not found')
+        }
+        catch (error) {
+            console.error('Error in fetchById of bookingService', error)
+            throw error
+        }
     }
 
-    create(booking: BookingInterface): BookingInterface {
-        const newBooking = { ...booking, id: checkFirstIDAvailable(this.bookings.map(item => item.id)) }
-        this.bookings.push(newBooking)
-        return newBooking
+    async create(booking: BookingInterface): Promise<BookingInterface> {
+        try {
+            const newBooking: BookingInterface = new BookingModel(booking)
+            await newBooking.save()
+            return newBooking
+        }
+        catch (error) {
+            console.error('Error in create of bookingService', error)
+            throw error
+        }
     }
 
-    update(bookingIn: BookingInterface): BookingInterface | null {
-        const bookingToUpdate = this.bookings.find(booking => booking.id === bookingIn.id)
-        if (bookingToUpdate) {
-            const updatedBooking = { ...bookingToUpdate, ...bookingIn }
-            this.bookings = this.bookings.map(booking =>
-                booking.id === bookingIn.id ? updatedBooking : booking
+    async update(booking: BookingInterface): Promise<BookingInterface | null> {
+        try {
+            const updatedBooking: BookingInterface | null = await BookingModel.findOneAndUpdate(
+                { _id: booking.id },
+                booking,
+                { new: true }
             )
-            return updatedBooking
+            if (updatedBooking) return updatedBooking
+            else return null
         }
-        else return null
+        catch (error) {
+            console.error('Error in update of bookingService', error)
+            throw error
+        }
     }
 
-    delete(id: number): boolean {
-        const bookingToDelete = this.bookings.find(booking => booking.id === id)
-        if (bookingToDelete) {
-            this.bookings = this.bookings.filter(booking => booking.id !== id)
-            return true
+    async delete(id: number): Promise<boolean> {
+        try {
+            const deletedBooking = await BookingModel.findByIdAndDelete(id)
+            if (deletedBooking) return true
+            else return false
         }
-        return false
+        catch (error) {
+            console.error('Error in delete of bookingService', error)
+            throw error
+        }
     }
 
 }
