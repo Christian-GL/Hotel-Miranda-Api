@@ -40,8 +40,8 @@ userRouter.use(authMiddleware)
  *                     type: string
  *                   phone_number:
  *                     type: string
- *                   status_active:
- *                     type: boolean
+ *                   status:
+ *                     type: string
  *                   photo:
  *                     type: string
  *                     format: uri
@@ -88,8 +88,8 @@ userRouter.get('/', (req: Request, res: Response) => {
  *                   type: string
  *                 phone_number:
  *                   type: string
- *                 status_active:
- *                   type: boolean
+ *                 status:
+ *                   type: string
  *                 photo:
  *                   type: string
  *                   format: uri
@@ -132,8 +132,8 @@ userRouter.get('/:id', (req: Request, res: Response) => {
  *                 type: string
  *               phone_number:
  *                 type: string
- *               status_active:
- *                 type: boolean
+ *               status:
+ *                 type: string
  *               photo:
  *                 type: string
  *                 format: uri
@@ -184,8 +184,8 @@ userRouter.post('/', (req: Request, res: Response) => {
  *                 type: string
  *               phone_number:
  *                 type: string
- *               status_active:
- *                 type: boolean
+ *               status:
+ *                 type: string
  *               photo:
  *                 type: string
  *                 format: uri

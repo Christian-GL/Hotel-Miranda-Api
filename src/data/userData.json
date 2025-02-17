@@ -7,7 +7,7 @@
         "start_date": "02/11/2024",
         "description": "Praesent blandit lacinia erat. Vestibulum sed magna at nunc commodo placerat. Praesent blandit. Nam nulla. Integer pede justo, lacinia eget, tincidunt eget, tempus vel, pede. Morbi porttitor lorem id ligula.",
         "phone_number": "273-311-9556",
-        "status_active": true,
+        "status": "active",
         "password": "$2b$10$Jv5OwrCpCWmopjZ/KUWWeeL3VTaY18NWfEi.VkeRfJK6WYMZxONMm"
     },
     {
@@ -18,7 +18,7 @@
         "start_date": "20/12/2024",
         "description": "Donec ut dolor. Morbi vel lectus in quam fringilla rhoncus. Mauris enim leo, rhoncus sed, vestibulum sit amet, cursus id, turpis. Integer aliquet, massa id lobortis convallis, tortor risus dapibus augue, vel accumsan tellus nisi eu orci. Mauris lacinia sapien quis libero. Nullam sit amet turpis elementum ligula vehicula consequat. Morbi a ipsum. Integer a nibh. In quis justo.",
         "phone_number": "210-333-0870",
-        "status_active": false,
+        "status": "inactive",
         "password": "$2b$10$Jv5OwrCpCWmopjZ/KUWWeeL3VTaY18NWfEi.VkeRfJK6WYMZxONMm"
     },
     {
@@ -29,7 +29,7 @@
         "start_date": "18/11/2024",
         "description": "Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Duis faucibus accumsan odio. Curabitur convallis. Duis consequat dui nec nisi volutpat eleifend. Donec ut dolor.",
         "phone_number": "704-747-0069",
-        "status_active": false,
+        "status": "inactive",
         "password": "$2b$10$Jv5OwrCpCWmopjZ/KUWWeeL3VTaY18NWfEi.VkeRfJK6WYMZxONMm"
     },
     {
@@ -40,7 +40,7 @@
         "start_date": "19/07/2024",
         "description": "Suspendisse accumsan tortor quis turpis. Sed ante. Vivamus tortor. Duis mattis egestas metus. Aenean fermentum. Donec ut mauris eget massa tempor convallis. Nulla neque libero, convallis eget, eleifend luctus, ultricies eu, nibh. Quisque id justo sit amet sapien dignissim vestibulum.",
         "phone_number": "352-844-3131",
-        "status_active": true,
+        "status": "active",
         "password": "$2b$10$Jv5OwrCpCWmopjZ/KUWWeeL3VTaY18NWfEi.VkeRfJK6WYMZxONMm"
     },
     {
@@ -51,7 +51,7 @@
         "start_date": "27/11/2024",
         "description": "Duis at velit eu est congue elementum. In hac habitasse platea dictumst. Morbi vestibulum, velit id pretium iaculis, diam erat fermentum justo, nec condimentum neque sapien placerat ante. Nulla justo. Aliquam quis turpis eget elit sodales scelerisque. Mauris sit amet eros. Suspendisse accumsan tortor quis turpis. Sed ante.",
         "phone_number": "548-777-4556",
-        "status_active": false,
+        "status": "inactive",
         "password": "$2b$10$Jv5OwrCpCWmopjZ/KUWWeeL3VTaY18NWfEi.VkeRfJK6WYMZxONMm"
     },
     {
@@ -62,7 +62,7 @@
         "start_date": "17/06/2025",
         "description": "Mauris lacinia sapien quis libero.",
         "phone_number": "382-392-3907",
-        "status_active": true,
+        "status": "active",
         "password": "$2b$10$Jv5OwrCpCWmopjZ/KUWWeeL3VTaY18NWfEi.VkeRfJK6WYMZxONMm"
     },
     {
@@ -73,7 +73,7 @@
         "start_date": "21/01/2025",
         "description": "Proin at turpis a pede posuere nonummy. Integer non velit. Donec diam neque, vestibulum eget, vulputate ut, ultrices vel, augue. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec pharetra, magna vestibulum aliquet ultrices, erat tortor sollicitudin mi, sit amet lobortis sapien sapien non mi. Integer ac neque. Duis bibendum.",
         "phone_number": "241-823-3914",
-        "status_active": false,
+        "status": "inactive",
         "password": "$2b$10$Jv5OwrCpCWmopjZ/KUWWeeL3VTaY18NWfEi.VkeRfJK6WYMZxONMm"
     },
     {
@@ -84,7 +84,7 @@
         "start_date": "22/05/2024",
         "description": "Etiam justo. Etiam pretium iaculis justo.",
         "phone_number": "954-405-8500",
-        "status_active": true,
+        "status": "active",
         "password": "$2b$10$Jv5OwrCpCWmopjZ/KUWWeeL3VTaY18NWfEi.VkeRfJK6WYMZxONMm"
     },
     {
@@ -95,7 +95,7 @@
         "start_date": "17/05/2024",
         "description": "Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Vivamus vestibulum sagittis sapien. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Etiam vel augue.",
         "phone_number": "184-437-9954",
-        "status_active": false,
+        "status": "inactive",
         "password": "$2b$10$Jv5OwrCpCWmopjZ/KUWWeeL3VTaY18NWfEi.VkeRfJK6WYMZxONMm"
     },
     {
@@ -106,7 +106,7 @@
         "start_date": "29/12/2024",
         "description": "Nunc purus. Phasellus in felis. Donec semper sapien a libero. Nam dui. Proin leo odio, porttitor id, consequat in, consequat ut, nulla. Sed accumsan felis. Ut at dolor quis odio consequat varius. Integer ac leo. Pellentesque ultrices mattis odio. Donec vitae nisi.",
         "phone_number": "915-783-2488",
-        "status_active": false,
+        "status": "inactive",
         "password": "$2b$10$Jv5OwrCpCWmopjZ/KUWWeeL3VTaY18NWfEi.VkeRfJK6WYMZxONMm"
     },
     {
@@ -117,7 +117,7 @@
         "start_date": "20/09/2024",
         "description": "Aliquam quis turpis eget elit sodales scelerisque. Mauris sit amet eros. Suspendisse accumsan tortor quis turpis. Sed ante. Vivamus tortor. Duis mattis egestas metus.",
         "phone_number": "899-751-4376",
-        "status_active": false,
+        "status": "inactive",
         "password": "$2b$10$Jv5OwrCpCWmopjZ/KUWWeeL3VTaY18NWfEi.VkeRfJK6WYMZxONMm"
     },
     {
@@ -128,7 +128,7 @@
         "start_date": "19/03/2025",
         "description": "Ut tellus. Nulla ut erat id mauris vulputate elementum. Nullam varius. Nulla facilisi. Cras non velit nec nisi vulputate nonummy. Maecenas tincidunt lacus at velit.",
         "phone_number": "896-907-0348",
-        "status_active": true,
+        "status": "active",
         "password": "$2b$10$Jv5OwrCpCWmopjZ/KUWWeeL3VTaY18NWfEi.VkeRfJK6WYMZxONMm"
     },
     {
@@ -139,7 +139,7 @@
         "start_date": "02/02/2025",
         "description": "Suspendisse ornare consequat lectus. In est risus, auctor sed, tristique in, tempus sit amet, sem. Fusce consequat. Nulla nisl. Nunc nisl.",
         "phone_number": "436-552-3039",
-        "status_active": true,
+        "status": "active",
         "password": "$2b$10$Jv5OwrCpCWmopjZ/KUWWeeL3VTaY18NWfEi.VkeRfJK6WYMZxONMm"
     },
     {
@@ -150,7 +150,7 @@
         "start_date": "14/06/2024",
         "description": "Proin eu mi. Nulla ac enim. In tempor, turpis nec euismod scelerisque, quam turpis adipiscing lorem, vitae mattis nibh ligula nec sem. Duis aliquam convallis nunc. Proin at turpis a pede posuere nonummy. Integer non velit. Donec diam neque, vestibulum eget, vulputate ut, ultrices vel, augue.",
         "phone_number": "819-861-3691",
-        "status_active": true,
+        "status": "active",
         "password": "$2b$10$Jv5OwrCpCWmopjZ/KUWWeeL3VTaY18NWfEi.VkeRfJK6WYMZxONMm"
     },
     {
@@ -161,7 +161,7 @@
         "start_date": "09/04/2025",
         "description": "Maecenas ut massa quis augue luctus tincidunt.",
         "phone_number": "964-440-8630",
-        "status_active": true,
+        "status": "active",
         "password": "$2b$10$Jv5OwrCpCWmopjZ/KUWWeeL3VTaY18NWfEi.VkeRfJK6WYMZxONMm"
     },
     {
@@ -172,7 +172,7 @@
         "start_date": "15/03/2025",
         "description": "Cras pellentesque volutpat dui. Maecenas tristique, est et tempus semper, est quam pharetra magna, ac consequat metus sapien ut nunc. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Mauris viverra diam vitae quam. Suspendisse potenti. Nullam porttitor lacus at turpis. Donec posuere metus vitae ipsum.",
         "phone_number": "240-227-7199",
-        "status_active": true,
+        "status": "active",
         "password": "$2b$10$Jv5OwrCpCWmopjZ/KUWWeeL3VTaY18NWfEi.VkeRfJK6WYMZxONMm"
     },
     {
@@ -183,7 +183,7 @@
         "start_date": "11/04/2024",
         "description": "Integer ac leo. Pellentesque ultrices mattis odio. Donec vitae nisi. Nam ultrices, libero non mattis pulvinar, nulla pede ullamcorper augue, a suscipit nulla elit ac nulla. Sed vel enim sit amet nunc viverra dapibus.",
         "phone_number": "740-393-6383",
-        "status_active": false,
+        "status": "inactive",
         "password": "$2b$10$Jv5OwrCpCWmopjZ/KUWWeeL3VTaY18NWfEi.VkeRfJK6WYMZxONMm"
     },
     {
@@ -194,7 +194,7 @@
         "start_date": "24/05/2024",
         "description": "Morbi a ipsum. Integer a nibh. In quis justo. Maecenas rhoncus aliquam lacus. Morbi quis tortor id nulla ultrices aliquet. Maecenas leo odio, condimentum id, luctus nec, molestie sed, justo.",
         "phone_number": "312-667-4527",
-        "status_active": false,
+        "status": "inactive",
         "password": "$2b$10$Jv5OwrCpCWmopjZ/KUWWeeL3VTaY18NWfEi.VkeRfJK6WYMZxONMm"
     },
     {
@@ -205,7 +205,7 @@
         "start_date": "11/04/2024",
         "description": "Morbi vel lectus in quam fringilla rhoncus. Mauris enim leo, rhoncus sed, vestibulum sit amet, cursus id, turpis. Integer aliquet, massa id lobortis convallis, tortor risus dapibus augue, vel accumsan tellus nisi eu orci. Mauris lacinia sapien quis libero.",
         "phone_number": "984-412-6622",
-        "status_active": true,
+        "status": "active",
         "password": "$2b$10$Jv5OwrCpCWmopjZ/KUWWeeL3VTaY18NWfEi.VkeRfJK6WYMZxONMm"
     },
     {
@@ -216,7 +216,7 @@
         "start_date": "24/02/2025",
         "description": "Donec odio justo, sollicitudin ut, suscipit a, feugiat et, eros. Vestibulum ac est lacinia nisi venenatis tristique. Fusce congue, diam id ornare imperdiet, sapien urna pretium nisl, ut volutpat sapien arcu sed augue. Aliquam erat volutpat. In congue. Etiam justo. Etiam pretium iaculis justo. In hac habitasse platea dictumst. Etiam faucibus cursus urna.",
         "phone_number": "240-788-1726",
-        "status_active": false,
+        "status": "inactive",
         "password": "$2b$10$Jv5OwrCpCWmopjZ/KUWWeeL3VTaY18NWfEi.VkeRfJK6WYMZxONMm"
     },
     {
@@ -227,7 +227,7 @@
         "start_date": "21/10/2024",
         "description": "In hac habitasse platea dictumst. Aliquam augue quam, sollicitudin vitae, consectetuer eget, rutrum at, lorem. Integer tincidunt ante vel ipsum. Praesent blandit lacinia erat. Vestibulum sed magna at nunc commodo placerat. Praesent blandit. Nam nulla. Integer pede justo, lacinia eget, tincidunt eget, tempus vel, pede.",
         "phone_number": "425-834-5612",
-        "status_active": true,
+        "status": "active",
         "password": "$2b$10$Jv5OwrCpCWmopjZ/KUWWeeL3VTaY18NWfEi.VkeRfJK6WYMZxONMm"
     },
     {
@@ -238,7 +238,7 @@
         "start_date": "02/04/2024",
         "description": "Pellentesque at nulla. Suspendisse potenti. Cras in purus eu magna vulputate luctus. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Vivamus vestibulum sagittis sapien. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Etiam vel augue. Vestibulum rutrum rutrum neque. Aenean auctor gravida sem.",
         "phone_number": "502-659-6887",
-        "status_active": true,
+        "status": "active",
         "password": "$2b$10$Jv5OwrCpCWmopjZ/KUWWeeL3VTaY18NWfEi.VkeRfJK6WYMZxONMm"
     },
     {
@@ -249,7 +249,7 @@
         "start_date": "06/09/2023",
         "description": "Morbi vestibulum, velit id pretium iaculis, diam erat fermentum justo, nec condimentum neque sapien placerat ante. Nulla justo. Aliquam quis turpis eget elit sodales scelerisque. Mauris sit amet eros.",
         "phone_number": "492-290-8875",
-        "status_active": true,
+        "status": "active",
         "password": "$2b$10$Jv5OwrCpCWmopjZ/KUWWeeL3VTaY18NWfEi.VkeRfJK6WYMZxONMm"
     },
     {
@@ -260,7 +260,7 @@
         "start_date": "02/12/2024",
         "description": "Aenean fermentum. Donec ut mauris eget massa tempor convallis. Nulla neque libero, convallis eget, eleifend luctus, ultricies eu, nibh.",
         "phone_number": "990-782-5695",
-        "status_active": true,
+        "status": "active",
         "password": "$2b$10$Jv5OwrCpCWmopjZ/KUWWeeL3VTaY18NWfEi.VkeRfJK6WYMZxONMm"
     },
     {
@@ -271,7 +271,7 @@
         "start_date": "27/01/2024",
         "description": "Morbi quis tortor id nulla ultrices aliquet. Maecenas leo odio, condimentum id, luctus nec, molestie sed, justo. Pellentesque viverra pede ac diam. Cras pellentesque volutpat dui.",
         "phone_number": "488-422-2954",
-        "status_active": false,
+        "status": "inactive",
         "password": "$2b$10$Jv5OwrCpCWmopjZ/KUWWeeL3VTaY18NWfEi.VkeRfJK6WYMZxONMm"
     },
     {
@@ -282,7 +282,7 @@
         "start_date": "20/11/2024",
         "description": "Duis bibendum. Morbi non quam nec dui luctus rutrum. Nulla tellus. In sagittis dui vel nisl. Duis ac nibh. Fusce lacus purus, aliquet at, feugiat non, pretium quis, lectus. Suspendisse potenti. In eleifend quam a odio. In hac habitasse platea dictumst.",
         "phone_number": "161-730-5804",
-        "status_active": true,
+        "status": "active",
         "password": "$2b$10$Jv5OwrCpCWmopjZ/KUWWeeL3VTaY18NWfEi.VkeRfJK6WYMZxONMm"
     },
     {
@@ -293,7 +293,7 @@
         "start_date": "27/01/2025",
         "description": "Pellentesque eget nunc. Donec quis orci eget orci vehicula condimentum. Curabitur in libero ut massa volutpat convallis. Morbi odio odio, elementum eu, interdum eu, tincidunt in, leo. Maecenas pulvinar lobortis est. Phasellus sit amet erat. Nulla tempus. Vivamus in felis eu sapien cursus vestibulum.",
         "phone_number": "867-821-5299",
-        "status_active": true,
+        "status": "active",
         "password": "$2b$10$Jv5OwrCpCWmopjZ/KUWWeeL3VTaY18NWfEi.VkeRfJK6WYMZxONMm"
     },
     {
@@ -304,7 +304,7 @@
         "start_date": "19/01/2024",
         "description": "Nulla mollis molestie lorem.",
         "phone_number": "825-794-8250",
-        "status_active": true,
+        "status": "active",
         "password": "$2b$10$Jv5OwrCpCWmopjZ/KUWWeeL3VTaY18NWfEi.VkeRfJK6WYMZxONMm"
     },
     {
@@ -315,7 +315,7 @@
         "start_date": "21/11/2023",
         "description": "Morbi porttitor lorem id ligula. Suspendisse ornare consequat lectus.",
         "phone_number": "453-443-1702",
-        "status_active": true,
+        "status": "active",
         "password": "$2b$10$Jv5OwrCpCWmopjZ/KUWWeeL3VTaY18NWfEi.VkeRfJK6WYMZxONMm"
     },
     {
@@ -326,7 +326,7 @@
         "start_date": "11/02/2025",
         "description": "Nulla facilisi. Cras non velit nec nisi vulputate nonummy. Maecenas tincidunt lacus at velit. Vivamus vel nulla eget eros elementum pellentesque. Quisque porta volutpat erat. Quisque erat eros, viverra eget, congue eget, semper rutrum, nulla. Nunc purus. Phasellus in felis. Donec semper sapien a libero. Nam dui.",
         "phone_number": "619-506-5012",
-        "status_active": true,
+        "status": "active",
         "password": "$2b$10$Jv5OwrCpCWmopjZ/KUWWeeL3VTaY18NWfEi.VkeRfJK6WYMZxONMm"
     },
     {
@@ -337,7 +337,7 @@
         "start_date": "10/01/2025",
         "description": "Proin interdum mauris non ligula pellentesque ultrices.",
         "phone_number": "916-861-3817",
-        "status_active": true,
+        "status": "active",
         "password": "$2b$10$Jv5OwrCpCWmopjZ/KUWWeeL3VTaY18NWfEi.VkeRfJK6WYMZxONMm"
     },
     {
@@ -348,7 +348,7 @@
         "start_date": "20/12/2023",
         "description": "Vestibulum sed magna at nunc commodo placerat. Praesent blandit. Nam nulla. Integer pede justo, lacinia eget, tincidunt eget, tempus vel, pede. Morbi porttitor lorem id ligula.",
         "phone_number": "812-438-5524",
-        "status_active": true,
+        "status": "active",
         "password": "$2b$10$Jv5OwrCpCWmopjZ/KUWWeeL3VTaY18NWfEi.VkeRfJK6WYMZxONMm"
     },
     {
@@ -359,7 +359,7 @@
         "start_date": "16/02/2025",
         "description": "Nulla tempus. Vivamus in felis eu sapien cursus vestibulum. Proin eu mi. Nulla ac enim.",
         "phone_number": "276-173-2015",
-        "status_active": true,
+        "status": "active",
         "password": "$2b$10$Jv5OwrCpCWmopjZ/KUWWeeL3VTaY18NWfEi.VkeRfJK6WYMZxONMm"
     },
     {
@@ -370,7 +370,7 @@
         "start_date": "16/06/2025",
         "description": "Aliquam non mauris.",
         "phone_number": "664-854-5693",
-        "status_active": true,
+        "status": "active",
         "password": "$2b$10$Jv5OwrCpCWmopjZ/KUWWeeL3VTaY18NWfEi.VkeRfJK6WYMZxONMm"
     },
     {
@@ -381,7 +381,7 @@
         "start_date": "03/09/2023",
         "description": "Suspendisse ornare consequat lectus.",
         "phone_number": "750-349-9159",
-        "status_active": false,
+        "status": "inactive",
         "password": "$2b$10$Jv5OwrCpCWmopjZ/KUWWeeL3VTaY18NWfEi.VkeRfJK6WYMZxONMm"
     },
     {
@@ -392,7 +392,7 @@
         "start_date": "04/03/2025",
         "description": "Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Mauris viverra diam vitae quam. Suspendisse potenti. Nullam porttitor lacus at turpis. Donec posuere metus vitae ipsum. Aliquam non mauris. Morbi non lectus. Aliquam sit amet diam in magna bibendum imperdiet. Nullam orci pede, venenatis non, sodales sed, tincidunt eu, felis. Fusce posuere felis sed lacus.",
         "phone_number": "685-604-8417",
-        "status_active": false,
+        "status": "inactive",
         "password": "$2b$10$Jv5OwrCpCWmopjZ/KUWWeeL3VTaY18NWfEi.VkeRfJK6WYMZxONMm"
     },
     {
@@ -403,7 +403,7 @@
         "start_date": "17/09/2024",
         "description": "Ut at dolor quis odio consequat varius. Integer ac leo. Pellentesque ultrices mattis odio. Donec vitae nisi. Nam ultrices, libero non mattis pulvinar, nulla pede ullamcorper augue, a suscipit nulla elit ac nulla. Sed vel enim sit amet nunc viverra dapibus. Nulla suscipit ligula in lacus.",
         "phone_number": "456-900-1995",
-        "status_active": false,
+        "status": "inactive",
         "password": "$2b$10$Jv5OwrCpCWmopjZ/KUWWeeL3VTaY18NWfEi.VkeRfJK6WYMZxONMm"
     },
     {
@@ -414,7 +414,7 @@
         "start_date": "31/10/2024",
         "description": "Nulla tellus. In sagittis dui vel nisl. Duis ac nibh. Fusce lacus purus, aliquet at, feugiat non, pretium quis, lectus. Suspendisse potenti.",
         "phone_number": "106-561-7887",
-        "status_active": false,
+        "status": "inactive",
         "password": "$2b$10$Jv5OwrCpCWmopjZ/KUWWeeL3VTaY18NWfEi.VkeRfJK6WYMZxONMm"
     },
     {
@@ -425,7 +425,7 @@
         "start_date": "25/05/2025",
         "description": "Cras non velit nec nisi vulputate nonummy. Maecenas tincidunt lacus at velit. Vivamus vel nulla eget eros elementum pellentesque. Quisque porta volutpat erat. Quisque erat eros, viverra eget, congue eget, semper rutrum, nulla. Nunc purus. Phasellus in felis. Donec semper sapien a libero.",
         "phone_number": "883-288-7618",
-        "status_active": false,
+        "status": "inactive",
         "password": "$2b$10$Jv5OwrCpCWmopjZ/KUWWeeL3VTaY18NWfEi.VkeRfJK6WYMZxONMm"
     },
     {
@@ -436,7 +436,7 @@
         "start_date": "12/05/2024",
         "description": "Integer tincidunt ante vel ipsum. Praesent blandit lacinia erat. Vestibulum sed magna at nunc commodo placerat. Praesent blandit. Nam nulla. Integer pede justo, lacinia eget, tincidunt eget, tempus vel, pede. Morbi porttitor lorem id ligula.",
         "phone_number": "963-884-3884",
-        "status_active": true,
+        "status": "active",
         "password": "$2b$10$Jv5OwrCpCWmopjZ/KUWWeeL3VTaY18NWfEi.VkeRfJK6WYMZxONMm"
     },
     {
@@ -447,7 +447,7 @@
         "start_date": "20/10/2023",
         "description": "Praesent blandit lacinia erat. Vestibulum sed magna at nunc commodo placerat. Praesent blandit.",
         "phone_number": "564-202-0741",
-        "status_active": false,
+        "status": "inactive",
         "password": "$2b$10$Jv5OwrCpCWmopjZ/KUWWeeL3VTaY18NWfEi.VkeRfJK6WYMZxONMm"
     },
     {
@@ -458,7 +458,7 @@
         "start_date": "05/06/2025",
         "description": "Duis bibendum. Morbi non quam nec dui luctus rutrum. Nulla tellus. In sagittis dui vel nisl. Duis ac nibh. Fusce lacus purus, aliquet at, feugiat non, pretium quis, lectus. Suspendisse potenti. In eleifend quam a odio. In hac habitasse platea dictumst. Maecenas ut massa quis augue luctus tincidunt.",
         "phone_number": "132-669-3938",
-        "status_active": true,
+        "status": "active",
         "password": "$2b$10$Jv5OwrCpCWmopjZ/KUWWeeL3VTaY18NWfEi.VkeRfJK6WYMZxONMm"
     },
     {
@@ -469,7 +469,7 @@
         "start_date": "28/11/2023",
         "description": "Donec odio justo, sollicitudin ut, suscipit a, feugiat et, eros. Vestibulum ac est lacinia nisi venenatis tristique. Fusce congue, diam id ornare imperdiet, sapien urna pretium nisl, ut volutpat sapien arcu sed augue. Aliquam erat volutpat. In congue. Etiam justo. Etiam pretium iaculis justo. In hac habitasse platea dictumst. Etiam faucibus cursus urna. Ut tellus.",
         "phone_number": "599-559-6257",
-        "status_active": true,
+        "status": "active",
         "password": "$2b$10$Jv5OwrCpCWmopjZ/KUWWeeL3VTaY18NWfEi.VkeRfJK6WYMZxONMm"
     },
     {
@@ -480,7 +480,7 @@
         "start_date": "27/11/2023",
         "description": "Fusce posuere felis sed lacus. Morbi sem mauris, laoreet ut, rhoncus aliquet, pulvinar sed, nisl. Nunc rhoncus dui vel sem. Sed sagittis. Nam congue, risus semper porta volutpat, quam pede lobortis ligula, sit amet eleifend pede libero quis orci. Nullam molestie nibh in lectus. Pellentesque at nulla. Suspendisse potenti.",
         "phone_number": "404-349-7479",
-        "status_active": false,
+        "status": "inactive",
         "password": "$2b$10$Jv5OwrCpCWmopjZ/KUWWeeL3VTaY18NWfEi.VkeRfJK6WYMZxONMm"
     },
     {
@@ -491,7 +491,7 @@
         "start_date": "25/06/2024",
         "description": "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Proin interdum mauris non ligula pellentesque ultrices. Phasellus id sapien in sapien iaculis congue. Vivamus metus arcu, adipiscing molestie, hendrerit at, vulputate vitae, nisl. Aenean lectus. Pellentesque eget nunc. Donec quis orci eget orci vehicula condimentum. Curabitur in libero ut massa volutpat convallis. Morbi odio odio, elementum eu, interdum eu, tincidunt in, leo.",
         "phone_number": "950-643-1269",
-        "status_active": false,
+        "status": "inactive",
         "password": "$2b$10$Jv5OwrCpCWmopjZ/KUWWeeL3VTaY18NWfEi.VkeRfJK6WYMZxONMm"
     },
     {
@@ -502,7 +502,7 @@
         "start_date": "26/12/2023",
         "description": "Donec posuere metus vitae ipsum. Aliquam non mauris. Morbi non lectus. Aliquam sit amet diam in magna bibendum imperdiet. Nullam orci pede, venenatis non, sodales sed, tincidunt eu, felis. Fusce posuere felis sed lacus. Morbi sem mauris, laoreet ut, rhoncus aliquet, pulvinar sed, nisl. Nunc rhoncus dui vel sem.",
         "phone_number": "329-278-8244",
-        "status_active": true,
+        "status": "active",
         "password": "$2b$10$Jv5OwrCpCWmopjZ/KUWWeeL3VTaY18NWfEi.VkeRfJK6WYMZxONMm"
     },
     {
@@ -513,7 +513,7 @@
         "start_date": "03/01/2025",
         "description": "Morbi odio odio, elementum eu, interdum eu, tincidunt in, leo. Maecenas pulvinar lobortis est. Phasellus sit amet erat. Nulla tempus. Vivamus in felis eu sapien cursus vestibulum. Proin eu mi. Nulla ac enim. In tempor, turpis nec euismod scelerisque, quam turpis adipiscing lorem, vitae mattis nibh ligula nec sem. Duis aliquam convallis nunc. Proin at turpis a pede posuere nonummy.",
         "phone_number": "897-639-4497",
-        "status_active": false,
+        "status": "inactive",
         "password": "$2b$10$Jv5OwrCpCWmopjZ/KUWWeeL3VTaY18NWfEi.VkeRfJK6WYMZxONMm"
     },
     {
@@ -524,7 +524,7 @@
         "start_date": "09/04/2025",
         "description": "Integer ac leo. Pellentesque ultrices mattis odio. Donec vitae nisi. Nam ultrices, libero non mattis pulvinar, nulla pede ullamcorper augue, a suscipit nulla elit ac nulla. Sed vel enim sit amet nunc viverra dapibus. Nulla suscipit ligula in lacus. Curabitur at ipsum ac tellus semper interdum.",
         "phone_number": "845-807-1415",
-        "status_active": false,
+        "status": "inactive",
         "password": "$2b$10$Jv5OwrCpCWmopjZ/KUWWeeL3VTaY18NWfEi.VkeRfJK6WYMZxONMm"
     },
     {
@@ -535,7 +535,7 @@
         "start_date": "29/10/2024",
         "description": "Nulla justo. Aliquam quis turpis eget elit sodales scelerisque. Mauris sit amet eros. Suspendisse accumsan tortor quis turpis. Sed ante.",
         "phone_number": "729-909-2476",
-        "status_active": true,
+        "status": "active",
         "password": "$2b$10$Jv5OwrCpCWmopjZ/KUWWeeL3VTaY18NWfEi.VkeRfJK6WYMZxONMm"
     },
     {
@@ -546,7 +546,7 @@
         "start_date": "28/04/2025",
         "description": "Nulla nisl. Nunc nisl. Duis bibendum, felis sed interdum venenatis, turpis enim blandit mi, in porttitor pede justo eu massa. Donec dapibus.",
         "phone_number": "127-384-5172",
-        "status_active": true,
+        "status": "active",
         "password": "$2b$10$URNBxDTVN6TDPbWDPPKmZu9lE/OUXyKFYhVCq2IdCHZXm.1D.pav6"
     }
 ]

@@ -1,5 +1,6 @@
 
 import { UserInterface } from "../interfaces/userInterface"
+import { UserStatus } from "../enums/userStatus"
 import { dateFormatToYYYYMMDD } from "../utils/dateUtils"
 
 
@@ -7,7 +8,7 @@ export class UserValidator {
 
     validateProperties(user: UserInterface): string[] {
         const errorMessages: string[] = []
-        const requiredProperties: string[] = ['photo', 'full_name', 'email', 'start_date', 'description', 'phone_number', 'status_active']
+        const requiredProperties: string[] = ['photo', 'full_name', 'email', 'start_date', 'description', 'phone_number', 'status']
         requiredProperties.map((property) => {
             if (!(property in user)) {
                 errorMessages.push(`Property [${property}] is required in User`)
@@ -42,7 +43,7 @@ export class UserValidator {
         this.validatePhoneNumber(user.phone_number).map(
             error => allErrorMessages.push(error)
         )
-        this.validateStatusActive(user.status_active).map(
+        this.validateStatusActive(user.status).map(
             error => allErrorMessages.push(error)
         )
 
@@ -152,12 +153,16 @@ export class UserValidator {
 
         return errorMessages
     }
-    validateStatusActive(statusActive: boolean): string[] {
+    validateStatusActive(status: string): string[] {
         const errorMessages: string[] = []
-        // if (!(statusActive instanceof Boolean)) {
-        //     test = false
-        //     errorMessages.push('Start date is not an instance of Date')
-        // }
+
+        if (typeof status !== "string") {
+            errorMessages.push('User status is not a String')
+        }
+        if (!Object.values(UserStatus).includes(status as UserStatus)) {
+            errorMessages.push('User status is not a valid value')
+        }
+
         return errorMessages
     }
 

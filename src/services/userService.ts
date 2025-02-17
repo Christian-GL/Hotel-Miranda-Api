@@ -1,48 +1,74 @@
 
-import userData from '../data/userData.json'
+import { UserModel } from '../models/userModel'
 import { UserInterface } from '../interfaces/userInterface'
 import { ServiceInterface } from '../interfaces/serviceInterface'
-import { checkFirstIDAvailable } from '../utils/dateUtils'
 
 
 export class UserService implements ServiceInterface<UserInterface> {
 
-    private users: UserInterface[] = userData as UserInterface[]
+    async fetchAll(): Promise<UserInterface[]> {
+        try {
+            const users: UserInterface[] = await UserModel.find()
+            return users
+        }
+        catch (error) {
+            console.error('Error in fetchAll of Users', error)
+            throw error
+        }
 
-    fetchAll(): UserInterface[] {
-        return this.users
     }
 
-    fetchById(id: number): UserInterface | null {
-        const user = this.users.find(user => user.id === id)
-        return user === undefined ? null : user
+    async fetchById(id: number): Promise<UserInterface | null> {
+        try {
+            const user: UserInterface | null = await UserModel.findById(id)
+            if (user) return user
+            else throw new Error('User not found')
+
+        }
+        catch (error) {
+            console.error('Error in fetchById of users', error)
+            throw error
+        }
     }
 
-    create(user: UserInterface): UserInterface {
-        const newUser = { ...user, id: checkFirstIDAvailable(this.users.map(item => item.id)) }
-        this.users.push(newUser)
-        return newUser
+    async create(user: UserInterface): Promise<UserInterface> {
+        try {
+            const newUser: UserInterface = await UserModel.create(user)
+            await newUser.save()
+            return newUser
+        }
+        catch (error) {
+            console.error('Error in create of users', error)
+            throw error
+        }
     }
 
-    update(userIn: UserInterface): UserInterface | null {
-        const userToUpdate = this.users.find(user => user.id === userIn.id)
-        if (userToUpdate) {
-            const updatedUser = { ...userToUpdate, ...userIn }
-            this.users = this.users.map(user =>
-                user.id === userIn.id ? updatedUser : user
+    async update(user: UserInterface): Promise<UserInterface | null> {
+        try {
+            const updatedUser: UserInterface | null = await UserModel.findOneAndUpdate(
+                { _id: user.id },
+                user,
+                { new: true }
             )
-            return updatedUser
+            if (updatedUser) return updatedUser
+            else return null
         }
-        else return null
+        catch (error) {
+            console.error('Error in update of users', error)
+            throw error
+        }
     }
 
-    delete(id: number): boolean {
-        const userToDelete = this.users.find(user => user.id === id)
-        if (userToDelete) {
-            this.users = this.users.filter(user => user.id !== id)
-            return true
+    async delete(id: number): Promise<boolean> {
+        try {
+            const deletedUser = await UserModel.findByIdAndDelete(id)
+            if (deletedUser) return true
+            else return false
         }
-        return false
+        catch (error) {
+            console.error('Error in delete of users', error)
+            throw error
+        }
     }
 
 }
