@@ -11,7 +11,7 @@ export class UserValidator {
 
     validateProperties(user: UserInterface): string[] {
         const errorMessages: string[] = []
-        const requiredProperties: string[] = ['photo', 'full_name', 'email', 'start_date', 'description', 'phone_number', 'status']
+        const requiredProperties: string[] = ['photo', 'full_name', 'email', 'start_date', 'description', 'phone_number', 'status', 'password']
         requiredProperties.map((property) => {
             if (!(property in user)) {
                 errorMessages.push(`Property [${property}] is required in User`)

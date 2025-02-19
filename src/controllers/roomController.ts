@@ -104,7 +104,7 @@ roomRouter.get('/', async (req: Request, res: Response) => {
  *         description: Habitación no encontrada
  */
 roomRouter.get('/:id', async (req: Request, res: Response) => {
-    const room = await roomService.fetchById(parseInt(req.params.id))
+    const room = await roomService.fetchById(req.params.id)
     if (room !== null) {
         res.json(room)
     } else {
@@ -196,7 +196,7 @@ roomRouter.post('/', async (req: Request, res: Response) => {
 
 /**
  * @swagger
- * /api-dashboard/v1/rooms:
+ * /api-dashboard/v1/rooms/{id}:
  *   put:
  *     summary: Actualizar una habitación existente
  *     tags: [Rooms]
@@ -238,9 +238,9 @@ roomRouter.post('/', async (req: Request, res: Response) => {
  *       404:
  *         description: Habitación no encontrada
  */
-roomRouter.put('/', async (req: Request, res: Response) => {
+roomRouter.put('/:id', async (req: Request, res: Response) => {
     const roomValidator = new RoomValidator()
-    const updatedRoom = await roomService.update(req.body)
+    const updatedRoom = await roomService.update(req.params.id, req.body)
     if (updatedRoom !== null) {
         const totalErrors = roomValidator.validateRoom(req.body)
         if (totalErrors.length === 0) {
@@ -275,7 +275,7 @@ roomRouter.put('/', async (req: Request, res: Response) => {
  *         description: Habitación no encontrada
  */
 roomRouter.delete('/:id', async (req: Request, res: Response) => {
-    const deletedRoom = await roomService.delete(parseInt(req.params.id))
+    const deletedRoom = await roomService.delete(req.params.id)
     if (deletedRoom) {
         res.status(204).json()
     } else {

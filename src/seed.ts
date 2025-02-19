@@ -3,9 +3,12 @@ import { faker } from '@faker-js/faker'
 import { connectDB } from './utils/database'
 import { hashPassword } from './utils/hashPassword'
 
+import { ContactInterface } from './interfaces/contactInterface'
 import { UserInterface } from './interfaces/userInterface'
+import { ContactModel } from './models/contactModel'
 import { UserModel } from './models/userModel'
 import { UserStatus } from './enums/userStatus'
+import { ContactValidator } from './validators/contactValidator'
 import { UserValidator } from './validators/userValidator'
 
 
@@ -43,4 +46,36 @@ const createUsers = async (): Promise<void> => {
         throw error
     }
 }
-createUsers()
+// createUsers()
+
+const createContacts = async (): Promise<void> => {
+    await connectDB()
+    try {
+        const contacts = []
+        const contactValidator = new ContactValidator()
+        let totalErrors
+        for (let i = 0; i < 10; i++) {
+            const fakeContact = new ContactModel({
+                full_name: faker.person.fullName(),
+                email: faker.internet.email(),
+                publish_date: faker.date.future(),
+                phone_number: faker.string.numeric(9),
+                comment: faker.lorem.paragraph()
+            })
+            totalErrors = contactValidator.validateContact(fakeContact.toObject() as ContactInterface)
+            if (totalErrors.length === 0) {
+                contacts.push(fakeContact)
+            }
+            else {
+                console.error(`Validación fallida en el fakeContact #${i}: ${totalErrors.join(', ')}`)
+                continue
+            }
+        }
+        await ContactModel.insertMany(contacts)
+    }
+    catch (error) {
+        console.error('Error creating contacts with faker', error)
+        throw error
+    }
+}
+createContacts()

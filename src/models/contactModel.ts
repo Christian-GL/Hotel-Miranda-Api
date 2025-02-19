@@ -6,11 +6,7 @@ import { ContactInterface } from "../interfaces/contactInterface"
 const ContactSchema = new mongoose.Schema<ContactInterface>
     ({
         publish_date: {
-            type: String,
-            required: true
-        },
-        publish_time: {
-            type: String,
+            type: Date,
             required: true
         },
         full_name: {
@@ -21,7 +17,7 @@ const ContactSchema = new mongoose.Schema<ContactInterface>
             type: String,
             required: true
         },
-        contact: {
+        phone_number: {
             type: String,
             required: true
         },

@@ -39,8 +39,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var faker_1 = require("@faker-js/faker");
 var database_1 = require("./utils/database");
 var hashPassword_1 = require("./utils/hashPassword");
+var contactModel_1 = require("./models/contactModel");
 var userModel_1 = require("./models/userModel");
 var userStatus_1 = require("./enums/userStatus");
+var contactValidator_1 = require("./validators/contactValidator");
 var userValidator_1 = require("./validators/userValidator");
 var createUsers = function () { return __awaiter(void 0, void 0, void 0, function () {
     var users, userValidator, totalErrors, i, fakeUser, _a, error_1;
@@ -95,4 +97,47 @@ var createUsers = function () { return __awaiter(void 0, void 0, void 0, functio
         }
     });
 }); };
-createUsers();
+// createUsers()
+var createContacts = function () { return __awaiter(void 0, void 0, void 0, function () {
+    var contacts, contactValidator, totalErrors, i, fakeContact, error_2;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, (0, database_1.connectDB)()];
+            case 1:
+                _a.sent();
+                _a.label = 2;
+            case 2:
+                _a.trys.push([2, 4, , 5]);
+                contacts = [];
+                contactValidator = new contactValidator_1.ContactValidator();
+                totalErrors = void 0;
+                for (i = 0; i < 10; i++) {
+                    fakeContact = new contactModel_1.ContactModel({
+                        full_name: faker_1.faker.person.fullName(),
+                        email: faker_1.faker.internet.email(),
+                        publish_date: faker_1.faker.date.future(),
+                        phone_number: faker_1.faker.string.numeric(9),
+                        comment: faker_1.faker.lorem.paragraph()
+                    });
+                    totalErrors = contactValidator.validateContact(fakeContact.toObject());
+                    if (totalErrors.length === 0) {
+                        contacts.push(fakeContact);
+                    }
+                    else {
+                        console.error("Validaci\u00F3n fallida en el fakeContact #".concat(i, ": ").concat(totalErrors.join(', ')));
+                        continue;
+                    }
+                }
+                return [4 /*yield*/, contactModel_1.ContactModel.insertMany(contacts)];
+            case 3:
+                _a.sent();
+                return [3 /*break*/, 5];
+            case 4:
+                error_2 = _a.sent();
+                console.error('Error creating contacts with faker', error_2);
+                throw error_2;
+            case 5: return [2 /*return*/];
+        }
+    });
+}); };
+createContacts();

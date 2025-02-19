@@ -124,7 +124,7 @@ bookingRouter.get('/', async (req: Request, res: Response) => {
 *         description: Reserva no encontrada
 */
 bookingRouter.get('/:id', async (req: Request, res: Response) => {
-    const booking = await bookingService.fetchById(parseInt(req.params.id))
+    const booking = await bookingService.fetchById(req.params.id)
     if (booking !== null) {
         res.json(booking)
     } else {
@@ -236,7 +236,7 @@ bookingRouter.post('/', async (req: Request, res: Response) => {
 
 /**
  * @swagger
- * /api-dashboard/v1/bookings:
+ * /api-dashboard/v1/bookings/{id}:
  *   put:
  *     summary: Actualizar una reserva existente
  *     tags: [Bookings]
@@ -287,13 +287,13 @@ bookingRouter.post('/', async (req: Request, res: Response) => {
  *       404:
  *         description: Reserva no encontrada
  */
-bookingRouter.put('/', async (req: Request, res: Response) => {
+bookingRouter.put('/:id', async (req: Request, res: Response) => {
     const bookingValidator = new BookingValidator()
-    const updatedBooking = await bookingService.update(req.body)
+    const updatedBooking = await bookingService.update(req.params.id, req.body)
 
     if (updatedBooking !== null) {
         if (updatedBooking.room.id) {
-            const roomOfBooking = roomService.fetchById(updatedBooking.room.id)
+            const roomOfBooking = roomService.fetchById(req.params.id)
             if (roomOfBooking !== null) {
                 const totalErrors = bookingValidator.validateBooking(req.body)
                 if (totalErrors.length === 0) {
@@ -301,7 +301,7 @@ bookingRouter.put('/', async (req: Request, res: Response) => {
                 }
                 else { res.status(400).json({ message: totalErrors.join(', ') }) }
             }
-            else { res.status(404).json({ message: `Room #${updatedBooking.room.id} needed for #${req.body.id} not found` }) }
+            else { res.status(404).json({ message: `Room #${req.params.id} needed for #${req.body.id} not found` }) }
         }
     }
     else { res.status(404).json({ message: `Booking #${req.body.id} not found` }) }
@@ -327,7 +327,7 @@ bookingRouter.put('/', async (req: Request, res: Response) => {
  *         description: Reserva no encontrada
  */
 bookingRouter.delete('/:id', async (req: Request, res: Response) => {
-    const deletedBooking = await bookingService.delete(parseInt(req.params.id))
+    const deletedBooking = await bookingService.delete(req.params.id)
     if (deletedBooking) {
         res.status(204).json()
     } else {

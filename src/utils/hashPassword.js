@@ -36,7 +36,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.hashPassword = void 0;
+exports.comparePasswords = exports.hashPassword = void 0;
 var bcrypt = require("bcrypt");
 var hashPassword = function (password) { return __awaiter(void 0, void 0, void 0, function () {
     var hashedPassword, error_1;
@@ -57,3 +57,22 @@ var hashPassword = function (password) { return __awaiter(void 0, void 0, void 0
     });
 }); };
 exports.hashPassword = hashPassword;
+var comparePasswords = function (password, hashedPassword) { return __awaiter(void 0, void 0, void 0, function () {
+    var comparedPasswords, error_2;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                _a.trys.push([0, 2, , 3]);
+                return [4 /*yield*/, bcrypt.compare(password, hashedPassword)];
+            case 1:
+                comparedPasswords = _a.sent();
+                return [2 /*return*/, comparedPasswords];
+            case 2:
+                error_2 = _a.sent();
+                console.error('Error comparing passwords:', error_2);
+                throw new Error('Error comparing passwords');
+            case 3: return [2 /*return*/];
+        }
+    });
+}); };
+exports.comparePasswords = comparePasswords;

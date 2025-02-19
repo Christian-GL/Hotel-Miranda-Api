@@ -1,7 +1,7 @@
 
+import { ServiceInterface } from '../interfaces/serviceInterface'
 import { ContactModel } from '../models/contactModel'
 import { ContactInterface } from '../interfaces/contactInterface'
-import { ServiceInterface } from '../interfaces/serviceInterface'
 
 
 export class ContactService implements ServiceInterface<ContactInterface> {
@@ -13,11 +13,11 @@ export class ContactService implements ServiceInterface<ContactInterface> {
         }
         catch (error) {
             console.error('Error in fetchAll of contactService', error)
-            throw error
+            throw new Error('Error in fetchAll of contactService')
         }
     }
 
-    async fetchById(id: number): Promise<ContactInterface | null> {
+    async fetchById(id: string): Promise<ContactInterface | null> {
         try {
             const contact: ContactInterface | null = await ContactModel.findById(id)
             if (contact) return contact
@@ -25,7 +25,7 @@ export class ContactService implements ServiceInterface<ContactInterface> {
         }
         catch (error) {
             console.error('Error in fetchById of contactService', error)
-            throw error
+            return null
         }
     }
 
@@ -41,10 +41,10 @@ export class ContactService implements ServiceInterface<ContactInterface> {
         }
     }
 
-    async update(contact: ContactInterface): Promise<ContactInterface | null> {
+    async update(id: number | string, contact: ContactInterface): Promise<ContactInterface | null> {
         try {
             const updatedContact: ContactInterface | null = await ContactModel.findOneAndUpdate(
-                { _id: contact.id },
+                { _id: id },
                 contact,
                 { new: true }
             )
@@ -57,7 +57,7 @@ export class ContactService implements ServiceInterface<ContactInterface> {
         }
     }
 
-    async delete(id: number): Promise<boolean> {
+    async delete(id: string): Promise<boolean> {
         try {
             const deletedContact = await ContactModel.findByIdAndDelete(id)
             if (deletedContact) return true

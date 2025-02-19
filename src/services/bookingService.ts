@@ -17,7 +17,7 @@ export class BookingService implements ServiceInterface<BookingInterface> {
         }
     }
 
-    async fetchById(id: number): Promise<BookingInterface | null> {
+    async fetchById(id: string): Promise<BookingInterface | null> {
         try {
             const booking: BookingInterface | null = await BookingModel.findById(id)
             if (booking) return booking
@@ -41,10 +41,10 @@ export class BookingService implements ServiceInterface<BookingInterface> {
         }
     }
 
-    async update(booking: BookingInterface): Promise<BookingInterface | null> {
+    async update(id: number | string, booking: BookingInterface): Promise<BookingInterface | null> {
         try {
             const updatedBooking: BookingInterface | null = await BookingModel.findOneAndUpdate(
-                { _id: booking.id },
+                { _id: id },
                 booking,
                 { new: true }
             )
@@ -57,7 +57,7 @@ export class BookingService implements ServiceInterface<BookingInterface> {
         }
     }
 
-    async delete(id: number): Promise<boolean> {
+    async delete(id: string): Promise<boolean> {
         try {
             const deletedBooking = await BookingModel.findByIdAndDelete(id)
             if (deletedBooking) return true

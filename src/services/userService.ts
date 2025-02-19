@@ -14,11 +14,11 @@ export class UserService implements ServiceInterface<UserInterface> {
         }
         catch (error) {
             console.error('Error in fetchAll of userService', error)
-            throw error
+            throw new Error('Error in fetchAll of userService')
         }
     }
 
-    async fetchById(id: number): Promise<UserInterface | null> {
+    async fetchById(id: string): Promise<UserInterface | null> {
         try {
             const user: UserInterface | null = await UserModel.findById(id)
             if (user) return user
@@ -26,7 +26,7 @@ export class UserService implements ServiceInterface<UserInterface> {
         }
         catch (error) {
             console.error('Error in fetchById of userService', error)
-            throw error
+            return null
         }
     }
 
@@ -43,16 +43,16 @@ export class UserService implements ServiceInterface<UserInterface> {
         }
     }
 
-    async update(user: UserInterface): Promise<UserInterface | null> {
+    async update(id: string, user: UserInterface): Promise<UserInterface | null> {
         try {
-            const existingUser = await UserModel.findById(user.id).select("password")
+            const existingUser = await UserModel.findById(id).select("password")
             if (existingUser &&
                 !(await comparePasswords(user.password, existingUser.password))) {
                 user.password = await hashPassword(user.password)
             }
 
             const updatedUser: UserInterface | null = await UserModel.findOneAndUpdate(
-                { _id: user.id },
+                { _id: id },
                 user,
                 { new: true }
             )
@@ -65,7 +65,7 @@ export class UserService implements ServiceInterface<UserInterface> {
         }
     }
 
-    async delete(id: number): Promise<boolean> {
+    async delete(id: string): Promise<boolean> {
         try {
             const deletedUser = await UserModel.findByIdAndDelete(id)
             if (deletedUser) return true
