@@ -1,13 +1,12 @@
 
-import mongoose from "mongoose"
+import { Document } from "mongoose"
 
 
-export interface UserInterface extends mongoose.Document {
+export interface UserInterface extends Document {
     photo: string
-    id: number
     full_name: string
     email: string
-    start_date: string
+    start_date: Date
     description: string
     phone_number: string
     status: string

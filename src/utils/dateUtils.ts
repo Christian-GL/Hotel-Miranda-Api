@@ -30,10 +30,8 @@ export const hourFormatTo12H = (time24H: string) => {
     const [hours, minutes] = time24H.split(":")
     let hour = parseInt(hours)
     const ampm = hour >= 12 ? 'PM' : 'AM'
-    hour = hour % 12
-    hour = hour === 0 && ampm === 'AM' ? 0 : hour
-    const minute = minutes
-    return `${hour}:${minute} ${ampm}`
+    hour = hour % 12 || 12
+    return `${hour}:${minutes} ${ampm}`
 }
 
 export const hourFormatTo24H = (time12H: string) => {
@@ -46,7 +44,7 @@ export const hourFormatTo24H = (time12H: string) => {
     if (period === 'AM' && hoursNumber === 12) {
         hoursNumber = 0
     }
-    return `${hoursNumber < 10 ? '0' + hours : hours}:${minutes}`
+    return `${hoursNumber.toString().padStart(2, '0')}:${minutes}`
 }
 
 // const checkIsOccupied = (roomAll: string[], bookingAll: string[], nextIdAvailable: number) => {

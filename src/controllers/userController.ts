@@ -1,9 +1,9 @@
 
 import { Request, Response } from 'express'
 import Router from 'express'
+import { authMiddleware } from '../middleware/authMiddleware'
 import { UserService } from '../services/userService'
 import { UserValidator } from '../validators/userValidator'
-import { authMiddleware } from '../middleware/authMiddleware'
 
 
 export const userRouter = Router()
@@ -49,9 +49,15 @@ userRouter.use(authMiddleware)
  *                     type: string
  *                     description: Contraseña encriptada del usuario
  */
-userRouter.get('/', (req: Request, res: Response) => {
-    const userList = userService.fetchAll()
-    res.json(userList)
+userRouter.get('/', async (req: Request, res: Response) => {
+    try {
+        const userList = await userService.fetchAll()
+        res.json(userList)
+    }
+    catch (error) {
+        console.error("Error in get (all) of userController:", error)
+        res.status(500).json({ message: "Internal server error" })
+    }
 })
 
 /**
@@ -99,12 +105,18 @@ userRouter.get('/', (req: Request, res: Response) => {
  *       404:
  *         description: Usuario no encontrado
  */
-userRouter.get('/:id', (req: Request, res: Response) => {
-    const user = userService.fetchById(parseInt(req.params.id))
-    if (user !== null) {
-        res.json(user)
-    } else {
-        res.status(404).json({ message: `User #${req.params.id} not found` })
+userRouter.get('/:id', async (req: Request, res: Response) => {
+    try {
+        const user = await userService.fetchById(parseInt(req.params.id))
+        if (user !== null) {
+            res.json(user)
+        } else {
+            res.status(404).json({ message: `User #${req.params.id} not found` })
+        }
+    }
+    catch (error) {
+        console.error("Error in get (by id) of userController:", error)
+        res.status(500).json({ message: "Internal server error" })
     }
 })
 
@@ -144,12 +156,19 @@ userRouter.get('/:id', (req: Request, res: Response) => {
  *       201:
  *         description: Usuario creado exitosamente
  */
-userRouter.post('/', (req: Request, res: Response) => {
+userRouter.post('/', async (req: Request, res: Response) => {
     const userValidator = new UserValidator()
     const totalErrors = userValidator.validateUser(req.body)
     if (totalErrors.length === 0) {
-        const newUser = userService.create(req.body)
-        res.status(201).json(newUser)
+        try {
+            const newUser = req.body
+            const createdUser = await userService.create(newUser)
+            res.status(201).json(createdUser)
+        }
+        catch (error) {
+            console.error("Error in post of userController:", error)
+            res.status(500).json({ message: "Internal server error" })
+        }
     }
     else {
         res.status(400).json({
@@ -200,20 +219,27 @@ userRouter.post('/', (req: Request, res: Response) => {
  *       404:
  *         description: Usuario no encontrado
  */
-userRouter.put('/', (req: Request, res: Response) => {
+userRouter.put('/', async (req: Request, res: Response) => {
     const userValidator = new UserValidator()
-    const updatedUser = userService.update(req.body)
-    if (updatedUser !== null) {
-        const totalErrors = userValidator.validateUser(req.body)
-        if (totalErrors.length === 0) {
-            res.status(204).json(updatedUser)
+    const totalErrors = userValidator.validateUser(req.body)
+
+    if (totalErrors.length === 0) {
+        try {
+            const updatedUser = await userService.update(req.body)
+            if (updatedUser !== null) {
+                res.status(204).json(updatedUser)
+            }
+            else {
+                res.status(404).json({ message: `User #${req.body.id} not found` })
+            }
         }
-        else {
-            res.status(400).json({ message: totalErrors.join(', ') })
+        catch (error) {
+            console.error("Error in put of userController:", error)
+            res.status(500).json({ message: "Internal server error" })
         }
     }
     else {
-        res.status(404).json({ message: `User #${req.body.id} not found` })
+        res.status(400).json({ message: totalErrors.join(', ') })
     }
 })
 
@@ -236,11 +262,17 @@ userRouter.put('/', (req: Request, res: Response) => {
  *       404:
  *         description: Usuario no encontrado
  */
-userRouter.delete('/:id', (req: Request, res: Response) => {
-    const deletedUser = userService.delete(parseInt(req.params.id))
-    if (deletedUser) {
-        res.status(204).json()
-    } else {
-        res.status(404).json({ message: `User #${req.params.id} not found` })
+userRouter.delete('/:id', async (req: Request, res: Response) => {
+    try {
+        const deletedUser = await userService.delete(parseInt(req.params.id))
+        if (deletedUser) {
+            res.status(204).json()
+        } else {
+            res.status(404).json({ message: `User #${req.params.id} not found` })
+        }
+    }
+    catch (error) {
+        console.error("Error in delete of userController:", error)
+        res.status(500).json({ message: "Internal server error" })
     }
 })

@@ -62,8 +62,8 @@ bookingRouter.use(authMiddleware)
  *                   special_request:
  *                     type: string
  */
-bookingRouter.get('/', (req: Request, res: Response) => {
-    const bookingList = bookingService.fetchAll()
+bookingRouter.get('/', async (req: Request, res: Response) => {
+    const bookingList = await bookingService.fetchAll()
     res.json(bookingList)
 })
 
@@ -123,8 +123,8 @@ bookingRouter.get('/', (req: Request, res: Response) => {
 *       404:
 *         description: Reserva no encontrada
 */
-bookingRouter.get('/:id', (req: Request, res: Response) => {
-    const booking = bookingService.fetchById(parseInt(req.params.id))
+bookingRouter.get('/:id', async (req: Request, res: Response) => {
+    const booking = await bookingService.fetchById(parseInt(req.params.id))
     if (booking !== null) {
         res.json(booking)
     } else {
@@ -218,10 +218,10 @@ bookingRouter.get('/:id', (req: Request, res: Response) => {
  *       400:
  *         description: Datos inválidos
  */
-bookingRouter.post('/', (req: Request, res: Response) => {
+bookingRouter.post('/', async (req: Request, res: Response) => {
     const bookingValidator = new BookingValidator()
     const totalErrors = bookingValidator.validateBooking(req.body)
-    const roomOfBooking = roomService.fetchById(req.body.room.id)
+    const roomOfBooking = await roomService.fetchById(req.body.room.id)
 
     if (roomOfBooking !== null) {
         if (totalErrors.length === 0) {
@@ -287,9 +287,9 @@ bookingRouter.post('/', (req: Request, res: Response) => {
  *       404:
  *         description: Reserva no encontrada
  */
-bookingRouter.put('/', (req: Request, res: Response) => {
+bookingRouter.put('/', async (req: Request, res: Response) => {
     const bookingValidator = new BookingValidator()
-    const updatedBooking = bookingService.update(req.body)
+    const updatedBooking = await bookingService.update(req.body)
 
     if (updatedBooking !== null) {
         if (updatedBooking.room.id) {
@@ -326,8 +326,8 @@ bookingRouter.put('/', (req: Request, res: Response) => {
  *       404:
  *         description: Reserva no encontrada
  */
-bookingRouter.delete('/:id', (req: Request, res: Response) => {
-    const deletedBooking = bookingService.delete(parseInt(req.params.id))
+bookingRouter.delete('/:id', async (req: Request, res: Response) => {
+    const deletedBooking = await bookingService.delete(parseInt(req.params.id))
     if (deletedBooking) {
         res.status(204).json()
     } else {

@@ -14,8 +14,12 @@ const UserSchema = new mongoose.Schema<UserInterface>
             type: String,
             required: true
         },
-        start_date: {
+        email: {
             type: String,
+            required: true
+        },
+        start_date: {
+            type: Date,
             required: true
         },
         description: {

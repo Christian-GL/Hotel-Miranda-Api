@@ -9,7 +9,6 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
     if (!token) {
         res.status(403).json({ message: 'Access denied. Token is required' })
     }
-
     else {
         jwt.verify(token, process.env.TOKEN_SECRET as string, error => {
             if (error) {

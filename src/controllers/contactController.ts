@@ -43,8 +43,8 @@ contactRouter.use(authMiddleware)
  *                   comment:
  *                     type: string
  */
-contactRouter.get('/', (req: Request, res: Response) => {
-    const contactList = contactService.fetchAll()
+contactRouter.get('/', async (req: Request, res: Response) => {
+    const contactList = await contactService.fetchAll()
     res.json(contactList)
 })
 
@@ -87,8 +87,8 @@ contactRouter.get('/', (req: Request, res: Response) => {
  *       404:
  *         description: Contacto no encontrado
  */
-contactRouter.get('/:id', (req: Request, res: Response) => {
-    const contact = contactService.fetchById(parseInt(req.params.id))
+contactRouter.get('/:id', async (req: Request, res: Response) => {
+    const contact = await contactService.fetchById(parseInt(req.params.id))
     if (contact !== null) {
         res.json(contact)
     } else {
@@ -148,11 +148,11 @@ contactRouter.get('/:id', (req: Request, res: Response) => {
  *       400:
  *         description: Datos inválidos
  */
-contactRouter.post('/', (req: Request, res: Response) => {
+contactRouter.post('/', async (req: Request, res: Response) => {
     const contactValidator = new ContactValidator()
     const totalErrors = contactValidator.validateContact(req.body)
     if (totalErrors.length === 0) {
-        const newContact = contactService.create(req.body)
+        const newContact = await contactService.create(req.body)
         res.status(201).json(newContact)
     }
     else {
@@ -198,9 +198,9 @@ contactRouter.post('/', (req: Request, res: Response) => {
  *       404:
  *         description: Contacto no encontrado
  */
-contactRouter.put('/', (req: Request, res: Response) => {
+contactRouter.put('/', async (req: Request, res: Response) => {
     const contactValidator = new ContactValidator()
-    const updatedContact = contactService.update(req.body)
+    const updatedContact = await contactService.update(req.body)
     if (updatedContact !== null) {
         const totalErrors = contactValidator.validateContact(req.body)
         if (totalErrors.length === 0) {
@@ -234,8 +234,8 @@ contactRouter.put('/', (req: Request, res: Response) => {
  *       404:
  *         description: Contacto no encontrado
  */
-contactRouter.delete('/:id', (req: Request, res: Response) => {
-    const deletedContact = contactService.delete(parseInt(req.params.id))
+contactRouter.delete('/:id', async (req: Request, res: Response) => {
+    const deletedContact = await contactService.delete(parseInt(req.params.id))
     if (deletedContact) {
         res.status(204).json()
     } else {

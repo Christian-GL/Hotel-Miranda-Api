@@ -1,7 +1,8 @@
 
+import { ServiceInterface } from '../interfaces/serviceInterface'
 import { UserModel } from '../models/userModel'
 import { UserInterface } from '../interfaces/userInterface'
-import { ServiceInterface } from '../interfaces/serviceInterface'
+import { hashPassword, comparePasswords } from '../utils/hashPassword'
 
 
 export class UserService implements ServiceInterface<UserInterface> {
@@ -31,6 +32,7 @@ export class UserService implements ServiceInterface<UserInterface> {
 
     async create(user: UserInterface): Promise<UserInterface> {
         try {
+            user.password = await hashPassword(user.password)
             const newUser: UserInterface = new UserModel(user)
             await newUser.save()
             return newUser
@@ -43,6 +45,12 @@ export class UserService implements ServiceInterface<UserInterface> {
 
     async update(user: UserInterface): Promise<UserInterface | null> {
         try {
+            const existingUser = await UserModel.findById(user.id).select("password")
+            if (existingUser &&
+                !(await comparePasswords(user.password, existingUser.password))) {
+                user.password = await hashPassword(user.password)
+            }
+
             const updatedUser: UserInterface | null = await UserModel.findOneAndUpdate(
                 { _id: user.id },
                 user,

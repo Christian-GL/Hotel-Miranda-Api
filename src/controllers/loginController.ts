@@ -59,13 +59,13 @@ loginRouter.post('', (req: Request, res: Response) => {
         res.status(500).send('Server error: TOKEN_SECRET is not defined')
     }
 
-    // PARA GENERAR HASHES CON bcrypt
-    // bcrypt.hash('1234', 10, (err, hashedPassword) => {
-    //     if (err) {
-    //         console.error('Error hashing password:', err);
-    //         return;
+    // // PARA GENERAR HASHES CON bcrypt
+    // bcrypt.hash('1234', 10, (error, hashedPassword) => {
+    //     if (error) {
+    //         console.error('Error hashing password: ', error)
+    //         return
     //     }
-    //     console.log('Hashed password:', hashedPassword); // Usa este valor en tu archivo JSON
+    //     console.log('Hashed password:', hashedPassword)
     // })
 
     bcrypt.compare(password, user[0].password)

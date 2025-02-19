@@ -224,3 +224,5 @@ const runServer = async () => {
     console.log(`Servidor escuchando en http://localhost:${port}`)
   })
 }
+
+runServer()
