@@ -1,10 +1,10 @@
 
-import mongoose from "mongoose"
+import { Schema, model } from "mongoose"
 import { UserInterface } from "../interfaces/userInterface"
 import { UserStatus } from "../enums/userStatus"
 
 
-const UserSchema = new mongoose.Schema<UserInterface>
+const UserSchema = new Schema<UserInterface>
     ({
         photo: {
             type: String,
@@ -33,7 +33,7 @@ const UserSchema = new mongoose.Schema<UserInterface>
         status: {
             type: String,
             required: true,
-            enum: [UserStatus.active, UserStatus.inactive]
+            enum: Object.values(UserStatus)
         },
         password: {
             type: String,
@@ -41,4 +41,4 @@ const UserSchema = new mongoose.Schema<UserInterface>
         }
     })
 
-export const UserModel = mongoose.model<UserInterface>('User', UserSchema)
+export const UserModel = model<UserInterface>('User', UserSchema)

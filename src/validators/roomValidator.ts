@@ -8,7 +8,7 @@ export class RoomValidator {
 
     validateProperties(room: RoomInterface): string[] {
         const errorMessages: string[] = []
-        const requiredProperties: string[] = ['photos', 'type', 'amenities', 'price', 'discount', 'booking_list']
+        const requiredProperties: string[] = ['photos', 'number', 'type', 'amenities', 'price', 'discount', 'booking_list']
         requiredProperties.map((property) => {
             if (!(property in room)) {
                 errorMessages.push(`Property [${property}] is required in Room`)
@@ -28,6 +28,9 @@ export class RoomValidator {
         // this.validatePhotos(room.photos).errorMessages.map(
         //     error => allErrorMessages.push(error)
         // )
+        this.validateNumber(room.number).map(
+            error => allErrorMessages.push(error)
+        )
         this.validateRoomType(room.type).map(
             error => allErrorMessages.push(error)
         )
@@ -62,6 +65,19 @@ export class RoomValidator {
         }
         if (photos.length < 3) {
             errorMessages.push('Photos need to be at least 3')
+        }
+
+        return errorMessages
+    }
+    validateNumber(number: string): string[] {
+        const errorMessages: string[] = []
+        const regex = new RegExp(/^\d{3}$/)
+
+        if (typeof number !== "string") {
+            errorMessages.push('Number is not a string')
+        }
+        if (!regex.test(number)) {
+            errorMessages.push('Number must have 3 numeric digits between 000 and 999')
         }
 
         return errorMessages

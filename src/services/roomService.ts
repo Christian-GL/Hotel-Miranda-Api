@@ -1,7 +1,7 @@
 
+import { ServiceInterface } from '../interfaces/serviceInterface'
 import { RoomModel } from '../models/roomModel'
 import { RoomInterface } from '../interfaces/roomInterface'
-import { ServiceInterface } from '../interfaces/serviceInterface'
 
 
 export class RoomService implements ServiceInterface<RoomInterface> {

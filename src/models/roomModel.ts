@@ -1,43 +1,29 @@
 
-import mongoose from "mongoose"
+import { Schema, model } from "mongoose"
 import { RoomInterface } from "../interfaces/roomInterface"
 import { RoomType } from "../enums/roomType"
 import { RoomAmenities } from "../enums/roomAmenities"
 
 
-const RoomSchema = new mongoose.Schema<RoomInterface>
+const RoomSchema = new Schema<RoomInterface>
     ({
         photos: {
             type: [String],
             required: true
         },
+        number: {
+            type: String,
+            required: true
+        },
         type: {
             type: String,
             required: true,
-            enum: [
-                RoomType.singleBed,
-                RoomType.doubleBed,
-                RoomType.doubleSuperior,
-                RoomType.suite
-            ]
+            enum: Object.values(RoomType)
         },
         amenities: {
             type: [String],
             required: true,
-            enum: [
-                RoomAmenities.bedSpace3,
-                RoomAmenities.bathroom2,
-                RoomAmenities.wiFi,
-                RoomAmenities.tv,
-                RoomAmenities.ledTv,
-                RoomAmenities.airConditioner,
-                RoomAmenities.balcony,
-                RoomAmenities.shower,
-                RoomAmenities.towel,
-                RoomAmenities.bathtub,
-                RoomAmenities.coffeeSet,
-                RoomAmenities.guard24Hours
-            ]
+            enum: Object.values(RoomAmenities)
         },
         price: {
             type: Number,
@@ -53,4 +39,4 @@ const RoomSchema = new mongoose.Schema<RoomInterface>
         }
     })
 
-export const RoomModel = mongoose.model<RoomInterface>('Room', RoomSchema)
+export const RoomModel = model<RoomInterface>('Room', RoomSchema)

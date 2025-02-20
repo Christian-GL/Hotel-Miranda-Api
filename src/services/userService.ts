@@ -14,7 +14,7 @@ export class UserService implements ServiceInterface<UserInterface> {
         }
         catch (error) {
             console.error('Error in fetchAll of userService', error)
-            throw new Error('Error in fetchAll of userService')
+            throw error
         }
     }
 

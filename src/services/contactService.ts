@@ -13,7 +13,7 @@ export class ContactService implements ServiceInterface<ContactInterface> {
         }
         catch (error) {
             console.error('Error in fetchAll of contactService', error)
-            throw new Error('Error in fetchAll of contactService')
+            throw error
         }
     }
 
@@ -41,7 +41,7 @@ export class ContactService implements ServiceInterface<ContactInterface> {
         }
     }
 
-    async update(id: number | string, contact: ContactInterface): Promise<ContactInterface | null> {
+    async update(id: string, contact: ContactInterface): Promise<ContactInterface | null> {
         try {
             const updatedContact: ContactInterface | null = await ContactModel.findOneAndUpdate(
                 { _id: id },

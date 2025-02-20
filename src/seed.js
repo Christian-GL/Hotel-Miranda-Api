@@ -39,11 +39,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var faker_1 = require("@faker-js/faker");
 var database_1 = require("./utils/database");
 var hashPassword_1 = require("./utils/hashPassword");
+var roomModel_1 = require("./models/roomModel");
 var contactModel_1 = require("./models/contactModel");
 var userModel_1 = require("./models/userModel");
-var userStatus_1 = require("./enums/userStatus");
+var roomValidator_1 = require("./validators/roomValidator");
 var contactValidator_1 = require("./validators/contactValidator");
 var userValidator_1 = require("./validators/userValidator");
+var userStatus_1 = require("./enums/userStatus");
+var roomType_1 = require("./enums/roomType");
+var roomAmenities_1 = require("./enums/roomAmenities");
 var createUsers = function () { return __awaiter(void 0, void 0, void 0, function () {
     var users, userValidator, totalErrors, i, fakeUser, _a, error_1;
     return __generator(this, function (_b) {
@@ -68,7 +72,7 @@ var createUsers = function () { return __awaiter(void 0, void 0, void 0, functio
                     start_date: faker_1.faker.date.future(),
                     description: faker_1.faker.lorem.paragraph(),
                     phone_number: faker_1.faker.string.numeric(9),
-                    status: faker_1.faker.helpers.arrayElement([userStatus_1.UserStatus.active, userStatus_1.UserStatus.inactive]),
+                    status: faker_1.faker.helpers.arrayElement(Object.values(userStatus_1.UserStatus)),
                     password: 'Abcd1234.'
                 });
                 totalErrors = userValidator.validateUser(fakeUser.toObject());
@@ -115,7 +119,7 @@ var createContacts = function () { return __awaiter(void 0, void 0, void 0, func
                     fakeContact = new contactModel_1.ContactModel({
                         full_name: faker_1.faker.person.fullName(),
                         email: faker_1.faker.internet.email(),
-                        publish_date: faker_1.faker.date.future(),
+                        publish_date: faker_1.faker.date.past(),
                         phone_number: faker_1.faker.string.numeric(9),
                         comment: faker_1.faker.lorem.paragraph()
                     });
@@ -140,4 +144,50 @@ var createContacts = function () { return __awaiter(void 0, void 0, void 0, func
         }
     });
 }); };
-createContacts();
+// createContacts()
+var createRooms = function () { return __awaiter(void 0, void 0, void 0, function () {
+    var rooms, roomValidator, totalErrors, i, fakeRoom, error_3;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, (0, database_1.connectDB)()];
+            case 1:
+                _a.sent();
+                _a.label = 2;
+            case 2:
+                _a.trys.push([2, 4, , 5]);
+                rooms = [];
+                roomValidator = new roomValidator_1.RoomValidator();
+                totalErrors = void 0;
+                for (i = 0; i < 10; i++) {
+                    fakeRoom = new roomModel_1.RoomModel({
+                        photos: Array.from({ length: 3 }, function () { return faker_1.faker.image.avatar(); }),
+                        number: faker_1.faker.number.int({ min: 0, max: 999 }).toString().padStart(3, "0"),
+                        type: faker_1.faker.helpers.arrayElement(Object.values(roomType_1.RoomType)),
+                        amenities: faker_1.faker.helpers.arrayElements(Object.values(roomAmenities_1.RoomAmenities), faker_1.faker.number.int({ min: 3, max: 10 })),
+                        price: faker_1.faker.number.float({ min: 25, max: 100000, fractionDigits: 2 }),
+                        discount: faker_1.faker.number.float({ min: 0, max: 100, fractionDigits: 2 }),
+                        // booking_list: Array.from({ length: faker.number.int({ min: 0, max: 5 }) }, () => faker.number.int({ min: 1, max: 10 }))
+                        booking_list: []
+                    });
+                    totalErrors = roomValidator.validateRoom(fakeRoom.toObject());
+                    if (totalErrors.length === 0) {
+                        rooms.push(fakeRoom);
+                    }
+                    else {
+                        console.error("Validaci\u00F3n fallida en el fakeRoom #".concat(i, ": ").concat(totalErrors.join(', ')));
+                        continue;
+                    }
+                }
+                return [4 /*yield*/, roomModel_1.RoomModel.insertMany(rooms)];
+            case 3:
+                _a.sent();
+                return [3 /*break*/, 5];
+            case 4:
+                error_3 = _a.sent();
+                console.error('Error creating rooms with faker', error_3);
+                throw error_3;
+            case 5: return [2 /*return*/];
+        }
+    });
+}); };
+createRooms();

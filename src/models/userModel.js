@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserModel = void 0;
 var mongoose_1 = require("mongoose");
 var userStatus_1 = require("../enums/userStatus");
-var UserSchema = new mongoose_1.default.Schema({
+var UserSchema = new mongoose_1.Schema({
     photo: {
         type: String,
         required: true
@@ -31,11 +31,11 @@ var UserSchema = new mongoose_1.default.Schema({
     status: {
         type: String,
         required: true,
-        enum: [userStatus_1.UserStatus.active, userStatus_1.UserStatus.inactive]
+        enum: Object.values(userStatus_1.UserStatus)
     },
     password: {
         type: String,
         required: true
     }
 });
-exports.UserModel = mongoose_1.default.model('User', UserSchema);
+exports.UserModel = (0, mongoose_1.model)('User', UserSchema);

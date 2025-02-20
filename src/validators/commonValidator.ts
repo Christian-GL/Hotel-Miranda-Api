@@ -20,11 +20,8 @@ export const validateFullName = (fullName: string, fieldName: string = 'Full nam
     if (typeof fullName !== "string") {
         errorMessages.push(`${fieldName} is not a String`)
     }
-    if (fullName.length < 3) {
-        errorMessages.push(`${fieldName} length must be 3 characters or more`)
-    }
-    if (fullName.length > 50) {
-        errorMessages.push(`${fieldName} length must be 50 characters or less`)
+    if (fullName.length < 3 || fullName.length > 50) {
+        errorMessages.push(`${fieldName} length must be between 3 and 50 characters`)
     }
     if (!regex.test(fullName)) {
         errorMessages.push(`${fieldName} must not contain numbers`)
@@ -56,25 +53,23 @@ export const validateDate = (startDate: Date, fieldName: string = 'Date'): strin
         return errorMessages
     }
 
-    const currentDate = new Date()
-    if (parsedDate < currentDate) {
-        errorMessages.push(`${fieldName} cant be before now`)
-    }
+    // COMPROBAR ESTO PAREA TODAS LAS FECHAS ???
+    // const currentDate = new Date()
+    // if (parsedDate < currentDate) {
+    //     errorMessages.push(`${fieldName} cant be before now`)
+    // }
 
     return errorMessages
 }
 
-export const validateTextArea = (description: string, fieldName: string = 'Text area'): string[] => {
+export const validateTextArea = (textArea: string, fieldName: string = 'Text area'): string[] => {
     const errorMessages: string[] = []
 
-    if (typeof description !== "string") {
+    if (typeof textArea !== "string") {
         errorMessages.push(`${fieldName} is not a String`)
     }
-    if (description.length < 10) {
-        errorMessages.push(`${fieldName} length must be 10 characters or more`)
-    }
-    if (description.length > 500) {
-        errorMessages.push(`${fieldName} length must be 500 characters or less`)
+    if (textArea.length < 10 || textArea.length > 500) {
+        errorMessages.push(`${fieldName} length must be between 10 and 500 characters`)
     }
 
     return errorMessages
@@ -87,11 +82,8 @@ export const validatePhoneNumber = (phoneNumber: string, fieldName: string = 'Ph
     if (typeof phoneNumber !== "string") {
         errorMessages.push(`${fieldName} is not a String`)
     }
-    if (phoneNumber.length < 9) {
-        errorMessages.push(`${fieldName} length must be 9 characters or more`)
-    }
-    if (phoneNumber.length > 20) {
-        errorMessages.push(`${fieldName} length must be 20 characters or less`)
+    if (phoneNumber.length < 9 || phoneNumber.length > 20) {
+        errorMessages.push(`${fieldName} length must be bertween 9 and 20 characters`)
     }
     if (!regex.test(phoneNumber)) {
         errorMessages.push(`${fieldName} only digits are available`)

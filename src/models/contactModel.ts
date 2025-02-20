@@ -1,9 +1,9 @@
 
-import mongoose from "mongoose"
+import { Schema, model } from "mongoose"
 import { ContactInterface } from "../interfaces/contactInterface"
 
 
-const ContactSchema = new mongoose.Schema<ContactInterface>
+const ContactSchema = new Schema<ContactInterface>
     ({
         publish_date: {
             type: Date,
@@ -27,4 +27,4 @@ const ContactSchema = new mongoose.Schema<ContactInterface>
         }
     })
 
-export const ContactModel = mongoose.model<ContactInterface>('Contact', ContactSchema)
+export const ContactModel = model<ContactInterface>('Contact', ContactSchema)

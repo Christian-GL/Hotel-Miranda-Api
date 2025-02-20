@@ -1,9 +1,9 @@
 
 import { Request, Response } from 'express'
 import Router from 'express'
+import { authMiddleware } from '../middleware/authMiddleware'
 import { RoomService } from '../services/roomService'
 import { RoomValidator } from '../validators/roomValidator'
-import { authMiddleware } from '../middleware/authMiddleware'
 
 
 export const roomRouter = Router()
@@ -52,8 +52,14 @@ roomRouter.use(authMiddleware)
  *                       type: integer
  */
 roomRouter.get('/', async (req: Request, res: Response) => {
-    const roomList = await roomService.fetchAll()
-    res.json(roomList)
+    try {
+        const roomList = await roomService.fetchAll()
+        res.json(roomList)
+    }
+    catch (error) {
+        console.error("Error in get (all) of roomController:", error)
+        res.status(500).json({ message: "Internal server error" })
+    }
 })
 
 /**
@@ -104,11 +110,17 @@ roomRouter.get('/', async (req: Request, res: Response) => {
  *         description: Habitación no encontrada
  */
 roomRouter.get('/:id', async (req: Request, res: Response) => {
-    const room = await roomService.fetchById(req.params.id)
-    if (room !== null) {
-        res.json(room)
-    } else {
-        res.status(404).json({ message: `Room  #${req.params.id} not found` })
+    try {
+        const room = await roomService.fetchById(req.params.id)
+        if (room !== null) {
+            res.json(room)
+        } else {
+            res.status(404).json({ message: `Room  #${req.params.id} not found` })
+        }
+    }
+    catch (error) {
+        console.error("Error in get (by id) of roomController:", error)
+        res.status(500).json({ message: "Internal server error" })
     }
 })
 
@@ -184,8 +196,14 @@ roomRouter.post('/', async (req: Request, res: Response) => {
     const roomValidator = new RoomValidator()
     const totalErrors = roomValidator.validateRoom(req.body)
     if (totalErrors.length === 0) {
-        const newRoom = await roomService.create(req.body)
-        res.status(201).json(newRoom)
+        try {
+            const newRoom = await roomService.create(req.body)
+            res.status(201).json(newRoom)
+        }
+        catch (error) {
+            console.error("Error in post of roomController:", error)
+            res.status(500).json({ message: "Internal server error" })
+        }
     }
     else {
         res.status(400).json({
@@ -240,18 +258,26 @@ roomRouter.post('/', async (req: Request, res: Response) => {
  */
 roomRouter.put('/:id', async (req: Request, res: Response) => {
     const roomValidator = new RoomValidator()
-    const updatedRoom = await roomService.update(req.params.id, req.body)
-    if (updatedRoom !== null) {
-        const totalErrors = roomValidator.validateRoom(req.body)
-        if (totalErrors.length === 0) {
-            res.status(204).json(updatedRoom)
+    const totalErrors = roomValidator.validateRoom(req.body)
+
+    if (totalErrors.length === 0) {
+        try {
+            const updatedRoom = await roomService.update(req.params.id, req.body)
+            if (updatedRoom !== null) {
+                res.status(204).json(updatedRoom)
+            }
+            else {
+                res.status(404).json({ message: `Room #${req.body.id} not found` })
+            }
         }
-        else {
-            res.status(400).json({ message: totalErrors.join(', ') })
+        catch (error) {
+            console.error("Error in put of roomController:", error)
+            res.status(500).json({ message: "Internal server error" })
         }
     }
     else {
-        res.status(404).json({ message: `Room #${req.body.id} not found` })
+
+        res.status(400).json({ message: totalErrors.join(', ') })
     }
 })
 
@@ -275,10 +301,16 @@ roomRouter.put('/:id', async (req: Request, res: Response) => {
  *         description: Habitación no encontrada
  */
 roomRouter.delete('/:id', async (req: Request, res: Response) => {
-    const deletedRoom = await roomService.delete(req.params.id)
-    if (deletedRoom) {
-        res.status(204).json()
-    } else {
-        res.status(404).json({ message: `Room #${req.params.id} not found` })
+    try {
+        const deletedRoom = await roomService.delete(req.params.id)
+        if (deletedRoom) {
+            res.status(204).json()
+        } else {
+            res.status(404).json({ message: `Room #${req.params.id} not found` })
+        }
+    }
+    catch (error) {
+        console.error("Error in delete of roomController:", error)
+        res.status(500).json({ message: "Internal server error" })
     }
 })

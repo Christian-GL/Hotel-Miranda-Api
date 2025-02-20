@@ -1,13 +1,14 @@
 
-import mongoose from "mongoose"
+import { Document } from "mongoose"
 import { RoomType } from "../enums/roomType"
+import { RoomAmenities } from "../enums/roomAmenities"
 
 
-export interface RoomInterface extends mongoose.Document {
-    id: number
+export interface RoomInterface extends Document {
     photos: string[]
+    number: string
     type: RoomType
-    amenities: string[]
+    amenities: RoomAmenities[]
     price: number
     discount: number
     booking_list: number[]
