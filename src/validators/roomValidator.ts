@@ -20,9 +20,9 @@ export class RoomValidator {
     validateRoom(room: RoomInterface): string[] {
         const allErrorMessages: string[] = []
 
-        const checkProperties = this.validateProperties(room)
-        if (checkProperties.length > 0) {
-            return checkProperties
+        const errorsCheckingProperties = this.validateProperties(room)
+        if (errorsCheckingProperties.length > 0) {
+            return errorsCheckingProperties
         }
 
         // this.validatePhotos(room.photos).errorMessages.map(

@@ -18,9 +18,9 @@ var UserValidator = /** @class */ (function () {
     };
     UserValidator.prototype.validateUser = function (user) {
         var allErrorMessages = [];
-        var checkProperties = this.validateProperties(user);
-        if (checkProperties.length > 0) {
-            return checkProperties;
+        var errorsCheckingProperties = this.validateProperties(user);
+        if (errorsCheckingProperties.length > 0) {
+            return errorsCheckingProperties;
         }
         // validatePhoto(user.photo, 'Photo').map(
         //     error => allErrorMessages.push(error)

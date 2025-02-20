@@ -1,19 +1,16 @@
 
-import mongoose from "mongoose"
+import { Document } from "mongoose"
 import { RoomInterface } from "./roomInterface"
+import { BookingStatus } from "../enums/bookingStatus"
 
 
-export interface BookingInterface extends mongoose.Document {
-    id: number
+export interface BookingInterface extends Document {
     photo: string
     full_name_guest: string
-    order_date: string
-    order_time: string
-    check_in_date: string
-    check_in_time: string
-    check_out_date: string
-    check_out_time: string
+    order_date: Date
+    check_in_date: Date
+    check_out_date: Date
     room: Partial<RoomInterface>,
-    room_booking_status: string
+    booking_status: BookingStatus
     special_request: string
 }

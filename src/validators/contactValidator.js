@@ -17,9 +17,9 @@ var ContactValidator = /** @class */ (function () {
     };
     ContactValidator.prototype.validateContact = function (contact) {
         var allErrorMessages = [];
-        var checkProperties = this.validateProperties(contact);
-        if (checkProperties.length > 0) {
-            return checkProperties;
+        var errorsCheckingProperties = this.validateProperties(contact);
+        if (errorsCheckingProperties.length > 0) {
+            return errorsCheckingProperties;
         }
         (0, commonValidator_1.validateDate)(contact.publish_date, 'Publish date').map(function (error) { return allErrorMessages.push(error); });
         (0, commonValidator_1.validateFullName)(contact.full_name, 'Full name').map(function (error) { return allErrorMessages.push(error); });

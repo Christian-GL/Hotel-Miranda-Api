@@ -1,7 +1,7 @@
 
+import { ServiceInterface } from '../interfaces/serviceInterface'
 import { BookingModel } from '../models/bookingModel'
 import { BookingInterface } from '../interfaces/bookingInterface'
-import { ServiceInterface } from '../interfaces/serviceInterface'
 
 
 export class BookingService implements ServiceInterface<BookingInterface> {

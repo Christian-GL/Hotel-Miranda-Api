@@ -18,9 +18,9 @@ var RoomValidator = /** @class */ (function () {
     };
     RoomValidator.prototype.validateRoom = function (room) {
         var allErrorMessages = [];
-        var checkProperties = this.validateProperties(room);
-        if (checkProperties.length > 0) {
-            return checkProperties;
+        var errorsCheckingProperties = this.validateProperties(room);
+        if (errorsCheckingProperties.length > 0) {
+            return errorsCheckingProperties;
         }
         // this.validatePhotos(room.photos).errorMessages.map(
         //     error => allErrorMessages.push(error)

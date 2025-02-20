@@ -1,12 +1,11 @@
 
-import mongoose from "mongoose"
+import { Schema, model } from "mongoose"
 import { BookingInterface } from "../interfaces/bookingInterface"
-// import { RoomInterface } from "../interfaces/roomInterface"
-// import { RoomType } from "../enums/roomType"
 import { BookingStatus } from "../enums/bookingStatus"
+import { RoomType } from "../enums/roomType"
 
 
-const BookingSchema = new mongoose.Schema<BookingInterface>
+const BookingSchema = new Schema<BookingInterface>
     ({
         photo: {
             type: String,
@@ -17,42 +16,30 @@ const BookingSchema = new mongoose.Schema<BookingInterface>
             required: true
         },
         order_date: {
-            type: String,
-            required: true
-        },
-        order_time: {
-            type: String,
+            type: Date,
             required: true
         },
         check_in_date: {
-            type: String,
-            required: true
-        },
-        check_in_time: {
-            type: String,
+            type: Date,
             required: true
         },
         check_out_date: {
-            type: String,
+            type: Date,
             required: true
         },
-        check_out_time: {
-            type: String,
-            required: true
-        },
+        // room: {
+        //     type: Schema.Types.ObjectId,
+        //     ref: 'Room',
+        //     required: true
+        // },
         room: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Room',
-            required: true
+            id: { type: String, required: true },
+            type: { type: String, required: true, enum: Object.values(RoomType) }
         },
-        room_booking_status: {
+        booking_status: {
             type: String,
             required: true,
-            enum: [
-                BookingStatus.checkIn,
-                BookingStatus.inProgress,
-                BookingStatus.checkOut
-            ]
+            enum: Object.values(BookingStatus)
         },
         special_request: {
             type: String,
@@ -60,4 +47,4 @@ const BookingSchema = new mongoose.Schema<BookingInterface>
         },
     })
 
-export const BookingModel = mongoose.model<BookingInterface>('Booking', BookingSchema)
+export const BookingModel = model<BookingInterface>('Booking', BookingSchema)

@@ -23,9 +23,9 @@ export class UserValidator {
     validateUser(user: UserInterface): string[] {
         const allErrorMessages: string[] = []
 
-        const checkProperties = this.validateProperties(user)
-        if (checkProperties.length > 0) {
-            return checkProperties
+        const errorsCheckingProperties = this.validateProperties(user)
+        if (errorsCheckingProperties.length > 0) {
+            return errorsCheckingProperties
         }
 
         // validatePhoto(user.photo, 'Photo').map(

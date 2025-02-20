@@ -22,9 +22,9 @@ export class ContactValidator {
     validateContact(contact: ContactInterface): string[] {
         const allErrorMessages: string[] = []
 
-        const checkProperties = this.validateProperties(contact)
-        if (checkProperties.length > 0) {
-            return checkProperties
+        const errorsCheckingProperties = this.validateProperties(contact)
+        if (errorsCheckingProperties.length > 0) {
+            return errorsCheckingProperties
         }
 
         validateDate(contact.publish_date, 'Publish date').map(
