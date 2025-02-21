@@ -1,9 +1,9 @@
 
 import { Request, Response, Router } from "express"
-import userData from '../data/userData.json'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import { AccountInterface } from "../interfaces/accountInterface"
+import { UserService } from "../services/userService"
 
 
 export const loginRouter = Router()
@@ -24,11 +24,11 @@ export const loginRouter = Router()
  *               email:
  *                 type: string
  *                 description: El correo electrónico del usuario
- *                 example: admin
+ *                 example: christiangl1.dev@gmail.com
  *               password:
  *                 type: string
  *                 description: La contraseña del usuario
- *                 example: 1234
+ *                 example: Abcd1234.
  *     responses:
  *       200:
  *         description: Token JWT generado exitosamente
@@ -48,9 +48,12 @@ export const loginRouter = Router()
  *       500:
  *         description: Error en el servidor, no se ha definido TOKEN_SECRET
  */
-loginRouter.post('', (req: Request, res: Response) => {
+
+loginRouter.post('', async (req: Request, res: Response) => {
     const { email, password } = req.body
 
+    const userService = new UserService()
+    const userData = await userService.fetchAll()
     const user: AccountInterface[] = userData.filter(u => u.email === email)
     if (user.length === 0) {
         res.status(404).send('User not found')
@@ -59,19 +62,10 @@ loginRouter.post('', (req: Request, res: Response) => {
         res.status(500).send('Server error: TOKEN_SECRET is not defined')
     }
 
-    // // PARA GENERAR HASHES CON bcrypt
-    // bcrypt.hash('1234', 10, (error, hashedPassword) => {
-    //     if (error) {
-    //         console.error('Error hashing password: ', error)
-    //         return
-    //     }
-    //     console.log('Hashed password:', hashedPassword)
-    // })
-
     bcrypt.compare(password, user[0].password)
         .then(result => {
             if (!result) {
-                res.status(400).send({ token: 'User or password wrong' })
+                res.status(400).send({ message: 'User or password wrong' })
                 return
             }
             else {

@@ -1,24 +1,24 @@
 
 import { faker } from '@faker-js/faker'
-import { connectDB } from './utils/database'
-import { hashPassword } from './utils/hashPassword'
+import { connectDB } from './src/utils/database'
+import { hashPassword } from './src/utils/hashPassword'
 
-import { BookingInterface } from './interfaces/bookingInterface'
-import { RoomInterface } from './interfaces/roomInterface'
-import { ContactInterface } from './interfaces/contactInterface'
-import { UserInterface } from './interfaces/userInterface'
-import { BookingModel } from './models/bookingModel'
-import { RoomModel } from './models/roomModel'
-import { ContactModel } from './models/contactModel'
-import { UserModel } from './models/userModel'
-import { BookingValidator } from './validators/bookingValidator'
-import { RoomValidator } from './validators/roomValidator'
-import { ContactValidator } from './validators/contactValidator'
-import { UserValidator } from './validators/userValidator'
-import { UserStatus } from './enums/userStatus'
-import { RoomType } from './enums/roomType'
-import { RoomAmenities } from './enums/roomAmenities'
-import { BookingStatus } from './enums/bookingStatus'
+import { BookingInterface } from './src/interfaces/bookingInterface'
+import { RoomInterface } from './src/interfaces/roomInterface'
+import { ContactInterface } from './src/interfaces/contactInterface'
+import { UserInterface } from './src/interfaces/userInterface'
+import { BookingModel } from './src/models/bookingModel'
+import { RoomModel } from './src/models/roomModel'
+import { ContactModel } from './src/models/contactModel'
+import { UserModel } from './src/models/userModel'
+import { BookingValidator } from './src/validators/bookingValidator'
+import { RoomValidator } from './src/validators/roomValidator'
+import { ContactValidator } from './src/validators/contactValidator'
+import { UserValidator } from './src/validators/userValidator'
+import { UserStatus } from './src/enums/userStatus'
+import { RoomType } from './src/enums/roomType'
+import { RoomAmenities } from './src/enums/roomAmenities'
+import { BookingStatus } from './src/enums/bookingStatus'
 
 
 const createUsers = async (): Promise<void> => {
@@ -140,7 +140,7 @@ const createBookings = async (): Promise<void> => {
                 booking_status: faker.helpers.arrayElement(Object.values(BookingStatus)),
                 special_request: faker.lorem.sentence(faker.number.int({ min: 10, max: 40 }))
             })
-            totalErrors = bookingValidator.validateBooking(fakeBooking.toObject() as BookingInterface)
+            totalErrors = bookingValidator.validateBooking(fakeBooking.toObject() as BookingInterface, bookings as BookingInterface[])
             if (totalErrors.length === 0) {
                 bookings.push(fakeBooking)
             }
@@ -162,10 +162,6 @@ const createBookings = async (): Promise<void> => {
 // createContacts()
 // createRooms()
 // createBookings()
-
-
-
-
 
 
 

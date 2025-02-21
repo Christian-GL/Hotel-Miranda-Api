@@ -44,20 +44,30 @@ export const validateEmail = (email: string, fieldName: string = 'Email'): strin
     return errorMessages
 }
 
-export const validateDate = (startDate: Date, fieldName: string = 'Date'): string[] => {
+export const validateDate = (date: Date, fieldName: string = 'Date'): string[] => {
     const errorMessages: string[] = []
 
-    const parsedDate = new Date(startDate)
-    if (isNaN(parsedDate.getTime())) {
+    if (isNaN(date.getTime())) {
         errorMessages.push(`${fieldName} is not a valid date (must be in ISO format: YYYY-MM-DDTHH:mm:ss.sssZ)`)
         return errorMessages
     }
 
-    // COMPROBAR ESTO PAREA TODAS LAS FECHAS ???
-    // const currentDate = new Date()
-    // if (parsedDate < currentDate) {
-    //     errorMessages.push(`${fieldName} cant be before now`)
-    // }
+    return errorMessages
+}
+
+export const validateDateRelativeToNow = (date: Date, mustBeBeforeNow: boolean, fieldName: string = 'Date'): string[] => {
+    const errorMessages: string[] = []
+    const currentTime = new Date()
+
+    validateDate(date, 'Date').map(
+        error => errorMessages.push(error)
+    )
+    if (mustBeBeforeNow && date > currentTime) {
+        errorMessages.push(`${fieldName} can't be after now`)
+    }
+    if (!mustBeBeforeNow && date < currentTime) {
+        errorMessages.push(`${fieldName} can't be before now`)
+    }
 
     return errorMessages
 }

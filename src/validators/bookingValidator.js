@@ -28,7 +28,7 @@ var BookingValidator = /** @class */ (function () {
             errorMessages.push('Property [Booking.room] is required in Booking');
         return errorMessages;
     };
-    BookingValidator.prototype.validateBooking = function (booking) {
+    BookingValidator.prototype.validateBooking = function (booking, allBookings) {
         var allErrorMessages = [];
         var errorsCheckingProperties = this.validateProperties(booking);
         if (errorsCheckingProperties.length > 0) {
@@ -38,9 +38,9 @@ var BookingValidator = /** @class */ (function () {
         //     error => allErrorMessages.push(error)
         // )
         (0, commonValidator_1.validateFullName)(booking.full_name_guest, 'Full name guest').map(function (error) { return allErrorMessages.push(error); });
-        (0, commonValidator_1.validateDate)(booking.order_date, 'Order date').map(function (error) { return allErrorMessages.push(error); });
-        (0, commonValidator_1.validateDate)(booking.check_in_date, 'Check in date').map(function (error) { return allErrorMessages.push(error); });
-        (0, commonValidator_1.validateDate)(booking.check_out_date, 'Check out date').map(function (error) { return allErrorMessages.push(error); });
+        (0, commonValidator_1.validateDateRelativeToNow)(booking.order_date, true, 'Order date').map(function (error) { return allErrorMessages.push(error); });
+        this.validateCheckInCheckOut(booking.check_in_date, booking.check_out_date).map(function (error) { return allErrorMessages.push(error); });
+        this.validateDateIsOccupied(booking.check_in_date, booking.check_out_date, allBookings).map(function (error) { return allErrorMessages.push(error); });
         if (booking.room.id) {
             this.validateRoomId(booking.room.id).map(function (error) { return allErrorMessages.push(error); });
         }
@@ -79,6 +79,24 @@ var BookingValidator = /** @class */ (function () {
         }
         if (!Object.values(bookingStatus_1.BookingStatus).includes(type)) {
             errorMessages.push('Booking status is not a valid value');
+        }
+        return errorMessages;
+    };
+    BookingValidator.prototype.validateCheckInCheckOut = function (checkIn, checkOut) {
+        var errorMessages = [];
+        (0, commonValidator_1.validateDateRelativeToNow)(checkIn, false, 'Check in date').map(function (error) { return errorMessages.push(error); });
+        (0, commonValidator_1.validateDateRelativeToNow)(checkOut, false, 'Check out date').map(function (error) { return errorMessages.push(error); });
+        if (checkIn >= checkOut) {
+            errorMessages.push('Check in date must be before Check out date');
+        }
+        return errorMessages;
+    };
+    BookingValidator.prototype.validateDateIsOccupied = function (checkIn, checkOut, bookings) {
+        var errorMessages = [];
+        for (var i = 0; i < bookings.length; i++) {
+            if (checkIn < bookings[i].check_out_date && checkOut > bookings[i].check_in_date) {
+                errorMessages.push("This period is already occupied by booking #".concat(bookings[i]._id));
+            }
         }
         return errorMessages;
     };

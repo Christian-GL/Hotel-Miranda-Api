@@ -30,6 +30,7 @@ var RoomValidator = /** @class */ (function () {
         this.validateAmenities(room.amenities).map(function (error) { return allErrorMessages.push(error); });
         this.validateRoomPrice(room.price).map(function (error) { return allErrorMessages.push(error); });
         this.validateRoomDiscount(room.discount).map(function (error) { return allErrorMessages.push(error); });
+        this.validateBookingList(room.booking_list).map(function (error) { return allErrorMessages.push(error); });
         return allErrorMessages;
     };
     RoomValidator.prototype.validatePhotos = function (photos) {
@@ -107,6 +108,19 @@ var RoomValidator = /** @class */ (function () {
         }
         if (discount > 100) {
             errorMessages.push('Discount must be 100 or less');
+        }
+        return errorMessages;
+    };
+    RoomValidator.prototype.validateBookingList = function (bookingList) {
+        var errorMessages = [];
+        if (!Array.isArray(bookingList)) {
+            errorMessages.push('Booking list must be an array');
+            return errorMessages;
+        }
+        for (var i = 0; i < bookingList.length; i++) {
+            if (typeof bookingList[i] !== 'string') {
+                errorMessages.push("Booking list at index ".concat(i, " is not a string"));
+            }
         }
         return errorMessages;
     };

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.validatePhoneNumber = exports.validateTextArea = exports.validateDate = exports.validateEmail = exports.validateFullName = exports.validatePhoto = void 0;
+exports.validatePhoneNumber = exports.validateTextArea = exports.validateDateRelativeToNow = exports.validateDate = exports.validateEmail = exports.validateFullName = exports.validatePhoto = void 0;
 var validatePhoto = function (photo, fieldName) {
     if (fieldName === void 0) { fieldName = 'Photo'; }
     var errorMessages = [];
@@ -43,22 +43,30 @@ var validateEmail = function (email, fieldName) {
     return errorMessages;
 };
 exports.validateEmail = validateEmail;
-var validateDate = function (startDate, fieldName) {
+var validateDate = function (date, fieldName) {
     if (fieldName === void 0) { fieldName = 'Date'; }
     var errorMessages = [];
-    var parsedDate = new Date(startDate);
-    if (isNaN(parsedDate.getTime())) {
+    if (isNaN(date.getTime())) {
         errorMessages.push("".concat(fieldName, " is not a valid date (must be in ISO format: YYYY-MM-DDTHH:mm:ss.sssZ)"));
         return errorMessages;
     }
-    // COMPROBAR ESTO PAREA TODAS LAS FECHAS ???
-    // const currentDate = new Date()
-    // if (parsedDate < currentDate) {
-    //     errorMessages.push(`${fieldName} cant be before now`)
-    // }
     return errorMessages;
 };
 exports.validateDate = validateDate;
+var validateDateRelativeToNow = function (date, mustBeBeforeNow, fieldName) {
+    if (fieldName === void 0) { fieldName = 'Date'; }
+    var errorMessages = [];
+    var currentTime = new Date();
+    (0, exports.validateDate)(date, 'Date').map(function (error) { return errorMessages.push(error); });
+    if (mustBeBeforeNow && date > currentTime) {
+        errorMessages.push("".concat(fieldName, " can't be after now"));
+    }
+    if (!mustBeBeforeNow && date < currentTime) {
+        errorMessages.push("".concat(fieldName, " can't be before now"));
+    }
+    return errorMessages;
+};
+exports.validateDateRelativeToNow = validateDateRelativeToNow;
 var validateTextArea = function (textArea, fieldName) {
     if (fieldName === void 0) { fieldName = 'Text area'; }
     var errorMessages = [];

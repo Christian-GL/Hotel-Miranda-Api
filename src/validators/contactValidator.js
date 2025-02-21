@@ -21,7 +21,7 @@ var ContactValidator = /** @class */ (function () {
         if (errorsCheckingProperties.length > 0) {
             return errorsCheckingProperties;
         }
-        (0, commonValidator_1.validateDate)(contact.publish_date, 'Publish date').map(function (error) { return allErrorMessages.push(error); });
+        (0, commonValidator_1.validateDateRelativeToNow)(contact.publish_date, true, 'Publish date').map(function (error) { return allErrorMessages.push(error); });
         (0, commonValidator_1.validateFullName)(contact.full_name, 'Full name').map(function (error) { return allErrorMessages.push(error); });
         (0, commonValidator_1.validateEmail)(contact.email, 'Email').map(function (error) { return allErrorMessages.push(error); });
         (0, commonValidator_1.validatePhoneNumber)(contact.phone_number, 'Phone Number').map(function (error) { return allErrorMessages.push(error); });

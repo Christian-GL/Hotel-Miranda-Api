@@ -34,7 +34,7 @@ const RoomSchema = new Schema<RoomInterface>
             required: true
         },
         booking_list: {
-            type: [Number],
+            type: [String],
             required: true
         }
     })

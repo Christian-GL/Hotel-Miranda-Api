@@ -25,11 +25,6 @@ var BookingSchema = new mongoose_1.Schema({
         type: Date,
         required: true
     },
-    // room: {
-    //     type: Schema.Types.ObjectId,
-    //     ref: 'Room',
-    //     required: true
-    // },
     room: {
         id: { type: String, required: true },
         type: { type: String, required: true, enum: Object.values(roomType_1.RoomType) }

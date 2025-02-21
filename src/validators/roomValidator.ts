@@ -43,6 +43,9 @@ export class RoomValidator {
         this.validateRoomDiscount(room.discount).map(
             error => allErrorMessages.push(error)
         )
+        this.validateBookingList(room.booking_list).map(
+            error => allErrorMessages.push(error)
+        )
 
         return allErrorMessages
     }
@@ -134,6 +137,22 @@ export class RoomValidator {
         }
         if (discount > 100) {
             errorMessages.push('Discount must be 100 or less')
+        }
+
+        return errorMessages
+    }
+    validateBookingList(bookingList: string[]): string[] {
+        const errorMessages: string[] = []
+
+        if (!Array.isArray(bookingList)) {
+            errorMessages.push('Booking list must be an array');
+            return errorMessages;
+        }
+
+        for (let i = 0; i < bookingList.length; i++) {
+            if (typeof bookingList[i] !== 'string') {
+                errorMessages.push(`Booking list at index ${i} is not a string`);
+            }
         }
 
         return errorMessages

@@ -9,7 +9,7 @@ import { BookingValidator } from '../validators/bookingValidator'
 
 export const bookingRouter = Router()
 const bookingService = new BookingService()
-const roomService = new RoomService()
+// const roomService = new RoomService()
 
 bookingRouter.use(authMiddleware)
 
@@ -168,67 +168,69 @@ bookingRouter.get('/:id', async (req: Request, res: Response) => {
 
 bookingRouter.post('/', async (req: Request, res: Response) => {
     const bookingValidator = new BookingValidator()
-    const totalErrors = bookingValidator.validateBooking(req.body)
+    const allBookings = await bookingService.fetchAll()
+    const totalErrors = bookingValidator.validateBooking(req.body, allBookings)
 
-    let roomOfBooking
-    try { roomOfBooking = await roomService.fetchById(req.body.room.id) }
-    catch (error) {
-        console.error("Error in post of bookingController:", error)
-        res.status(500).json({ message: "Internal server error" })
-    }
+    // let roomOfBooking
+    // try { roomOfBooking = await roomService.fetchById(req.body.room.id) }
+    // catch (error) {
+    //     console.error("Error in post of bookingController:", error)
+    //     res.status(500).json({ message: "Internal server error" })
+    // }
 
-    if (roomOfBooking !== null) {
-        if (totalErrors.length === 0) {
-            try {
-                const newBooking = bookingService.create(req.body)
-                res.status(201).json(newBooking)
-            }
-            catch (error) {
-                console.error("Error in post of bookingController:", error)
-                res.status(500).json({ message: "Internal server error" })
-            }
+    // if (roomOfBooking !== null) {
+    if (totalErrors.length === 0) {
+        try {
+            const newBooking = await bookingService.create(req.body)
+            res.status(201).json(newBooking)
         }
-        else {
-            res.status(400).json({
-                message: totalErrors.join(', ')
-            })
+        catch (error) {
+            console.error("Error in post of bookingController:", error)
+            res.status(500).json({ message: "Internal server error" })
         }
     }
-    else { res.status(404).json({ message: `Room #${req.body.room.id} needed for #${req.body.id} not found` }) }
-
+    else {
+        res.status(400).json({
+            message: totalErrors.join(', ')
+        })
+    }
+    // }
+    // else { res.status(404).json({ message: `Room #${req.body.room.id} needed for #${req.body.id} not found` }) }
 })
 
 bookingRouter.put('/:id', async (req: Request, res: Response) => {
     const bookingValidator = new BookingValidator()
-    const totalErrors = bookingValidator.validateBooking(req.body)
+    const allBookings = await bookingService.fetchAll()
+    const totalErrors = bookingValidator.validateBooking(req.body, allBookings)
 
-    let roomOfBooking
-    try { roomOfBooking = await roomService.fetchById(req.body.room.id) }
-    catch (error) {
-        console.error("Error in put of bookingController:", error)
-        res.status(500).json({ message: "Internal server error" })
-    }
+    // let roomOfBooking
+    // try { roomOfBooking = await roomService.fetchById(req.body.room.id) }
+    // catch (error) {
+    //     console.error("Error in put of bookingController:", error)
+    //     res.status(500).json({ message: "Internal server error" })
+    // }
 
-    if (roomOfBooking !== null) {
-        if (totalErrors.length === 0) {
-            try {
-                const updatedBooking = await bookingService.update(req.params.id, req.body)
-                if (roomOfBooking !== null) {
-                    const totalErrors = bookingValidator.validateBooking(req.body)
-                    if (totalErrors.length === 0) {
-                        res.status(204).json(updatedBooking)
-                    }
-                    else { res.status(400).json({ message: totalErrors.join(', ') }) }
-                }
-                else { res.status(404).json({ message: `Booking #${req.body.id} not found` }) }
+    // if (roomOfBooking !== null) {
+    if (totalErrors.length === 0) {
+        try {
+            const updatedBooking = await bookingService.update(req.params.id, req.body)
+            if (updatedBooking === null) {
+                res.status(404).json({ message: `Booking #${req.params.id} not found` })
             }
-            catch (error) {
-                console.error("Error in put of bookingController:", error)
-                res.status(500).json({ message: "Internal server error" })
-            }
+            else res.status(204).json(updatedBooking)
+        }
+        catch (error) {
+            console.error("Error in put of bookingController:", error)
+            res.status(500).json({ message: "Internal server error" })
         }
     }
-    else { res.status(404).json({ message: `Room #${req.body.room.id} needed for #${req.body.id} not found` }) }
+    else {
+        res.status(400).json({
+            message: totalErrors.join(', ')
+        })
+    }
+    // }
+    // else { res.status(404).json({ message: `Room #${req.body.room.id} needed for #${req.body.id} not found` }) }
 })
 
 bookingRouter.delete('/:id', async (req: Request, res: Response) => {

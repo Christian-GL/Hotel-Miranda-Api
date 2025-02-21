@@ -1,6 +1,6 @@
 
 import {
-    validateDate, validateFullName, validateEmail,
+    validateDateRelativeToNow, validateFullName, validateEmail,
     validatePhoneNumber, validateTextArea
 } from "./commonValidator"
 import { ContactInterface } from "../interfaces/contactInterface"
@@ -27,7 +27,7 @@ export class ContactValidator {
             return errorsCheckingProperties
         }
 
-        validateDate(contact.publish_date, 'Publish date').map(
+        validateDateRelativeToNow(contact.publish_date, true, 'Publish date').map(
             error => allErrorMessages.push(error)
         )
         validateFullName(contact.full_name, 'Full name').map(

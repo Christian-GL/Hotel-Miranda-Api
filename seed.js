@@ -37,20 +37,20 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var faker_1 = require("@faker-js/faker");
-var database_1 = require("./utils/database");
-var hashPassword_1 = require("./utils/hashPassword");
-var bookingModel_1 = require("./models/bookingModel");
-var roomModel_1 = require("./models/roomModel");
-var contactModel_1 = require("./models/contactModel");
-var userModel_1 = require("./models/userModel");
-var bookingValidator_1 = require("./validators/bookingValidator");
-var roomValidator_1 = require("./validators/roomValidator");
-var contactValidator_1 = require("./validators/contactValidator");
-var userValidator_1 = require("./validators/userValidator");
-var userStatus_1 = require("./enums/userStatus");
-var roomType_1 = require("./enums/roomType");
-var roomAmenities_1 = require("./enums/roomAmenities");
-var bookingStatus_1 = require("./enums/bookingStatus");
+var database_1 = require("./src/utils/database");
+var hashPassword_1 = require("./src/utils/hashPassword");
+var bookingModel_1 = require("./src/models/bookingModel");
+var roomModel_1 = require("./src/models/roomModel");
+var contactModel_1 = require("./src/models/contactModel");
+var userModel_1 = require("./src/models/userModel");
+var bookingValidator_1 = require("./src/validators/bookingValidator");
+var roomValidator_1 = require("./src/validators/roomValidator");
+var contactValidator_1 = require("./src/validators/contactValidator");
+var userValidator_1 = require("./src/validators/userValidator");
+var userStatus_1 = require("./src/enums/userStatus");
+var roomType_1 = require("./src/enums/roomType");
+var roomAmenities_1 = require("./src/enums/roomAmenities");
+var bookingStatus_1 = require("./src/enums/bookingStatus");
 var createUsers = function () { return __awaiter(void 0, void 0, void 0, function () {
     var users, userValidator, totalErrors, i, fakeUser, _a, error_1;
     return __generator(this, function (_b) {
@@ -217,10 +217,7 @@ var createBookings = function () { return __awaiter(void 0, void 0, void 0, func
                         booking_status: faker_1.faker.helpers.arrayElement(Object.values(bookingStatus_1.BookingStatus)),
                         special_request: faker_1.faker.lorem.sentence(faker_1.faker.number.int({ min: 10, max: 40 }))
                     });
-                    // console.log("TIENE ROOM --> :", "room" in fakeBooking)
-                    // console.log("TIENE ROOM CON toObject --> :", "room" in fakeBooking.toObject)
-                    // console.log('======================')
-                    totalErrors = bookingValidator.validateBooking(fakeBooking.toObject());
+                    totalErrors = bookingValidator.validateBooking(fakeBooking.toObject(), bookings);
                     if (totalErrors.length === 0) {
                         bookings.push(fakeBooking);
                     }
@@ -244,7 +241,7 @@ var createBookings = function () { return __awaiter(void 0, void 0, void 0, func
 // createUsers()
 // createContacts()
 // createRooms()
-createBookings();
+// createBookings()
 // const createRoomsAndBookings = async (): Promise<void> => {
 //     await connectDB()
 //     try {

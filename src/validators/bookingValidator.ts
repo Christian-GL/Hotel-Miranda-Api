@@ -1,5 +1,5 @@
 
-import { validatePhoto, validateFullName, validateDate, validateTextArea } from "./commonValidator"
+import { validatePhoto, validateFullName, validateDateRelativeToNow, validateTextArea } from "./commonValidator"
 import { BookingInterface } from "../interfaces/bookingInterface"
 import { BookingStatus } from "../enums/bookingStatus"
 import { RoomType } from "../enums/roomType"
@@ -29,7 +29,7 @@ export class BookingValidator {
         return errorMessages
     }
 
-    validateBooking(booking: BookingInterface): string[] {
+    validateBooking(booking: BookingInterface, allBookings: BookingInterface[]): string[] {
         const allErrorMessages: string[] = []
 
         const errorsCheckingProperties = this.validateProperties(booking)
@@ -43,13 +43,13 @@ export class BookingValidator {
         validateFullName(booking.full_name_guest, 'Full name guest').map(
             error => allErrorMessages.push(error)
         )
-        validateDate(booking.order_date, 'Order date').map(
+        validateDateRelativeToNow(booking.order_date, true, 'Order date').map(
             error => allErrorMessages.push(error)
         )
-        validateDate(booking.check_in_date, 'Check in date').map(
+        this.validateCheckInCheckOut(booking.check_in_date, booking.check_out_date).map(
             error => allErrorMessages.push(error)
         )
-        validateDate(booking.check_out_date, 'Check out date').map(
+        this.validateDateIsOccupied(booking.check_in_date, booking.check_out_date, allBookings).map(
             error => allErrorMessages.push(error)
         )
         if (booking.room.id) {
@@ -107,5 +107,31 @@ export class BookingValidator {
 
         return errorMessages
     }
+    validateCheckInCheckOut(checkIn: Date, checkOut: Date): string[] {
+        const errorMessages: string[] = []
+
+        validateDateRelativeToNow(checkIn, false, 'Check in date').map(
+            error => errorMessages.push(error)
+        )
+        validateDateRelativeToNow(checkOut, false, 'Check out date').map(
+            error => errorMessages.push(error)
+        )
+        if (checkIn >= checkOut) {
+            errorMessages.push('Check in date must be before Check out date')
+        }
+
+        return errorMessages
+    }
+    validateDateIsOccupied(checkIn: Date, checkOut: Date, bookings: BookingInterface[]): string[] {
+        const errorMessages: string[] = []
+
+        for (let i = 0; i < bookings.length; i++) {
+            if (checkIn < bookings[i].check_out_date && checkOut > bookings[i].check_in_date) {
+                errorMessages.push(`This period is already occupied by booking #${bookings[i]._id}`)
+            }
+        }
+        return errorMessages
+    }
+
 
 }

@@ -1,7 +1,7 @@
 
 import {
     validatePhoto, validateFullName, validateEmail,
-    validateDate, validateTextArea, validatePhoneNumber
+    validateDateRelativeToNow, validateTextArea, validatePhoneNumber
 } from './commonValidator'
 import { UserInterface } from "../interfaces/userInterface"
 import { UserStatus } from "../enums/userStatus"
@@ -37,7 +37,7 @@ export class UserValidator {
         validateEmail(user.email, 'Email').map(
             error => allErrorMessages.push(error)
         )
-        validateDate(user.start_date, 'Start date').map(
+        validateDateRelativeToNow(user.start_date, false, 'Start date').map(
             error => allErrorMessages.push(error)
         )
         validateTextArea(user.description, 'Description').map(
