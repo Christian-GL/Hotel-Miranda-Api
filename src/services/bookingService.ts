@@ -1,16 +1,17 @@
 
+import { isEqual } from 'lodash'
 import { ServiceInterface } from '../interfaces/serviceInterface'
 import { BookingModel } from '../models/bookingModel'
 import { BookingInterface } from '../interfaces/bookingInterface'
-import { RoomService } from './roomService'
+import { RoomModel } from '../models/roomModel'
 
 
 export class BookingService implements ServiceInterface<BookingInterface> {
 
-    private roomService: RoomService
-    constructor() {
-        this.roomService = new RoomService()
-    }
+    // private roomService: RoomService
+    // constructor() {
+    //     this.roomService = new RoomService()
+    // }
 
     async fetchAll(): Promise<BookingInterface[]> {
         try {
@@ -37,15 +38,15 @@ export class BookingService implements ServiceInterface<BookingInterface> {
 
     async create(booking: BookingInterface): Promise<BookingInterface> {
         try {
-            const roomOfBooking = await this.roomService.fetchById(booking.room.id)
-            if (roomOfBooking === null) {
-                throw { status: 404, message: `Room #${booking.room.id} not found` }
-            }
-            else {
-                const newBooking: BookingInterface = new BookingModel(booking)
-                await newBooking.save()
-                return newBooking
-            }
+            // const roomOfBooking = await this.roomService.fetchById(booking.room.id)
+            // if (roomOfBooking === null) {
+            //     throw { status: 404, message: `Room #${booking.room.id} not found` }
+            // }
+            // else {
+            const newBooking: BookingInterface = new BookingModel(booking)
+            await newBooking.save()
+            return newBooking
+            // }
         }
         catch (error) {
             console.error('Error in create of bookingService', error)
@@ -53,21 +54,25 @@ export class BookingService implements ServiceInterface<BookingInterface> {
         }
     }
 
-    async update(id: number | string, booking: BookingInterface): Promise<BookingInterface | null> {
+    async update(id: string, booking: BookingInterface): Promise<BookingInterface | null> {
         try {
-            const roomOfBooking = await this.roomService.fetchById(booking.room.id)
-            if (roomOfBooking === null) {
-                throw { status: 404, message: `Room #${booking.room.id} not found` }
+            const existingBooking: BookingInterface | null = await this.fetchById(id)
+            const updatedBooking: BookingInterface | null = await BookingModel.findOneAndUpdate(
+                { _id: id },
+                booking,
+                { new: true }
+            )
+            if (existingBooking !== null && updatedBooking !== null) {
+                if (!isEqual(existingBooking.room_list, booking.room_list)) {
+                    await RoomModel.updateMany(
+                        { 'booking_list.id': id },
+                        { $set: { 'booking_list.$[elem]': booking } },
+                        { arrayFilters: [{ 'elem.id': id }] }
+                    )
+                }
+                return updatedBooking
             }
-            else {
-                const updatedBooking: BookingInterface | null = await BookingModel.findOneAndUpdate(
-                    { _id: id },
-                    booking,
-                    { new: true }
-                )
-                if (updatedBooking) return updatedBooking
-                else return null
-            }
+            else return null
         }
         catch (error) {
             console.error('Error in update of bookingService', error)
@@ -78,7 +83,13 @@ export class BookingService implements ServiceInterface<BookingInterface> {
     async delete(id: string): Promise<boolean> {
         try {
             const deletedBooking = await BookingModel.findByIdAndDelete(id)
-            if (deletedBooking) return true
+            if (deletedBooking) {
+                await RoomModel.updateMany(
+                    { 'booking_list.id': id },
+                    { $pull: { booking_list: { id } } }
+                )
+                return true
+            }
             else return false
         }
         catch (error) {

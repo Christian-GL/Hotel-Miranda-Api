@@ -8,14 +8,17 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
 
     if (!token) {
         res.status(403).json({ message: 'Access denied. Token is required' })
+        return
     }
     else {
-        jwt.verify(token, process.env.TOKEN_SECRET as string, error => {
-            if (error) {
-                res.status(403).json({ message: 'Invalid token' })
-            }
+        try {
+            jwt.verify(token, process.env.TOKEN_SECRET as string)
             next()
-        })
+        }
+        catch (error) {
+            res.status(403).json({ message: 'Invalid token' })
+            return
+        }
     }
 
 }

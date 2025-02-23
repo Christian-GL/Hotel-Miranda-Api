@@ -31,6 +31,8 @@ contactRouter.use(authMiddleware)
  *           type: string
  *         comment:
  *           type: string
+ *         archived:
+ *           type: boolean
  * 
  * /api-dashboard/v1/contacts:
  *   get:

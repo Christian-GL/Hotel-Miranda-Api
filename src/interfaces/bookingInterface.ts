@@ -1,5 +1,5 @@
 
-import { Document } from "mongoose"
+import { Document, Types } from "mongoose"
 import { RoomInterface } from "./roomInterface"
 import { BookingStatus } from "../enums/bookingStatus"
 
@@ -10,7 +10,7 @@ export interface BookingInterface extends Document {
     order_date: Date
     check_in_date: Date
     check_out_date: Date
-    room: Partial<RoomInterface>,
-    booking_status: BookingStatus
+    status: BookingStatus
     special_request: string
+    room_list: Partial<RoomInterface[]>
 }

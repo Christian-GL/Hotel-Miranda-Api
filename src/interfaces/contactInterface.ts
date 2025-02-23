@@ -8,4 +8,5 @@ export interface ContactInterface extends Document {
     email: string
     phone_number: string
     comment: string
+    archived: boolean
 }

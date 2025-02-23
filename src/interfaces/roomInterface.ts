@@ -1,7 +1,8 @@
 
-import { Document } from "mongoose"
+import { Document, Types } from "mongoose"
 import { RoomType } from "../enums/roomType"
 import { RoomAmenities } from "../enums/roomAmenities"
+import { BookingInterface } from "./bookingInterface"
 
 
 export interface RoomInterface extends Document {
@@ -11,5 +12,5 @@ export interface RoomInterface extends Document {
     amenities: RoomAmenities[]
     price: number
     discount: number
-    booking_list: string[]
+    booking_list: Partial<BookingInterface[]>
 }

@@ -32,7 +32,7 @@ const createUsers = async (): Promise<void> => {
                 photo: faker.image.avatar(),
                 full_name: faker.person.fullName(),
                 email: faker.internet.email(),
-                start_date: faker.date.future(),
+                start_date: faker.date.future().toISOString(),
                 description: faker.lorem.paragraph(),
                 phone_number: faker.string.numeric(9),
                 status: faker.helpers.arrayElement(Object.values(UserStatus)),
@@ -66,9 +66,10 @@ const createContacts = async (): Promise<void> => {
             const fakeContact = new ContactModel({
                 full_name: faker.person.fullName(),
                 email: faker.internet.email(),
-                publish_date: faker.date.past(),
+                publish_date: faker.date.past().toISOString(),
                 phone_number: faker.string.numeric(9),
-                comment: faker.lorem.paragraph()
+                comment: faker.lorem.paragraph(),
+                archived: faker.datatype.boolean()
             })
             totalErrors = contactValidator.validateContact(fakeContact.toObject() as ContactInterface)
             if (totalErrors.length === 0) {
@@ -87,12 +88,16 @@ const createContacts = async (): Promise<void> => {
     }
 }
 
-const createRooms = async (): Promise<void> => {
+const createRoomsAndBookings = async (): Promise<void> => {
     await connectDB()
     try {
-        const rooms = []
+        const rooms: RoomInterface[] = []
+        const bookings: BookingInterface[] = []
         const roomValidator = new RoomValidator()
-        let totalErrors
+        const bookingValidator = new BookingValidator()
+        let roomTotalErrors: string[] = []
+        let bookingTotalErrors: string[] = []
+
         for (let i = 0; i < 10; i++) {
             const fakeRoom = new RoomModel({
                 photos: Array.from({ length: 3 }, () => faker.image.avatar()),
@@ -103,56 +108,81 @@ const createRooms = async (): Promise<void> => {
                 discount: faker.number.float({ min: 0, max: 100, fractionDigits: 2 }),
                 booking_list: []
             })
-            totalErrors = roomValidator.validateRoom(fakeRoom.toObject() as RoomInterface)
-            if (totalErrors.length === 0) {
+            roomTotalErrors = roomValidator.validateRoom(
+                fakeRoom.toObject() as RoomInterface,
+                rooms as RoomInterface[],
+                bookings as BookingInterface[]
+            )
+            if (roomTotalErrors.length === 0) {
                 rooms.push(fakeRoom)
-            }
-            else {
-                console.error(`Validación fallida en el fakeRoom #${i}: ${totalErrors.join(', ')}`)
+            } else {
+                console.error(`Validación fallida en el fakeRoom #${i}: ${roomTotalErrors.join(', ')}`)
                 continue
             }
         }
-        await RoomModel.insertMany(rooms)
-    }
-    catch (error) {
-        console.error('Error creating rooms with faker', error)
-        throw error
-    }
-}
 
-const createBookings = async (): Promise<void> => {
-    await connectDB()
-    try {
-        const bookings = []
-        const bookingValidator = new BookingValidator()
-        let totalErrors
-        for (let i = 0; i < 6; i++) {
+        for (let i = 0; i < 20; i++) {
+            if (rooms.length === 0) break
+
+            const selectedRoom = faker.helpers.arrayElement(rooms)
+            const check_in_date = faker.date.future({ years: faker.number.float({ min: 0.2, max: 2 }) })
             const fakeBooking = new BookingModel({
                 photo: faker.image.urlPicsumPhotos(),
                 full_name_guest: faker.person.fullName(),
-                order_date: faker.date.recent({ days: 30 }),
-                check_in_date: faker.date.future({ years: 0.1 }),
-                check_out_date: faker.date.future({ years: 0.1, refDate: new Date() }),
-                room: {
-                    id: '67b74dbe7273c7ce5864e482',
-                    type: RoomType.singleBed
-                },
-                booking_status: faker.helpers.arrayElement(Object.values(BookingStatus)),
-                special_request: faker.lorem.sentence(faker.number.int({ min: 10, max: 40 }))
+                order_date: faker.date.recent({ days: 30 }).toISOString(),
+                check_in_date: check_in_date.toISOString(),
+                check_out_date: faker.date.future({ years: faker.number.float({ min: 0.1, max: 2 }), refDate: check_in_date }).toISOString(),
+                status: faker.helpers.arrayElement(Object.values(BookingStatus)),
+                special_request: faker.lorem.sentence(faker.number.int({ min: 10, max: 40 })),
+                room_list: [
+                    {
+                        _id: selectedRoom._id,
+                        photos: [...selectedRoom.photos],
+                        number: selectedRoom.number,
+                        type: selectedRoom.type,
+                        amenities: [...selectedRoom.amenities],
+                        price: selectedRoom.price,
+                        discount: selectedRoom.discount
+                    }
+                ]
             })
-            totalErrors = bookingValidator.validateBooking(fakeBooking.toObject() as BookingInterface, bookings as BookingInterface[])
-            if (totalErrors.length === 0) {
+
+            bookingTotalErrors = bookingValidator.validateBooking(
+                fakeBooking.toObject() as BookingInterface,
+                bookings as BookingInterface[],
+                rooms as RoomInterface[]
+            )
+            if (bookingTotalErrors.length === 0) {
                 bookings.push(fakeBooking)
-            }
-            else {
-                console.error(`Validación fallida en el fakeBooking #${i}: ${totalErrors.join(', ')}`)
+
+                selectedRoom.booking_list.push({
+                    _id: fakeBooking._id,
+                    photo: fakeBooking.photo,
+                    full_name_guest: fakeBooking.full_name_guest,
+                    order_date: fakeBooking.order_date,
+                    check_in_date: fakeBooking.check_in_date,
+                    check_out_date: fakeBooking.check_out_date,
+                    status: fakeBooking.status,
+                    special_request: fakeBooking.special_request
+                } as BookingInterface)
+            } else {
+                console.error(`Validación fallida en el fakeBooking #${i}: ${bookingTotalErrors.join(', ')}`)
                 continue
             }
         }
+
+        // rooms.map(room => {
+        //     console.log(room._id, room.number, room.price)
+        // })
+        // console.log('=============')
+        // bookings.map(booking => {
+        //     console.log(booking)
+        // })
+        await RoomModel.insertMany(rooms)
         await BookingModel.insertMany(bookings)
-    }
-    catch (error) {
-        console.error('Error creating bookings with faker', error)
+
+    } catch (error) {
+        console.error('Error creating bookings and rooms with faker', error)
         throw error
     }
 }
@@ -160,84 +190,4 @@ const createBookings = async (): Promise<void> => {
 
 // createUsers()
 // createContacts()
-// createRooms()
-// createBookings()
-
-
-
-
-// const createRoomsAndBookings = async (): Promise<void> => {
-//     await connectDB()
-//     try {
-//         const rooms = []
-//         const bookings = []
-//         const roomValidator = new RoomValidator()
-//         const bookingValidator = new BookingValidator()
-//         let totalRoomErrors
-//         let totalBookingErrors
-
-//         for (let i = 1; i < 11; i++) {
-//             // let bookingL: number[]
-//             // switch (i) {
-//             //     case 2: bookingL = [1, 2, 3]
-//             //     case 3: bookingL = [4, 5]
-//             //     case 5: bookingL = [6]
-//             //     default: bookingL = []
-//             // }
-//             const fakeRoom = new RoomModel({
-//                 photos: Array.from({ length: 3 }, () => faker.image.avatar()),
-//                 number: faker.number.int({ min: 0, max: 999 }).toString().padStart(3, "0"),
-//                 type: faker.helpers.arrayElement(Object.values(RoomType)),
-//                 amenities: faker.helpers.arrayElements(Object.values(RoomAmenities), faker.number.int({ min: 3, max: 10 })),
-//                 price: faker.number.float({ min: 25, max: 100000, fractionDigits: 2 }),
-//                 discount: faker.number.float({ min: 0, max: 100, fractionDigits: 2 }),
-//                 // booking_list: bookingL
-//                 booking_list: []
-//             })
-
-//             totalRoomErrors = roomValidator.validateRoom(fakeRoom.toObject() as RoomInterface)
-//             if (totalRoomErrors.length === 0) { rooms.push(fakeRoom) }
-//             else {
-//                 console.error(`Validación fallida en el fakeRoom #${i}: ${totalRoomErrors.join(', ')}`)
-//                 continue
-//             }
-//         }
-
-//         for (let i = 1; i < 6; i++) {
-//             // let roomProps: number[]
-//             // switch (i) {
-//             //     case 1: roomProps = []
-//             //     case 2: roomProps = [4, 5]
-//             //     case 4: roomProps = [6]
-//             //     default: roomProps = []
-//             // }
-//             const fakeBooking = new BookingModel({
-//                 photo: faker.image.urlPicsumPhotos(),
-//                 full_name_guest: faker.person.fullName(),
-//                 order_date: faker.date.recent({ days: 30 }),
-//                 check_in_date: faker.date.future({ years: 0.1 }),
-//                 check_out_date: faker.date.future({ years: 0.1, refDate: new Date() }),
-//                 room: {
-//                     id: 'CHANGE ME',
-//                     type: RoomType.suite
-//                 },
-//                 booking_status: faker.helpers.arrayElement(Object.values(BookingStatus)),
-//                 special_request: faker.lorem.sentence({ min: 10, max: 450 })
-//             })
-
-//             totalBookingErrors = bookingValidator.validateBooking(fakeBooking.toObject() as BookingInterface)
-//             if (totalBookingErrors.length === 0) { bookings.push(fakeBooking) }
-//             else {
-//                 console.error(`Validación fallida en el fakeBooking #${i}: ${totalBookingErrors.join(', ')}`)
-//                 continue
-//             }
-//         }
-
-//         await RoomModel.insertMany(rooms)
-//         await BookingModel.insertMany(bookings)
-//     }
-//     catch (error) {
-//         console.error('Error creating rooms with faker', error)
-//         throw error
-//     }
-// }
+createRoomsAndBookings()

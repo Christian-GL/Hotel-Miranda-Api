@@ -10,7 +10,7 @@ export class ContactValidator {
 
     validateProperties(contact: ContactInterface): string[] {
         const errorMessages: string[] = []
-        const requiredProperties: string[] = ['publish_date', 'full_name', 'email', 'phone_number', 'comment']
+        const requiredProperties: string[] = ['publish_date', 'full_name', 'email', 'phone_number', 'comment', 'archived']
         requiredProperties.map((property) => {
             if (!(property in contact)) {
                 errorMessages.push(`Property [${property}] is required in Contact`)
@@ -27,7 +27,7 @@ export class ContactValidator {
             return errorsCheckingProperties
         }
 
-        validateDateRelativeToNow(contact.publish_date, true, 'Publish date').map(
+        validateDateRelativeToNow(new Date(contact.publish_date), true, 'Publish date').map(
             error => allErrorMessages.push(error)
         )
         validateFullName(contact.full_name, 'Full name').map(
@@ -42,8 +42,21 @@ export class ContactValidator {
         validateTextArea(contact.comment, 'Comment').map(
             error => allErrorMessages.push(error)
         )
+        this.validateArchived(contact.archived).map(
+            error => allErrorMessages.push(error)
+        )
 
         return allErrorMessages
+    }
+
+    validateArchived(archived: boolean): string[] {
+        const errorMessages: string[] = []
+
+        if (typeof archived !== "boolean") {
+            errorMessages.push('Archived is not a Boolean')
+        }
+
+        return errorMessages
     }
 
 }

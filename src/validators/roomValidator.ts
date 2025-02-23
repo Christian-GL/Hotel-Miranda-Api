@@ -1,7 +1,10 @@
 
+import { validateFullName, validateDateRelativeToNow, validateTextArea } from "./commonValidator"
 import { RoomInterface } from "../interfaces/roomInterface"
 import { RoomType } from "../enums/roomType"
 import { RoomAmenities } from "../enums/roomAmenities"
+import { BookingValidator } from "./bookingValidator"
+import { BookingInterface } from "../interfaces/bookingInterface"
 
 
 export class RoomValidator {
@@ -9,15 +12,17 @@ export class RoomValidator {
     validateProperties(room: RoomInterface): string[] {
         const errorMessages: string[] = []
         const requiredProperties: string[] = ['photos', 'number', 'type', 'amenities', 'price', 'discount', 'booking_list']
+
         requiredProperties.map((property) => {
             if (!(property in room)) {
                 errorMessages.push(`Property [${property}] is required in Room`)
             }
         })
+        // FALTA COMPROBAR PORPIEDADES DE LAS BOOKING DE BOOKING LIST (LO MISMO PARA BOOKINGVALIDATOR)
         return errorMessages
     }
 
-    validateRoom(room: RoomInterface): string[] {
+    validateRoom(room: RoomInterface, allRooms: RoomInterface[], allBookings: BookingInterface[]): string[] {
         const allErrorMessages: string[] = []
 
         const errorsCheckingProperties = this.validateProperties(room)
@@ -28,7 +33,7 @@ export class RoomValidator {
         // this.validatePhotos(room.photos).errorMessages.map(
         //     error => allErrorMessages.push(error)
         // )
-        this.validateNumber(room.number).map(
+        this.validateNumber(room.number, false, allRooms).map(
             error => allErrorMessages.push(error)
         )
         this.validateRoomType(room.type).map(
@@ -43,7 +48,7 @@ export class RoomValidator {
         this.validateRoomDiscount(room.discount).map(
             error => allErrorMessages.push(error)
         )
-        this.validateBookingList(room.booking_list).map(
+        this.validateBookingList(room.booking_list, allBookings).map(
             error => allErrorMessages.push(error)
         )
 
@@ -72,7 +77,7 @@ export class RoomValidator {
 
         return errorMessages
     }
-    validateNumber(number: string): string[] {
+    validateNumber(number: string, validateExistingRoom: boolean, allRooms: RoomInterface[]): string[] {
         const errorMessages: string[] = []
         const regex = new RegExp(/^\d{3}$/)
 
@@ -81,6 +86,13 @@ export class RoomValidator {
         }
         if (!regex.test(number)) {
             errorMessages.push('Number must have 3 numeric digits between 000 and 999')
+        }
+        if (!validateExistingRoom) {
+            allRooms.map(room => {
+                if (room.number === number) {
+                    errorMessages.push('Number is already taken')
+                }
+            })
         }
 
         return errorMessages
@@ -97,13 +109,13 @@ export class RoomValidator {
 
         return errorMessages
     }
-    validateAmenities(type: string[]): string[] {
+    validateAmenities(amenities: string[]): string[] {
         const errorMessages: string[] = []
 
-        if (!Array.isArray(type)) {
+        if (!Array.isArray(amenities)) {
             errorMessages.push('Amenities is not an array of strings')
         }
-        type.map(amenity => {
+        amenities.map(amenity => {
             if (!Object.values(RoomAmenities).includes(amenity as RoomAmenities)) {
                 errorMessages.push(`Amenity: ${amenity} is not a valid value`)
             }
@@ -141,19 +153,44 @@ export class RoomValidator {
 
         return errorMessages
     }
-    validateBookingList(bookingList: string[]): string[] {
+    validateBookingList(bookingList: Partial<BookingInterface[]>, allBookings: BookingInterface[]): string[] {
         const errorMessages: string[] = []
+        const bookingValidator = new BookingValidator()
+        const bookingRequiredProperties: string[] = ['_id', 'photo', 'full_name_guest', 'order_date',
+            'check_in_date', 'check_out_date', 'status', 'special_request']
 
-        if (!Array.isArray(bookingList)) {
-            errorMessages.push('Booking list must be an array');
-            return errorMessages;
-        }
-
-        for (let i = 0; i < bookingList.length; i++) {
-            if (typeof bookingList[i] !== 'string') {
-                errorMessages.push(`Booking list at index ${i} is not a string`);
+        bookingList.map(booking => {
+            if (booking === undefined || Object.keys(booking).length === 0) {
+                errorMessages.push('Some room in room_list of bookings is undefined or empty')
+                return
             }
-        }
+            bookingRequiredProperties.map((property) => {
+                if (!(property in booking)) {
+                    errorMessages.push(`Property [${property}] is required in Booking of booking_list`)
+                    return errorMessages
+                }
+            })
+
+            // VALIDAR FOTO
+            validateFullName(booking.full_name_guest, 'Full name guest').map(
+                error => errorMessages.push(error)
+            )
+            validateDateRelativeToNow(new Date(booking.order_date), true, 'Order date').map(
+                error => errorMessages.push(error)
+            )
+            bookingValidator.validateCheckInCheckOut(booking.check_in_date, booking.check_out_date).map(
+                error => errorMessages.push(error)
+            )
+            bookingValidator.validateDateIsOccupied(booking.check_in_date, booking.check_out_date, allBookings).map(
+                error => errorMessages.push(error)
+            )
+            bookingValidator.validateBookingStatus(booking.status).map(
+                error => errorMessages.push(error)
+            )
+            validateTextArea(booking.special_request, 'Special request').map(
+                error => errorMessages.push(error)
+            )
+        })
 
         return errorMessages
     }

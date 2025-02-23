@@ -24,6 +24,10 @@ const ContactSchema = new Schema<ContactInterface>
         comment: {
             type: String,
             required: true
+        },
+        archived: {
+            type: Boolean,
+            required: true
         }
     })
 

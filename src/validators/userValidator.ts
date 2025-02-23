@@ -37,7 +37,7 @@ export class UserValidator {
         validateEmail(user.email, 'Email').map(
             error => allErrorMessages.push(error)
         )
-        validateDateRelativeToNow(user.start_date, false, 'Start date').map(
+        validateDateRelativeToNow(new Date(user.start_date), false, 'Start date').map(
             error => allErrorMessages.push(error)
         )
         validateTextArea(user.description, 'Description').map(

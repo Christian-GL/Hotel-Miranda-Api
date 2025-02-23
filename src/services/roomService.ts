@@ -1,7 +1,9 @@
 
+import { isEqual } from 'lodash'
 import { ServiceInterface } from '../interfaces/serviceInterface'
 import { RoomModel } from '../models/roomModel'
 import { RoomInterface } from '../interfaces/roomInterface'
+import { BookingModel } from '../models/bookingModel'
 
 
 export class RoomService implements ServiceInterface<RoomInterface> {
@@ -43,12 +45,22 @@ export class RoomService implements ServiceInterface<RoomInterface> {
 
     async update(id: string, room: RoomInterface): Promise<RoomInterface | null> {
         try {
+            const existingRoom: RoomInterface | null = await this.fetchById(id)
             const updatedRoom: RoomInterface | null = await RoomModel.findOneAndUpdate(
                 { _id: id },
                 room,
                 { new: true }
             )
-            if (updatedRoom) return updatedRoom
+            if (existingRoom !== null && updatedRoom !== null) {
+                if (!isEqual(existingRoom.booking_list, room.booking_list)) {
+                    await BookingModel.updateMany(
+                        { 'room_list.id': id },
+                        { $set: { 'room_list.$[elem]': room } },
+                        { arrayFilters: [{ 'elem.id': id }] }
+                    )
+                }
+                return updatedRoom
+            }
             else return null
         }
         catch (error) {
@@ -60,7 +72,17 @@ export class RoomService implements ServiceInterface<RoomInterface> {
     async delete(id: string): Promise<boolean> {
         try {
             const deletedRoom = await RoomModel.findByIdAndDelete(id)
-            if (deletedRoom) return true
+            if (deletedRoom) {
+                await BookingModel.updateMany(
+                    { 'room_list.id': id },
+                    { $pull: { room_list: { id } } }
+                )
+                await BookingModel.deleteMany({
+                    'room_list.id': id,
+                    $expr: { $eq: [{ $size: '$room_list' }, 1] }
+                })
+                return true
+            }
             else return false
         }
         catch (error) {

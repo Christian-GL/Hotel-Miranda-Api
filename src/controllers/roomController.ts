@@ -3,11 +3,13 @@ import { Request, Response } from 'express'
 import Router from 'express'
 import { authMiddleware } from '../middleware/authMiddleware'
 import { RoomService } from '../services/roomService'
+import { BookingService } from '../services/bookingService'
 import { RoomValidator } from '../validators/roomValidator'
 
 
 export const roomRouter = Router()
 const roomService = new RoomService()
+const bookingService = new BookingService()
 
 roomRouter.use(authMiddleware)
 
@@ -165,13 +167,18 @@ roomRouter.get('/:id', async (req: Request, res: Response) => {
     }
     catch (error) {
         console.error("Error in get (by id) of roomController:", error)
-        res.status(500).json({ message: "Internal server error" })
+        // Manejar el codigo de error tambien que no sea 500 (este caso es 404)
+        if (error instanceof Error) res.status(500).json({ message: error.message })
+        else res.status(500).json({ message: 'Internal server error' })
     }
 })
 
 roomRouter.post('/', async (req: Request, res: Response) => {
     const roomValidator = new RoomValidator()
-    const totalErrors = roomValidator.validateRoom(req.body)
+    const allRooms = await roomService.fetchAll()
+    const allBookings = await bookingService.fetchAll()
+    const totalErrors = roomValidator.validateRoom(req.body, allRooms, allBookings)
+
     if (totalErrors.length === 0) {
         try {
             const newRoom = await roomService.create(req.body)
@@ -191,7 +198,9 @@ roomRouter.post('/', async (req: Request, res: Response) => {
 
 roomRouter.put('/:id', async (req: Request, res: Response) => {
     const roomValidator = new RoomValidator()
-    const totalErrors = roomValidator.validateRoom(req.body)
+    const allRooms = await roomService.fetchAll()
+    const allBookings = await bookingService.fetchAll()
+    const totalErrors = roomValidator.validateRoom(req.body, allRooms, allBookings)
 
     if (totalErrors.length === 0) {
         try {

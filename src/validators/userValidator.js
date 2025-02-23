@@ -27,7 +27,7 @@ var UserValidator = /** @class */ (function () {
         // )
         (0, commonValidator_1.validateFullName)(user.full_name, 'Full name').map(function (error) { return allErrorMessages.push(error); });
         (0, commonValidator_1.validateEmail)(user.email, 'Email').map(function (error) { return allErrorMessages.push(error); });
-        (0, commonValidator_1.validateDateRelativeToNow)(user.start_date, false, 'Start date').map(function (error) { return allErrorMessages.push(error); });
+        (0, commonValidator_1.validateDateRelativeToNow)(new Date(user.start_date), false, 'Start date').map(function (error) { return allErrorMessages.push(error); });
         (0, commonValidator_1.validateTextArea)(user.description, 'Description').map(function (error) { return allErrorMessages.push(error); });
         (0, commonValidator_1.validatePhoneNumber)(user.phone_number, 'Phone number').map(function (error) { return allErrorMessages.push(error); });
         this.validateStatusActive(user.status).map(function (error) { return allErrorMessages.push(error); });

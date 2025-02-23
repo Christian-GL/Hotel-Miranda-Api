@@ -56,10 +56,12 @@ loginRouter.post('', async (req: Request, res: Response) => {
     const userData = await userService.fetchAll()
     const user: AccountInterface[] = userData.filter(u => u.email === email)
     if (user.length === 0) {
-        res.status(404).send('User not found')
+        res.status(404).send({ message: 'User or password wrong' })
+        return
     }
     if (!process.env.TOKEN_SECRET) {
         res.status(500).send('Server error: TOKEN_SECRET is not defined')
+        return
     }
 
     bcrypt.compare(password, user[0].password)
@@ -71,6 +73,7 @@ loginRouter.post('', async (req: Request, res: Response) => {
             else {
                 const token = jwt.sign({ email: user[0].email }, process.env.TOKEN_SECRET as string, { expiresIn: '1w' })
                 res.status(200).send({ token: token })
+                return
             }
         })
 })

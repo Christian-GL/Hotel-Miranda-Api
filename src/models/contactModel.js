@@ -22,6 +22,10 @@ var ContactSchema = new mongoose_1.Schema({
     comment: {
         type: String,
         required: true
+    },
+    archived: {
+        type: Boolean,
+        required: true
     }
 });
 exports.ContactModel = (0, mongoose_1.model)('Contact', ContactSchema);
