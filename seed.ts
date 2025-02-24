@@ -98,7 +98,7 @@ const createRoomsAndBookings = async (): Promise<void> => {
         let roomTotalErrors: string[] = []
         let bookingTotalErrors: string[] = []
 
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < 5; i++) {
             const fakeRoom = new RoomModel({
                 photos: Array.from({ length: 3 }, () => faker.image.avatar()),
                 number: faker.number.int({ min: 0, max: 999 }).toString().padStart(3, "0"),
@@ -121,7 +121,7 @@ const createRoomsAndBookings = async (): Promise<void> => {
             }
         }
 
-        for (let i = 0; i < 20; i++) {
+        for (let i = 0; i < 25; i++) {
             if (rooms.length === 0) break
 
             const selectedRoom = faker.helpers.arrayElement(rooms)
@@ -190,4 +190,4 @@ const createRoomsAndBookings = async (): Promise<void> => {
 
 // createUsers()
 // createContacts()
-createRoomsAndBookings()
+// createRoomsAndBookings()

@@ -2,6 +2,7 @@
 import express, { Request, Response } from 'express'
 import swaggerUi from 'swagger-ui-express'
 import swaggerJsDoc from 'swagger-jsdoc'
+import serverless from 'serverless-http'
 
 import { connectDB } from './utils/database'
 import { loginRouter } from './controllers/loginController'
@@ -12,7 +13,7 @@ import { userRouter } from './controllers/userController'
 
 
 export const app = express()
-const port = 3000
+const port = 3002
 const options = {
   definition: {
     openapi: '3.0.0',
@@ -220,9 +221,12 @@ app.get('/live', (req: Request, res: Response) => {
 
 const runServer = async () => {
   await connectDB()
+
   app.listen(port, () => {
     console.log(`Servidor escuchando en http://localhost:${port}`)
   })
+  // console.log('Server is running')
 }
 
 runServer()
+// module.exports.hanler = serverless(app)

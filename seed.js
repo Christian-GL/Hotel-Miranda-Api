@@ -172,7 +172,7 @@ var createRoomsAndBookings = function () { return __awaiter(void 0, void 0, void
                 bookingValidator = new bookingValidator_1.BookingValidator();
                 roomTotalErrors = [];
                 bookingTotalErrors = [];
-                for (i = 0; i < 10; i++) {
+                for (i = 0; i < 5; i++) {
                     fakeRoom = new roomModel_1.RoomModel({
                         photos: Array.from({ length: 3 }, function () { return faker_1.faker.image.avatar(); }),
                         number: faker_1.faker.number.int({ min: 0, max: 999 }).toString().padStart(3, "0"),
@@ -191,7 +191,7 @@ var createRoomsAndBookings = function () { return __awaiter(void 0, void 0, void
                         continue;
                     }
                 }
-                for (i = 0; i < 20; i++) {
+                for (i = 0; i < 25; i++) {
                     if (rooms.length === 0)
                         break;
                     selectedRoom = faker_1.faker.helpers.arrayElement(rooms);
@@ -266,4 +266,4 @@ var createRoomsAndBookings = function () { return __awaiter(void 0, void 0, void
 }); };
 // createUsers()
 // createContacts()
-createRoomsAndBookings();
+// createRoomsAndBookings()

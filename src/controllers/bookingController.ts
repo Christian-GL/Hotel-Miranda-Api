@@ -167,9 +167,9 @@ bookingRouter.get('/:id', async (req: Request, res: Response) => {
 })
 
 bookingRouter.post('/', async (req: Request, res: Response) => {
-    const bookingValidator = new BookingValidator()
     const allBookings = await bookingService.fetchAll()
     const allRooms = await roomService.fetchAll()
+    const bookingValidator = new BookingValidator()
     const totalErrors = bookingValidator.validateBooking(req.body, allBookings, allRooms)
 
     if (totalErrors.length === 0) {

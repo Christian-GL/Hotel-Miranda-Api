@@ -46,9 +46,12 @@ var connectDB = function () { return __awaiter(void 0, void 0, void 0, function 
         switch (_a.label) {
             case 0:
                 _a.trys.push([0, 2, , 3]);
-                return [4 /*yield*/, mongoose_1.default.connect(process.env.MONGODB_URL || '')];
+                return [4 /*yield*/, mongoose_1.default.connect(process.env.MONGODB_URL || '')
+                    // await mongoose.connect(process.env.MONGODB_URI || '')
+                ];
             case 1:
                 _a.sent();
+                // await mongoose.connect(process.env.MONGODB_URI || '')
                 console.log('Connected to MongoDB');
                 return [3 /*break*/, 3];
             case 2:
