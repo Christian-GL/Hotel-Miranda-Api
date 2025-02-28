@@ -1,5 +1,5 @@
 
-import { validateIDstring, validateIDObjectId, validateFullName, validateDateRelativeToNow, validateTextArea } from "./commonValidator"
+import { validateIDstring as validateIdString, validateIDObjectId, validateFullName, validateDateRelativeToNow, validateTextArea } from "./commonValidator"
 import { RoomInterface } from "../interfaces/roomInterface"
 import { RoomType } from "../enums/roomType"
 import { RoomAmenities } from "../enums/roomAmenities"
@@ -105,23 +105,23 @@ export class RoomValidator {
 
         return errorMessages
     }
-    validateExistingNumber(number: string, allRooms: RoomInterface[]): string[] {
-        const errorMessages: string[] = []
-        const regex = new RegExp(/^\d{3}$/)
+    // validateExistingNumber(number: string, allRooms: RoomInterface[]): string[] {
+    //     const errorMessages: string[] = []
+    //     const regex = new RegExp(/^\d{3}$/)
 
-        if (typeof number !== "string") {
-            errorMessages.push('Number is not a string')
-        }
-        if (!regex.test(number)) {
-            errorMessages.push('Number must have 3 numeric digits between 000 and 999')
-        }
-        const roomExists = allRooms.some(room => room.number === number)
-        if (!roomExists) {
-            errorMessages.push('Number does not exist')
-        }
+    //     if (typeof number !== "string") {
+    //         errorMessages.push('Number is not a string')
+    //     }
+    //     if (!regex.test(number)) {
+    //         errorMessages.push('Number must have 3 numeric digits between 000 and 999')
+    //     }
+    //     const roomExists = allRooms.some(room => room.number === number)
+    //     if (!roomExists) {
+    //         errorMessages.push('Number does not exist')
+    //     }
 
-        return errorMessages
-    }
+    //     return errorMessages
+    // }
     validateRoomType(type: string): string[] {
         const errorMessages: string[] = []
 
@@ -134,6 +134,7 @@ export class RoomValidator {
 
         return errorMessages
     }
+    // DEBERIA SER ROOMAMENITIES[] y no STRING[]
     validateAmenities(amenities: string[]): string[] {
         const errorMessages: string[] = []
 
@@ -182,10 +183,10 @@ export class RoomValidator {
         const errorMessages: string[] = []
 
         bookingList.forEach((bookingId) => {
-            validateIDstring(bookingId, 'ID').map(error => {
+            validateIdString(bookingId, 'ID').map(error => {
                 errorMessages.push(error)
             })
-            const bookingExists = allBookings.some(booking => booking._id === bookingId)
+            const bookingExists = allBookings.some(booking => booking._id.toString() === bookingId)
             if (!bookingExists) {
                 errorMessages.push(`Booking with ID #${bookingId} does not exist`)
             }

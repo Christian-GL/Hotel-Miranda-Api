@@ -2,7 +2,7 @@
 import { Request, Response, Router } from "express"
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
-import { AccountInterface } from "../interfaces/accountInterface"
+import { UserInterface } from "../interfaces/userInterface"
 import { UserService } from "../services/userService"
 
 
@@ -50,11 +50,11 @@ export const loginRouter = Router()
  */
 
 loginRouter.post('', async (req: Request, res: Response) => {
-    const { email, password } = req.body
+    const { userEmail, userPassword } = req.body
 
     const userService = new UserService()
     const userData = await userService.fetchAll()
-    const user: AccountInterface[] = userData.filter(u => u.email === email)
+    const user: UserInterface[] = userData.filter(u => u.email === userEmail)
     if (user.length === 0) {
         res.status(404).send({ message: 'User or password wrong' })
         return
@@ -64,15 +64,22 @@ loginRouter.post('', async (req: Request, res: Response) => {
         return
     }
 
-    bcrypt.compare(password, user[0].password)
+    bcrypt.compare(userPassword, user[0].password)
         .then(result => {
             if (!result) {
                 res.status(400).send({ message: 'User or password wrong' })
                 return
             }
             else {
-                const token = jwt.sign({ email: user[0].email }, process.env.TOKEN_SECRET as string, { expiresIn: '1w' })
-                res.status(200).send({ token: token })
+                const token = jwt.sign(
+                    { id: user[0]._id },
+                    process.env.TOKEN_SECRET as string,
+                    { expiresIn: '1y' }
+                )
+                res.status(200).send({
+                    token: token,
+                    loggedUserID: user[0]._id
+                })
                 return
             }
         })

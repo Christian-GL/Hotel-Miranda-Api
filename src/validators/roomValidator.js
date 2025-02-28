@@ -89,21 +89,21 @@ var RoomValidator = /** @class */ (function () {
         }
         return errorMessages;
     };
-    RoomValidator.prototype.validateExistingNumber = function (number, allRooms) {
-        var errorMessages = [];
-        var regex = new RegExp(/^\d{3}$/);
-        if (typeof number !== "string") {
-            errorMessages.push('Number is not a string');
-        }
-        if (!regex.test(number)) {
-            errorMessages.push('Number must have 3 numeric digits between 000 and 999');
-        }
-        var roomExists = allRooms.some(function (room) { return room.number === number; });
-        if (!roomExists) {
-            errorMessages.push('Number does not exist');
-        }
-        return errorMessages;
-    };
+    // validateExistingNumber(number: string, allRooms: RoomInterface[]): string[] {
+    //     const errorMessages: string[] = []
+    //     const regex = new RegExp(/^\d{3}$/)
+    //     if (typeof number !== "string") {
+    //         errorMessages.push('Number is not a string')
+    //     }
+    //     if (!regex.test(number)) {
+    //         errorMessages.push('Number must have 3 numeric digits between 000 and 999')
+    //     }
+    //     const roomExists = allRooms.some(room => room.number === number)
+    //     if (!roomExists) {
+    //         errorMessages.push('Number does not exist')
+    //     }
+    //     return errorMessages
+    // }
     RoomValidator.prototype.validateRoomType = function (type) {
         var errorMessages = [];
         if (typeof type !== "string") {
@@ -114,6 +114,7 @@ var RoomValidator = /** @class */ (function () {
         }
         return errorMessages;
     };
+    // DEBERIA SER ROOMAMENITIES[] y no STRING[]
     RoomValidator.prototype.validateAmenities = function (amenities) {
         var errorMessages = [];
         if (!Array.isArray(amenities)) {
@@ -158,7 +159,7 @@ var RoomValidator = /** @class */ (function () {
             (0, commonValidator_1.validateIDstring)(bookingId, 'ID').map(function (error) {
                 errorMessages.push(error);
             });
-            var bookingExists = allBookings.some(function (booking) { return booking._id === bookingId; });
+            var bookingExists = allBookings.some(function (booking) { return booking._id.toString() === bookingId; });
             if (!bookingExists) {
                 errorMessages.push("Booking with ID #".concat(bookingId, " does not exist"));
             }

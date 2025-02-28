@@ -169,4 +169,4 @@ const createRoomsAndBookings = async (): Promise<void> => {
 
 // createUsers()
 // createContacts()
-createRoomsAndBookings()
+// createRoomsAndBookings()

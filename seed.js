@@ -238,4 +238,4 @@ var createRoomsAndBookings = function () { return __awaiter(void 0, void 0, void
 }); };
 // createUsers()
 // createContacts()
-createRoomsAndBookings();
+// createRoomsAndBookings()
