@@ -41,7 +41,7 @@ bookingRouter.use(authMiddleware)
  *         special_request:
  *           type: string
  *
- * /api-dashboard/v1/bookings:
+ * /api-dashboard/v2/bookings:
  *   get:
  *     summary: Obtener todas las reservas
  *     tags: [Bookings]
@@ -74,7 +74,7 @@ bookingRouter.use(authMiddleware)
  *       400:
  *         description: Datos inválidos
  *
- * /api-dashboard/v1/bookings/{id}:
+ * /api-dashboard/v2/bookings/{id}:
  *   get:
  *     summary: Obtener una reserva por su ID
  *     tags: [Bookings]

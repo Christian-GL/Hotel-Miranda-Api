@@ -19,6 +19,7 @@ import { UserStatus } from './src/enums/userStatus'
 import { RoomType } from './src/enums/roomType'
 import { RoomAmenities } from './src/enums/roomAmenities'
 import { BookingStatus } from './src/enums/bookingStatus'
+import { RoomService } from './src/services/roomService'
 
 
 const createUsers = async (): Promise<void> => {
@@ -27,7 +28,7 @@ const createUsers = async (): Promise<void> => {
         const users = []
         const userValidator = new UserValidator()
         let totalErrors
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < 25; i++) {
             const fakeUser = new UserModel({
                 photo: faker.image.avatar(),
                 full_name: faker.person.fullName(),
@@ -38,7 +39,7 @@ const createUsers = async (): Promise<void> => {
                 status: faker.helpers.arrayElement(Object.values(UserStatus)),
                 password: 'Abcd1234.'
             })
-            totalErrors = userValidator.validateUser(fakeUser.toObject() as UserInterface)
+            totalErrors = userValidator.validateUser(fakeUser.toObject() as UserInterface, true)
             if (totalErrors.length === 0) {
                 fakeUser.password = await hashPassword(fakeUser.password)
                 users.push(fakeUser)
@@ -62,7 +63,7 @@ const createContacts = async (): Promise<void> => {
         const contacts = []
         const contactValidator = new ContactValidator()
         let totalErrors
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < 25; i++) {
             const fakeContact = new ContactModel({
                 full_name: faker.person.fullName(),
                 email: faker.internet.email(),
@@ -100,7 +101,7 @@ const createRoomsAndBookings = async (): Promise<void> => {
 
         for (let i = 0; i < 5; i++) {
             const fakeRoom = new RoomModel({
-                photos: Array.from({ length: 3 }, () => faker.image.avatar()),
+                photos: Array.from({ length: 3 }, () => faker.image.urlPicsumPhotos()),
                 number: faker.number.int({ min: 0, max: 999 }).toString().padStart(3, "0"),
                 type: faker.helpers.arrayElement(Object.values(RoomType)),
                 amenities: faker.helpers.arrayElements(Object.values(RoomAmenities), faker.number.int({ min: 3, max: 10 })),
@@ -108,10 +109,9 @@ const createRoomsAndBookings = async (): Promise<void> => {
                 discount: faker.number.float({ min: 0, max: 100, fractionDigits: 2 }),
                 booking_list: []
             })
-            roomTotalErrors = roomValidator.validateRoom(
+            roomTotalErrors = roomValidator.validateNewRoom(
                 fakeRoom.toObject() as RoomInterface,
-                rooms as RoomInterface[],
-                bookings as BookingInterface[]
+                rooms as RoomInterface[]
             )
             if (roomTotalErrors.length === 0) {
                 rooms.push(fakeRoom)
@@ -121,32 +121,20 @@ const createRoomsAndBookings = async (): Promise<void> => {
             }
         }
 
-        for (let i = 0; i < 25; i++) {
+        for (let i = 0; i < 50; i++) {
             if (rooms.length === 0) break
-
             const selectedRoom = faker.helpers.arrayElement(rooms)
             const check_in_date = faker.date.future({ years: faker.number.float({ min: 0.2, max: 2 }) })
             const fakeBooking = new BookingModel({
-                photo: faker.image.urlPicsumPhotos(),
+                photo: faker.image.avatar(),
                 full_name_guest: faker.person.fullName(),
                 order_date: faker.date.recent({ days: 30 }).toISOString(),
                 check_in_date: check_in_date.toISOString(),
                 check_out_date: faker.date.future({ years: faker.number.float({ min: 0.1, max: 2 }), refDate: check_in_date }).toISOString(),
                 status: faker.helpers.arrayElement(Object.values(BookingStatus)),
                 special_request: faker.lorem.sentence(faker.number.int({ min: 10, max: 40 })),
-                room_list: [
-                    {
-                        _id: selectedRoom._id,
-                        photos: [...selectedRoom.photos],
-                        number: selectedRoom.number,
-                        type: selectedRoom.type,
-                        amenities: [...selectedRoom.amenities],
-                        price: selectedRoom.price,
-                        discount: selectedRoom.discount
-                    }
-                ]
+                room_id: selectedRoom._id.toString()
             })
-
             bookingTotalErrors = bookingValidator.validateBooking(
                 fakeBooking.toObject() as BookingInterface,
                 bookings as BookingInterface[],
@@ -154,34 +142,25 @@ const createRoomsAndBookings = async (): Promise<void> => {
             )
             if (bookingTotalErrors.length === 0) {
                 bookings.push(fakeBooking)
-
-                selectedRoom.booking_list.push({
-                    _id: fakeBooking._id,
-                    photo: fakeBooking.photo,
-                    full_name_guest: fakeBooking.full_name_guest,
-                    order_date: fakeBooking.order_date,
-                    check_in_date: fakeBooking.check_in_date,
-                    check_out_date: fakeBooking.check_out_date,
-                    status: fakeBooking.status,
-                    special_request: fakeBooking.special_request
-                } as BookingInterface)
-            } else {
+                selectedRoom.booking_list.push(fakeBooking._id.toString())
+            }
+            else {
                 console.error(`Validación fallida en el fakeBooking #${i}: ${bookingTotalErrors.join(', ')}`)
                 continue
             }
         }
 
         // rooms.map(room => {
-        //     console.log(room._id, room.number, room.price)
+        //     console.log(room._id, room.number, room.booking_list)
         // })
         // console.log('=============')
         // bookings.map(booking => {
-        //     console.log(booking)
+        //     console.log(booking._id, booking.room_id)
         // })
         await RoomModel.insertMany(rooms)
         await BookingModel.insertMany(bookings)
-
-    } catch (error) {
+    }
+    catch (error) {
         console.error('Error creating bookings and rooms with faker', error)
         throw error
     }
@@ -190,4 +169,4 @@ const createRoomsAndBookings = async (): Promise<void> => {
 
 // createUsers()
 // createContacts()
-// createRoomsAndBookings()
+createRoomsAndBookings()

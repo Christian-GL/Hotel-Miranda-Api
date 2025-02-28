@@ -1,4 +1,5 @@
 
+import cors from 'cors'
 import express, { Request, Response } from 'express'
 import swaggerUi from 'swagger-ui-express'
 import swaggerJsDoc from 'swagger-jsdoc'
@@ -49,6 +50,7 @@ const options = {
 const swaggerDocs = swaggerJsDoc(options)
 
 app.use(express.json())
+app.use(cors())
 
 const darkTheme = `
   /* Asegurar que html y body ocupen el 100% del alto de la pantalla */
@@ -201,19 +203,19 @@ const darkTheme = `
     color: #B0B0B0 !important; /* Títulos h4 dentro de las respuestas en gris claro */
   }
 `
-// app.use('/api-dashboard/v1/swagger', swaggerUi.serve, swaggerUi.setup(swaggerDocs))
-app.use('/api-dashboard/v1/swagger', swaggerUi.serve, swaggerUi.setup(swaggerDocs, {
+// app.use('/api-dashboard/v2/swagger', swaggerUi.serve, swaggerUi.setup(swaggerDocs))
+app.use('/api-dashboard/v2/swagger', swaggerUi.serve, swaggerUi.setup(swaggerDocs, {
   customCss: darkTheme
 }))
 
 app.use('/login', loginRouter)
-app.use('/api-dashboard/v1/bookings', bookingRouter)
-app.use('/api-dashboard/v1/rooms', roomRouter)
-app.use('/api-dashboard/v1/contacts', contactRouter)
-app.use('/api-dashboard/v1/users', userRouter)
+app.use('/api-dashboard/v2/bookings', bookingRouter)
+app.use('/api-dashboard/v2/rooms', roomRouter)
+app.use('/api-dashboard/v2/contacts', contactRouter)
+app.use('/api-dashboard/v2/users', userRouter)
 
 app.get('/', (req: Request, res: Response) => {
-  res.redirect('/api-dashboard/v1/swagger')
+  res.redirect('/api-dashboard/v2/swagger')
 })
 app.get('/live', (req: Request, res: Response) => {
   res.send(`${new Date().toISOString()}`)

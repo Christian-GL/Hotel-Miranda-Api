@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.validatePhoneNumber = exports.validateTextArea = exports.validateDateRelativeToNow = exports.validateDate = exports.validateEmail = exports.validateFullName = exports.validatePhoto = void 0;
+exports.validatePhoneNumber = exports.validateTextArea = exports.validateDateRelativeToNow = exports.validateDate = exports.validateEmail = exports.validateFullName = exports.validateIDstring = exports.validateIDObjectId = exports.validatePhoto = void 0;
+var mongoose_1 = require("mongoose");
 var validatePhoto = function (photo, fieldName) {
     if (fieldName === void 0) { fieldName = 'Photo'; }
     var errorMessages = [];
@@ -14,6 +15,24 @@ var validatePhoto = function (photo, fieldName) {
     return errorMessages;
 };
 exports.validatePhoto = validatePhoto;
+var validateIDObjectId = function (id, fieldName) {
+    if (fieldName === void 0) { fieldName = '_ID'; }
+    var errorMessages = [];
+    if (!mongoose_1.Types.ObjectId.isValid(id)) {
+        errorMessages.push("".concat(fieldName, " is not a valid ObjectId"));
+    }
+    return errorMessages;
+};
+exports.validateIDObjectId = validateIDObjectId;
+var validateIDstring = function (id, fieldName) {
+    if (fieldName === void 0) { fieldName = 'ID'; }
+    var errorMessages = [];
+    if (typeof id !== "string") {
+        errorMessages.push("".concat(fieldName, " is not a String"));
+    }
+    return errorMessages;
+};
+exports.validateIDstring = validateIDstring;
 var validateFullName = function (fullName, fieldName) {
     if (fieldName === void 0) { fieldName = 'Full name'; }
     var errorMessages = [];

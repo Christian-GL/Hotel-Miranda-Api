@@ -57,22 +57,16 @@ export class BookingService implements ServiceInterface<BookingInterface> {
     async update(id: string, booking: BookingInterface): Promise<BookingInterface | null> {
         try {
             const existingBooking: BookingInterface | null = await this.fetchById(id)
+            if (existingBooking == null) return null
+
             const updatedBooking: BookingInterface | null = await BookingModel.findOneAndUpdate(
                 { _id: id },
                 booking,
                 { new: true }
             )
-            if (existingBooking !== null && updatedBooking !== null) {
-                if (!isEqual(existingBooking.room_list, booking.room_list)) {
-                    await RoomModel.updateMany(
-                        { 'booking_list.id': id },
-                        { $set: { 'booking_list.$[elem]': booking } },
-                        { arrayFilters: [{ 'elem.id': id }] }
-                    )
-                }
-                return updatedBooking
-            }
-            else return null
+            if (updatedBooking === null) return null
+
+            return updatedBooking
         }
         catch (error) {
             console.error('Error in update of bookingService', error)

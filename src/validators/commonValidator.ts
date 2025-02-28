@@ -1,4 +1,7 @@
 
+import { Types } from "mongoose"
+
+
 export const validatePhoto = (photo: string, fieldName: string = 'Photo'): string[] => {
     const errorMessages: string[] = []
     const regex = /\.(png|jpg)$/i
@@ -8,6 +11,26 @@ export const validatePhoto = (photo: string, fieldName: string = 'Photo'): strin
     }
     if (!regex.test(photo)) {
         errorMessages.push(`${fieldName} is not .png or .jpg file`)
+    }
+
+    return errorMessages
+}
+
+export const validateIDObjectId = (id: any, fieldName: string = '_ID'): string[] => {
+    const errorMessages: string[] = []
+
+    if (!Types.ObjectId.isValid(id)) {
+        errorMessages.push(`${fieldName} is not a valid ObjectId`)
+    }
+
+    return errorMessages
+}
+
+export const validateIDstring = (id: string, fieldName: string = 'ID'): string[] => {
+    const errorMessages: string[] = []
+
+    if (typeof id !== "string") {
+        errorMessages.push(`${fieldName} is not a String`)
     }
 
     return errorMessages

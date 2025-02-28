@@ -43,11 +43,9 @@ export class UserService implements ServiceInterface<UserInterface> {
         }
     }
 
-    async update(id: string, user: UserInterface): Promise<UserInterface | null> {
+    async update(id: string, user: UserInterface, passwordHasChanged: boolean = false): Promise<UserInterface | null> {
         try {
-            const existingUserPassword = await UserModel.findById(id).select("password")
-            if (existingUserPassword &&
-                !(await comparePasswords(user.password, existingUserPassword.password))) {
+            if (passwordHasChanged) {
                 user.password = await hashPassword(user.password)
             }
 

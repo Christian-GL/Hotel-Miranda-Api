@@ -1,23 +1,29 @@
 
-import { validatePhoto, validateFullName, validateDateRelativeToNow, validateTextArea } from "./commonValidator"
+import { validateIDstring, validateIDObjectId, validatePhoto, validateFullName, validateDateRelativeToNow, validateTextArea } from "./commonValidator"
 import { BookingInterface } from "../interfaces/bookingInterface"
 import { BookingStatus } from "../enums/bookingStatus"
 import { RoomType } from "../enums/roomType"
-import { RoomValidator } from "./roomValidator"
 import { RoomInterface } from "../interfaces/roomInterface"
 
 
 export class BookingValidator {
 
-    validateProperties(booking: BookingInterface, checkRoomList: boolean): string[] {
+    validateNewBookingProperties(booking: BookingInterface): string[] {
         const errorMessages: string[] = []
-        let bookingRequiredProperties: string[]
-        checkRoomList ?
-            bookingRequiredProperties = ['photo', 'full_name_guest', 'order_date',
-                'check_in_date', 'check_out_date', 'status', 'special_request', 'room_list']
-            :
-            bookingRequiredProperties = ['photo', 'full_name_guest', 'order_date',
-                'check_in_date', 'check_out_date', 'status', 'special_request']
+        let bookingRequiredProperties = ['photo', 'full_name_guest', 'order_date',
+            'check_in_date', 'check_out_date', 'status', 'special_request', 'room_id']
+
+        bookingRequiredProperties.map(property => {
+            if (!(property in booking)) {
+                errorMessages.push(`Property [${property}] is required in Booking`)
+            }
+        })
+        return errorMessages
+    }
+    validateExistingBookingProperties(booking: BookingInterface): string[] {
+        const errorMessages: string[] = []
+        let bookingRequiredProperties = ['_id', 'photo', 'full_name_guest', 'order_date',
+            'check_in_date', 'check_out_date', 'status', 'special_request', 'room_id']
 
         bookingRequiredProperties.map(property => {
             if (!(property in booking)) {
@@ -27,30 +33,27 @@ export class BookingValidator {
         return errorMessages
     }
 
-    validateBooking(booking: BookingInterface, allBookings: BookingInterface[], allRooms?: RoomInterface[]): string[] {
+    validateBooking(booking: BookingInterface, allBookings: BookingInterface[], allRooms: RoomInterface[]): string[] {
 
-        const allErrorMessages: string[] = []
+        const errorMessages: string[] = []
 
-        let checkRoomList: boolean
-        allRooms === undefined ? checkRoomList = false : checkRoomList = true
-        const errorsCheckingProperties = this.validateProperties(booking, checkRoomList)
-        if (errorsCheckingProperties.length > 0) {
-            return errorsCheckingProperties
+        if (booking === undefined || Object.keys(booking).length === 0) {
+            errorMessages.push('Room is undefined or empty')
+            return errorMessages
         }
 
+        validateIDObjectId(booking._id, '_ID').map(error => errorMessages.push(error))
         // validatePhoto(booking.photo, 'Photo').map(error => allErrorMessages.push(error))
-        validateFullName(booking.full_name_guest, 'Full name guest').map(error => allErrorMessages.push(error))
-        validateDateRelativeToNow(new Date(booking.order_date), true, 'Order date').map(error => allErrorMessages.push(error))
-        this.validateCheckInCheckOut(new Date(booking.check_in_date), new Date(booking.check_out_date)).map(error => allErrorMessages.push(error))
+        validateFullName(booking.full_name_guest, 'Full name guest').map(error => errorMessages.push(error))
+        validateDateRelativeToNow(new Date(booking.order_date), true, 'Order date').map(error => errorMessages.push(error))
+        this.validateCheckInCheckOut(new Date(booking.check_in_date), new Date(booking.check_out_date)).map(error => errorMessages.push(error))
         // this.validateDateIsOccupied(new Date(booking.check_in_date), new Date(booking.check_out_date), allBookings).map(error => allErrorMessages.push(error))
-        this.validateDateIsOccupied(booking, allBookings).map(error => allErrorMessages.push(error))
-        this.validateBookingStatus(booking.status).map(error => allErrorMessages.push(error))
-        validateTextArea(booking.special_request, 'Special request').map(error => allErrorMessages.push(error))
-        if (allRooms !== undefined) {
-            this.validateRoomList(booking.room_list, allRooms).map(error => allErrorMessages.push(error))
-        }
+        this.validateDateIsOccupied(booking, allBookings).map(error => errorMessages.push(error))
+        this.validateBookingStatus(booking.status).map(error => errorMessages.push(error))
+        validateTextArea(booking.special_request, 'Special request').map(error => errorMessages.push(error))
+        this.validateRoomList(booking.room_id, allRooms).map(error => errorMessages.push(error))
 
-        return allErrorMessages
+        return errorMessages
     }
 
     validateRoomId(roomId: string): string[] {
@@ -105,8 +108,6 @@ export class BookingValidator {
         const errorMessages: string[] = []
 
         for (let i = 0; i < bookings.length; i++) {
-            console.log(booking._id)
-            console.log(bookings[i]._id)
             if (new Date(booking.check_in_date) < new Date(bookings[i].check_out_date) &&
                 new Date(booking.check_out_date) > new Date(bookings[i].check_in_date)) {
                 errorMessages.push(`This period is already occupied by booking #${bookings[i]._id}`)
@@ -114,19 +115,16 @@ export class BookingValidator {
         }
         return errorMessages
     }
-    validateRoomList(roomList: Partial<RoomInterface[]>, allRooms: RoomInterface[]): string[] {
+    validateRoomList(roomId: string, allRooms: RoomInterface[]): string[] {
         const errorMessages: string[] = []
-        const roomValidator = new RoomValidator()
 
-        roomList.map(room => {
-            if (room === undefined || Object.keys(room).length === 0) {
-                errorMessages.push('Some booking in booking_list of rooms is undefined or empty')
-                return
-            }
-
-            roomValidator.validateProperties(room, false)
-            roomValidator.validateRoom(room, allRooms)
+        validateIDstring(roomId, 'ID').map(error => {
+            errorMessages.push(error)
         })
+        const roomExists = allRooms.some(room => room._id.toString() === roomId)
+        if (!roomExists) {
+            errorMessages.push(`Room with ID #${roomId} does not exist`)
+        }
 
         return errorMessages
     }

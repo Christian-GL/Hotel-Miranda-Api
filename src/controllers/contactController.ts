@@ -34,7 +34,7 @@ contactRouter.use(authMiddleware)
  *         archived:
  *           type: boolean
  * 
- * /api-dashboard/v1/contacts:
+ * /api-dashboard/v2/contacts:
  *   get:
  *     summary: Obtener todos los contactos
  *     tags: [Contacts]
@@ -65,7 +65,7 @@ contactRouter.use(authMiddleware)
  *             schema:
  *               $ref: '#/components/schemas/Contact'
  *
- * /api-dashboard/v1/contacts/{id}:
+ * /api-dashboard/v2/contacts/{id}:
  *   get:
  *     summary: Obtener un contacto por su ID
  *     tags: [Contacts]
@@ -185,7 +185,8 @@ contactRouter.put('/:id', async (req: Request, res: Response) => {
         try {
             const updatedContact = await contactService.update(req.params.id, req.body)
             if (updatedContact !== null) {
-                res.status(204).json(updatedContact)
+                // res.status(204).json(updatedContact)
+                res.status(200).json(updatedContact)
             }
             else {
                 res.status(404).json({ message: `Contact #${req.params.id} not found` })

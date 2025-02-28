@@ -14,9 +14,15 @@ var UserValidator = /** @class */ (function () {
                 errorMessages.push("Property [".concat(property, "] is required in User"));
             }
         });
+        // Object.keys(user).map((key) => {
+        //     if (!requiredProperties.includes(key)) {
+        //         errorMessages.push(`Unexpected property [${key}] found in User`);
+        //     }
+        // })
         return errorMessages;
     };
-    UserValidator.prototype.validateUser = function (user) {
+    UserValidator.prototype.validateUser = function (user, passwordHasChanged) {
+        if (passwordHasChanged === void 0) { passwordHasChanged = false; }
         var allErrorMessages = [];
         var errorsCheckingProperties = this.validateProperties(user);
         if (errorsCheckingProperties.length > 0) {
@@ -31,7 +37,9 @@ var UserValidator = /** @class */ (function () {
         (0, commonValidator_1.validateTextArea)(user.description, 'Description').map(function (error) { return allErrorMessages.push(error); });
         (0, commonValidator_1.validatePhoneNumber)(user.phone_number, 'Phone number').map(function (error) { return allErrorMessages.push(error); });
         this.validateStatusActive(user.status).map(function (error) { return allErrorMessages.push(error); });
-        this.validatePassword(user.password).map(function (error) { return allErrorMessages.push(error); });
+        if (passwordHasChanged) {
+            this.validateNewPassword(user.password).map(function (error) { return allErrorMessages.push(error); });
+        }
         return allErrorMessages;
     };
     UserValidator.prototype.validateStatusActive = function (status) {
@@ -44,7 +52,7 @@ var UserValidator = /** @class */ (function () {
         }
         return errorMessages;
     };
-    UserValidator.prototype.validatePassword = function (password) {
+    UserValidator.prototype.validateNewPassword = function (password) {
         var errorMessages = [];
         var regexUppercase = /[A-Z]/;
         var regexNumber = /\d/;

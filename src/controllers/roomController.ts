@@ -5,6 +5,7 @@ import { authMiddleware } from '../middleware/authMiddleware'
 import { RoomService } from '../services/roomService'
 import { BookingService } from '../services/bookingService'
 import { RoomValidator } from '../validators/roomValidator'
+import { BookingInterface } from '../interfaces/bookingInterface'
 
 
 export const roomRouter = Router()
@@ -46,7 +47,7 @@ roomRouter.use(authMiddleware)
  *           items:
  *             type: integer
  *
- * /api-dashboard/v1/rooms:
+ * /api-dashboard/v2/rooms:
  *   get:
  *     summary: Obtener todas las habitaciones
  *     tags: [Rooms]
@@ -79,7 +80,7 @@ roomRouter.use(authMiddleware)
  *       400:
  *         description: Datos inválidos
  *
- * /api-dashboard/v1/rooms/{id}:
+ * /api-dashboard/v2/rooms/{id}:
  *   get:
  *     summary: Obtener una habitación por ID
  *     tags: [Rooms]
@@ -175,14 +176,14 @@ roomRouter.get('/:id', async (req: Request, res: Response) => {
 
 roomRouter.post('/', async (req: Request, res: Response) => {
     const allRooms = await roomService.fetchAll()
-    const allBookings = await bookingService.fetchAll()
     const roomValidator = new RoomValidator()
-    const totalErrors = roomValidator.validateRoom(req.body, allRooms, allBookings)
+    const newRoom = { ...req.body, booking_list: [] }
+    const totalErrors = roomValidator.validateNewRoom(newRoom, allRooms)
 
     if (totalErrors.length === 0) {
         try {
-            const newRoom = await roomService.create(req.body)
-            res.status(201).json(newRoom)
+            const roomToCreate = await roomService.create(newRoom)
+            res.status(201).json(roomToCreate)
         }
         catch (error) {
             console.error("Error in post of roomController:", error)
@@ -200,17 +201,57 @@ roomRouter.put('/:id', async (req: Request, res: Response) => {
     const roomValidator = new RoomValidator()
     const allRooms = await roomService.fetchAll()
     const allBookings = await bookingService.fetchAll()
-    const totalErrors = roomValidator.validateRoom(req.body, allRooms, allBookings)
+    const totalErrors = roomValidator.validateExistingRoom(req.body, allRooms, allBookings)
 
     if (totalErrors.length === 0) {
         try {
+            // SE DEBE DE PODER ACTUALIZAR LAS BOOKINGS DESDE AQUI? NO DEBERIA NO?
+            // const existingRoom = await roomService.fetchById(req.params.id)
+            // if (existingRoom === null) {
+            //     res.status(404).json({ message: `Room #${req.params.id} not found` })
+            //     return
+            // }
             const updatedRoom = await roomService.update(req.params.id, req.body)
-            if (updatedRoom !== null) {
-                res.status(204).json(updatedRoom)
+            if (updatedRoom === null) {
+                res.status(404).json({ message: `Room #${req.params.id} not found (cant be updated)` })
+                return
             }
-            else {
-                res.status(404).json({ message: `Room #${req.body.id} not found` })
-            }
+
+            // const oldBookings = new Set(existingRoom.booking_list)
+            // const newBookings = new Set(updatedRoom.booking_list)
+            // const bookingsToRemove = [...oldBookings].filter(id => !newBookings.has(id))
+            // const bookingsToAdd = [...newBookings].filter(id => !oldBookings.has(id))
+            // const errors: string[] = []
+
+            // for (const bookingId of bookingsToRemove) {
+            //     const bookingElement = await bookingService.fetchById(bookingId)
+            //     if (bookingElement === null) {
+            //         errors.push(`Room.booking_list #${bookingId} not found`)
+            //         continue
+            //     }
+            //     if (bookingElement.room_id === req.params.id) {
+            //         await bookingService.delete(bookingElement._id)
+            //     }
+            // }
+
+            // for (const bookingId of bookingsToAdd) {
+            //     const bookingElement = await bookingService.fetchById(bookingId)
+            //     if (bookingElement === null) {
+            //         errors.push(`Room.booking_list #${bookingId} not found`)
+            //         continue
+            //     }
+            //     bookingElement.room_id = req.params.id
+            //     const updatedBooking = await bookingService.update(bookingElement._id, bookingElement)
+            //     if (updatedBooking === null) {
+            //         errors.push(`Room.booking_list #${bookingId} not found (can't be updated)`)
+            //     }
+            // }
+            // if (errors.length > 0) {
+            //     res.status(400).json({ message: errors.join(', ') })
+            //     return
+            // }
+
+            res.status(200).json(updatedRoom)
         }
         catch (error) {
             console.error("Error in put of roomController:", error)
@@ -218,19 +259,35 @@ roomRouter.put('/:id', async (req: Request, res: Response) => {
         }
     }
     else {
-
         res.status(400).json({ message: totalErrors.join(', ') })
     }
 })
 
 roomRouter.delete('/:id', async (req: Request, res: Response) => {
     try {
-        const deletedRoom = await roomService.delete(req.params.id)
-        if (deletedRoom) {
-            res.status(204).json()
-        } else {
+        const roomToDelete = await roomService.fetchById(req.params.id)
+
+        if (roomToDelete === null) {
             res.status(404).json({ message: `Room #${req.params.id} not found` })
+            return
         }
+
+        const bookingsToDelete: BookingInterface[] = []
+        for (const bookingId of roomToDelete.booking_list) {
+            const booking = await bookingService.fetchById(bookingId)
+            if (booking === null) {
+                res.status(404).json({ message: `Booking #${bookingId} not found` })
+                return
+            }
+            bookingsToDelete.push(booking)
+        }
+
+        for (const booking of bookingsToDelete) {
+            await bookingService.delete(booking._id)
+        }
+        await roomService.delete(roomToDelete._id)
+        res.status(204).json()
+        
     }
     catch (error) {
         console.error("Error in delete of roomController:", error)

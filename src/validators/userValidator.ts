@@ -17,10 +17,15 @@ export class UserValidator {
                 errorMessages.push(`Property [${property}] is required in User`)
             }
         })
+        // Object.keys(user).map((key) => {
+        //     if (!requiredProperties.includes(key)) {
+        //         errorMessages.push(`Unexpected property [${key}] found in User`);
+        //     }
+        // })
         return errorMessages
     }
 
-    validateUser(user: UserInterface): string[] {
+    validateUser(user: UserInterface, passwordHasChanged: boolean = false): string[] {
         const allErrorMessages: string[] = []
 
         const errorsCheckingProperties = this.validateProperties(user)
@@ -49,9 +54,11 @@ export class UserValidator {
         this.validateStatusActive(user.status).map(
             error => allErrorMessages.push(error)
         )
-        this.validatePassword(user.password).map(
-            error => allErrorMessages.push(error)
-        )
+        if (passwordHasChanged) {
+            this.validateNewPassword(user.password).map(
+                error => allErrorMessages.push(error)
+            )
+        }
 
         return allErrorMessages
     }
@@ -69,7 +76,7 @@ export class UserValidator {
         return errorMessages
     }
 
-    validatePassword(password: string): string[] {
+    validateNewPassword(password: string): string[] {
         const errorMessages: string[] = []
         const regexUppercase = /[A-Z]/
         const regexNumber = /\d/

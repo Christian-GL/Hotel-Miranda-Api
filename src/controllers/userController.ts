@@ -2,8 +2,10 @@
 import { Request, Response } from 'express'
 import Router from 'express'
 import { authMiddleware } from '../middleware/authMiddleware'
+import { UserModel } from '../models/userModel'
 import { UserService } from '../services/userService'
 import { UserValidator } from '../validators/userValidator'
+import { comparePasswords } from '../utils/hashPassword'
 
 
 export const userRouter = Router()
@@ -38,7 +40,7 @@ userRouter.use(authMiddleware)
  *           type: string
  *           description: Contraseña encriptada del usuario
  * 
- * /api-dashboard/v1/users:
+ * /api-dashboard/v2/users:
  *   get:
  *     summary: Obtener todos los usuarios
  *     tags: [Users]
@@ -69,7 +71,7 @@ userRouter.use(authMiddleware)
  *             schema:
  *               $ref: '#/components/schemas/User'
  *
- * /api-dashboard/v1/users/{id}:
+ * /api-dashboard/v2/users/{id}:
  *   get:
  *     summary: Obtener un usuario por su ID
  *     tags: [Users]
@@ -183,13 +185,21 @@ userRouter.post('/', async (req: Request, res: Response) => {
 
 userRouter.put('/:id', async (req: Request, res: Response) => {
     const userValidator = new UserValidator()
-    const totalErrors = userValidator.validateUser(req.body)
+    const existingUser = await UserModel.findById(req.body._id).select("password")
+
+    let passwordHasChanged = false
+    if (existingUser !== null) {
+        if (req.body.password !== existingUser.password) passwordHasChanged = true
+    }
+
+    const totalErrors = userValidator.validateUser(req.body, passwordHasChanged)
 
     if (totalErrors.length === 0) {
         try {
-            const updatedUser = await userService.update(req.params.id, req.body)
+            const updatedUser = await userService.update(req.params.id, req.body, passwordHasChanged)
             if (updatedUser !== null) {
-                res.status(204).json(updatedUser)
+                // res.status(204).json(updatedUser)
+                res.status(200).json(updatedUser)
             }
             else {
                 res.status(404).json({ message: `User #${req.params.id} not found` })
@@ -201,6 +211,7 @@ userRouter.put('/:id', async (req: Request, res: Response) => {
         }
     }
     else {
+        console.error(totalErrors.join(', '))
         res.status(400).json({ message: totalErrors.join(', ') })
     }
 })
