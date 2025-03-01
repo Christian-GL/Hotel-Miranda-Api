@@ -7,20 +7,9 @@ var roomType_1 = require("../enums/roomType");
 var BookingValidator = /** @class */ (function () {
     function BookingValidator() {
     }
-    BookingValidator.prototype.validateNewBookingProperties = function (booking) {
+    BookingValidator.prototype.validateProperties = function (booking) {
         var errorMessages = [];
         var bookingRequiredProperties = ['photo', 'full_name_guest', 'order_date',
-            'check_in_date', 'check_out_date', 'status', 'special_request', 'room_id'];
-        bookingRequiredProperties.map(function (property) {
-            if (!(property in booking)) {
-                errorMessages.push("Property [".concat(property, "] is required in Booking"));
-            }
-        });
-        return errorMessages;
-    };
-    BookingValidator.prototype.validateExistingBookingProperties = function (booking) {
-        var errorMessages = [];
-        var bookingRequiredProperties = ['_id', 'photo', 'full_name_guest', 'order_date',
             'check_in_date', 'check_out_date', 'status', 'special_request', 'room_id'];
         bookingRequiredProperties.map(function (property) {
             if (!(property in booking)) {
@@ -35,12 +24,15 @@ var BookingValidator = /** @class */ (function () {
             errorMessages.push('Room is undefined or empty');
             return errorMessages;
         }
-        (0, commonValidator_1.validateIDObjectId)(booking._id, '_ID').map(function (error) { return errorMessages.push(error); });
+        var errorsCheckingProperties = this.validateProperties(booking);
+        if (errorsCheckingProperties.length > 0) {
+            return errorsCheckingProperties;
+        }
+        // validateIDObjectId(booking._id, '_ID').map(error => errorMessages.push(error))
         // validatePhoto(booking.photo, 'Photo').map(error => allErrorMessages.push(error))
         (0, commonValidator_1.validateFullName)(booking.full_name_guest, 'Full name guest').map(function (error) { return errorMessages.push(error); });
         (0, commonValidator_1.validateDateRelativeToNow)(new Date(booking.order_date), true, 'Order date').map(function (error) { return errorMessages.push(error); });
         this.validateCheckInCheckOut(new Date(booking.check_in_date), new Date(booking.check_out_date)).map(function (error) { return errorMessages.push(error); });
-        // this.validateDateIsOccupied(new Date(booking.check_in_date), new Date(booking.check_out_date), allBookings).map(error => allErrorMessages.push(error))
         this.validateDateIsOccupied(booking, allBookings).map(function (error) { return errorMessages.push(error); });
         this.validateBookingStatus(booking.status).map(function (error) { return errorMessages.push(error); });
         (0, commonValidator_1.validateTextArea)(booking.special_request, 'Special request').map(function (error) { return errorMessages.push(error); });
@@ -88,7 +80,9 @@ var BookingValidator = /** @class */ (function () {
         for (var i = 0; i < bookings.length; i++) {
             if (new Date(booking.check_in_date) < new Date(bookings[i].check_out_date) &&
                 new Date(booking.check_out_date) > new Date(bookings[i].check_in_date)) {
-                errorMessages.push("This period is already occupied by booking #".concat(bookings[i]._id));
+                if (booking._id.toString() !== bookings[i]._id.toString()) {
+                    errorMessages.push("This period is already occupied by booking #".concat(bookings[i]._id));
+                }
             }
         }
         return errorMessages;

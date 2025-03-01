@@ -67,14 +67,14 @@ export class RoomService implements ServiceInterface<RoomInterface> {
         try {
             const deletedRoom = await RoomModel.findByIdAndDelete(id)
             if (deletedRoom) {
-                await BookingModel.updateMany(
-                    { 'room_id.id': id },
-                    { $pull: { room_id: { id } } }
-                )
-                await BookingModel.deleteMany({
-                    'room_id.id': id,
-                    $expr: { $eq: [{ $size: '$room_id' }, 1] }
-                })
+                // await BookingModel.updateMany(
+                //     { 'room_id.id': id },
+                //     { $pull: { room_id: { id } } }
+                // )
+                // await BookingModel.deleteMany({
+                //     'room_id.id': id,
+                //     $expr: { $eq: [{ $size: '$room_id' }, 1] }
+                // })
                 return true
             }
             else return false

@@ -205,51 +205,11 @@ roomRouter.put('/:id', async (req: Request, res: Response) => {
 
     if (totalErrors.length === 0) {
         try {
-            // SE DEBE DE PODER ACTUALIZAR LAS BOOKINGS DESDE AQUI? NO DEBERIA NO?
-            // const existingRoom = await roomService.fetchById(req.params.id)
-            // if (existingRoom === null) {
-            //     res.status(404).json({ message: `Room #${req.params.id} not found` })
-            //     return
-            // }
             const updatedRoom = await roomService.update(req.params.id, req.body)
             if (updatedRoom === null) {
                 res.status(404).json({ message: `Room #${req.params.id} not found (cant be updated)` })
                 return
             }
-
-            // const oldBookings = new Set(existingRoom.booking_list)
-            // const newBookings = new Set(updatedRoom.booking_list)
-            // const bookingsToRemove = [...oldBookings].filter(id => !newBookings.has(id))
-            // const bookingsToAdd = [...newBookings].filter(id => !oldBookings.has(id))
-            // const errors: string[] = []
-
-            // for (const bookingId of bookingsToRemove) {
-            //     const bookingElement = await bookingService.fetchById(bookingId)
-            //     if (bookingElement === null) {
-            //         errors.push(`Room.booking_list #${bookingId} not found`)
-            //         continue
-            //     }
-            //     if (bookingElement.room_id === req.params.id) {
-            //         await bookingService.delete(bookingElement._id)
-            //     }
-            // }
-
-            // for (const bookingId of bookingsToAdd) {
-            //     const bookingElement = await bookingService.fetchById(bookingId)
-            //     if (bookingElement === null) {
-            //         errors.push(`Room.booking_list #${bookingId} not found`)
-            //         continue
-            //     }
-            //     bookingElement.room_id = req.params.id
-            //     const updatedBooking = await bookingService.update(bookingElement._id, bookingElement)
-            //     if (updatedBooking === null) {
-            //         errors.push(`Room.booking_list #${bookingId} not found (can't be updated)`)
-            //     }
-            // }
-            // if (errors.length > 0) {
-            //     res.status(400).json({ message: errors.join(', ') })
-            //     return
-            // }
 
             res.status(200).json(updatedRoom)
         }
@@ -287,7 +247,7 @@ roomRouter.delete('/:id', async (req: Request, res: Response) => {
         }
         await roomService.delete(roomToDelete._id)
         res.status(204).json()
-        
+
     }
     catch (error) {
         console.error("Error in delete of roomController:", error)

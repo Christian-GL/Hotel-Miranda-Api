@@ -5,6 +5,7 @@ import { authMiddleware } from '../middleware/authMiddleware'
 import { BookingService } from '../services/bookingService'
 import { RoomService } from '../services/roomService'
 import { BookingValidator } from '../validators/bookingValidator'
+import { RoomInterface } from '../interfaces/roomInterface'
 
 
 export const bookingRouter = Router()
@@ -174,7 +175,22 @@ bookingRouter.post('/', async (req: Request, res: Response) => {
 
     if (totalErrors.length === 0) {
         try {
+            const roomOfBooking = await roomService.fetchById(req.body.room_id)
+            if (roomOfBooking === null) {
+                res.status(404).json({ message: `Room_id #${req.body.room_id} not found` })
+                return
+            }
+
             const newBooking = await bookingService.create(req.body)
+
+            roomOfBooking.booking_list.push(newBooking._id)
+            const roomUpdated = await roomService.update(roomOfBooking._id, roomOfBooking)
+            if (roomUpdated === null) {
+                await bookingService.delete(newBooking._id)
+                res.status(404).json({ message: `Room update failed, deleting booking)` })
+                return
+            }
+
             res.status(201).json(newBooking)
         }
         catch (error) {
@@ -197,11 +213,56 @@ bookingRouter.put('/:id', async (req: Request, res: Response) => {
 
     if (totalErrors.length === 0) {
         try {
-            const updatedBooking = await bookingService.update(req.params.id, req.body)
-            if (updatedBooking === null) {
-                res.status(404).json({ message: `Booking #${req.params.id} not found` })
+            const bookingToUpdate = await bookingService.fetchById(req.params.id)
+            if (bookingToUpdate === null) {
+                res.status(404).json({ message: `Booking update failed, booking #${req.params.id} not found` })
+                return
             }
-            else res.status(204).json(updatedBooking)
+
+            // Si la booking tiene diferente room_id
+            if (bookingToUpdate.room_id !== req.body.room_id) {
+                // Le quida el id del booking al room viejo
+                const oldRoomOfBooking = await roomService.fetchById(bookingToUpdate.room_id)
+                if (oldRoomOfBooking === null) {
+                    res.status(404).json({ message: `Booking update failed, old room #${bookingToUpdate.room_id} not found` })
+                    return
+                }
+                oldRoomOfBooking.booking_list = oldRoomOfBooking.booking_list.filter(bookingID => bookingID !== bookingToUpdate._id)
+                const oldRoomOfBookingUpdated = await roomService.update(oldRoomOfBooking._id, oldRoomOfBooking)
+                if (oldRoomOfBookingUpdated === null) {
+                    res.status(404).json({ message: `Old room #${req.params.id} not found (cant be updated)` })
+                    return
+                }
+
+                // Le añade el id del booking al room nuevo
+                const newRoomOfBooking = await roomService.fetchById(req.body.room_id)
+                if (newRoomOfBooking === null) {
+                    res.status(404).json({ message: `Booking update failed, new room #${req.body.room_id} not found` })
+                    return
+                }
+                newRoomOfBooking.booking_list.push(bookingToUpdate._id)
+                const newRoomOfBookingUpdated = await roomService.update(newRoomOfBooking._id, newRoomOfBooking)
+                if (newRoomOfBookingUpdated === null) {
+                    res.status(404).json({ message: `New room #${req.body.room_id} not found (cant be updated)` })
+                    return
+                }
+
+                // Actualiza la booking
+                bookingToUpdate.room_id = req.body.room_id
+                const newBookingUpdated = await bookingService.update(bookingToUpdate._id, bookingToUpdate)
+                if (newBookingUpdated === null) {
+                    res.status(404).json({ message: `New booking #${bookingToUpdate._id} not found (cant be updated)` })
+                    return
+                }
+
+            }
+            const bookingUpdated = await bookingService.update(req.params.id, req.body)
+            if (bookingUpdated === null) {
+                res.status(404).json({ message: `Booking update failed, booking #${req.params.id} not found` })
+                return
+            }
+
+            else res.status(200).json(bookingUpdated)
         }
         catch (error) {
             console.error("Error in put of bookingController:", error)
@@ -217,12 +278,27 @@ bookingRouter.put('/:id', async (req: Request, res: Response) => {
 
 bookingRouter.delete('/:id', async (req: Request, res: Response) => {
     try {
-        const deletedBooking = await bookingService.delete(req.params.id)
-        if (deletedBooking) {
-            res.status(204).json()
-        } else {
-            res.status(404).json({ message: `Booking #${req.params.id} not found` })
+        const bookingToDelete = await bookingService.fetchById(req.params.id)
+
+        if (bookingToDelete === null) {
+            res.status(404).json({ message: `Booking to delete #${req.params.id} not found` })
+            return
         }
+
+        const roomToUpdate = await roomService.fetchById(bookingToDelete.room_id)
+        if (roomToUpdate === null) {
+            res.status(404).json({ message: `Room to update #${bookingToDelete.room_id} not found` })
+            return
+        }
+        roomToUpdate.booking_list = roomToUpdate.booking_list.filter(bookingID => bookingID.toString() !== bookingToDelete._id.toString())
+        const roomUpdated = await roomService.update(roomToUpdate._id, roomToUpdate)
+        if (roomUpdated === null) {
+            res.status(404).json({ message: `Room to update #${roomToUpdate._id} not found (cant be updated)` })
+            return
+        }
+
+        await bookingService.delete(bookingToDelete._id)
+        res.status(204).json()
     }
     catch (error) {
         console.error("Error in delete of bookingController:", error)

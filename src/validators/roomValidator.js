@@ -7,17 +7,7 @@ var roomAmenities_1 = require("../enums/roomAmenities");
 var RoomValidator = /** @class */ (function () {
     function RoomValidator() {
     }
-    RoomValidator.prototype.validateNewRoomProperties = function (room) {
-        var errorMessages = [];
-        var requiredProperties = ['photos', 'number', 'type', 'amenities', 'price', 'discount', 'booking_list'];
-        requiredProperties.forEach(function (property) {
-            if (!(property in room)) {
-                errorMessages.push("Property [".concat(property, "] is required in Room"));
-            }
-        });
-        return errorMessages;
-    };
-    RoomValidator.prototype.validateExistingRoomProperties = function (room) {
+    RoomValidator.prototype.validateProperties = function (room) {
         var errorMessages = [];
         var requiredProperties = ['photos', 'number', 'type', 'amenities', 'price', 'discount', 'booking_list'];
         requiredProperties.forEach(function (property) {
@@ -32,6 +22,10 @@ var RoomValidator = /** @class */ (function () {
         if (room === undefined || Object.keys(room).length === 0) {
             errorMessages.push('Room is undefined or empty');
             return errorMessages;
+        }
+        var errorsCheckingProperties = this.validateProperties(room);
+        if (errorsCheckingProperties.length > 0) {
+            return errorsCheckingProperties;
         }
         // this.validatePhotos(room.photos).errorMessages.map(error => allErrorMessages.push(error))
         this.validateNewNumber(room.number, allRooms).map(function (error) { return errorMessages.push(error); });
@@ -48,7 +42,7 @@ var RoomValidator = /** @class */ (function () {
             return errorMessages;
         }
         // this.validatePhotos(room.photos).errorMessages.map(error => allErrorMessages.push(error))
-        this.validateNewNumber(room.number, allRooms).map(function (error) { return errorMessages.push(error); });
+        this.validateExistingNumber(room.number, room.number, allRooms).map(function (error) { return errorMessages.push(error); });
         this.validateRoomType(room.type).map(function (error) { return errorMessages.push(error); });
         this.validateAmenities(room.amenities).map(function (error) { return errorMessages.push(error); });
         this.validateRoomPrice(room.price).map(function (error) { return errorMessages.push(error); });
@@ -75,35 +69,26 @@ var RoomValidator = /** @class */ (function () {
         }
         return errorMessages;
     };
-    RoomValidator.prototype.validateNewNumber = function (number, allRooms) {
+    RoomValidator.prototype.validateNumber = function (number, allRooms, actualNumber) {
         var errorMessages = [];
-        var regex = new RegExp(/^\d{3}$/);
+        var regex = /^\d{3}$/;
         if (typeof number !== "string") {
             errorMessages.push('Number is not a string');
         }
         if (!regex.test(number)) {
             errorMessages.push('Number must have 3 numeric digits between 000 and 999');
         }
-        if (allRooms.some(function (room) { return room.number === number; })) {
+        if (allRooms.some(function (room) { return room.number === number && room.number !== actualNumber; })) {
             errorMessages.push('Number is already taken');
         }
         return errorMessages;
     };
-    // validateExistingNumber(number: string, allRooms: RoomInterface[]): string[] {
-    //     const errorMessages: string[] = []
-    //     const regex = new RegExp(/^\d{3}$/)
-    //     if (typeof number !== "string") {
-    //         errorMessages.push('Number is not a string')
-    //     }
-    //     if (!regex.test(number)) {
-    //         errorMessages.push('Number must have 3 numeric digits between 000 and 999')
-    //     }
-    //     const roomExists = allRooms.some(room => room.number === number)
-    //     if (!roomExists) {
-    //         errorMessages.push('Number does not exist')
-    //     }
-    //     return errorMessages
-    // }
+    RoomValidator.prototype.validateNewNumber = function (number, allRooms) {
+        return this.validateNumber(number, allRooms);
+    };
+    RoomValidator.prototype.validateExistingNumber = function (number, actualNumber, allRooms) {
+        return this.validateNumber(number, allRooms, actualNumber);
+    };
     RoomValidator.prototype.validateRoomType = function (type) {
         var errorMessages = [];
         if (typeof type !== "string") {

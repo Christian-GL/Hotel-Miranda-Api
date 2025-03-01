@@ -38,7 +38,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RoomService = void 0;
 var roomModel_1 = require("../models/roomModel");
-var bookingModel_1 = require("../models/bookingModel");
 var RoomService = /** @class */ (function () {
     function RoomService() {
     }
@@ -140,28 +139,29 @@ var RoomService = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        _a.trys.push([0, 6, , 7]);
+                        _a.trys.push([0, 2, , 3]);
                         return [4 /*yield*/, roomModel_1.RoomModel.findByIdAndDelete(id)];
                     case 1:
                         deletedRoom = _a.sent();
-                        if (!deletedRoom) return [3 /*break*/, 4];
-                        return [4 /*yield*/, bookingModel_1.BookingModel.updateMany({ 'room_id.id': id }, { $pull: { room_id: { id: id } } })];
+                        if (deletedRoom) {
+                            // await BookingModel.updateMany(
+                            //     { 'room_id.id': id },
+                            //     { $pull: { room_id: { id } } }
+                            // )
+                            // await BookingModel.deleteMany({
+                            //     'room_id.id': id,
+                            //     $expr: { $eq: [{ $size: '$room_id' }, 1] }
+                            // })
+                            return [2 /*return*/, true];
+                        }
+                        else
+                            return [2 /*return*/, false];
+                        return [3 /*break*/, 3];
                     case 2:
-                        _a.sent();
-                        return [4 /*yield*/, bookingModel_1.BookingModel.deleteMany({
-                                'room_id.id': id,
-                                $expr: { $eq: [{ $size: '$room_id' }, 1] }
-                            })];
-                    case 3:
-                        _a.sent();
-                        return [2 /*return*/, true];
-                    case 4: return [2 /*return*/, false];
-                    case 5: return [3 /*break*/, 7];
-                    case 6:
                         error_5 = _a.sent();
                         console.error('Error in delete of roomService', error_5);
                         throw error_5;
-                    case 7: return [2 /*return*/];
+                    case 3: return [2 /*return*/];
                 }
             });
         });

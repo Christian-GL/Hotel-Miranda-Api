@@ -8,18 +8,7 @@ import { BookingInterface } from "../interfaces/bookingInterface"
 
 export class RoomValidator {
 
-    validateNewRoomProperties(room: RoomInterface): string[] {
-        const errorMessages: string[] = []
-        let requiredProperties = ['photos', 'number', 'type', 'amenities', 'price', 'discount', 'booking_list']
-
-        requiredProperties.forEach((property) => {
-            if (!(property in room)) {
-                errorMessages.push(`Property [${property}] is required in Room`)
-            }
-        })
-        return errorMessages
-    }
-    validateExistingRoomProperties(room: RoomInterface): string[] {
+    validateProperties(room: RoomInterface): string[] {
         const errorMessages: string[] = []
         let requiredProperties = ['photos', 'number', 'type', 'amenities', 'price', 'discount', 'booking_list']
 
@@ -37,6 +26,10 @@ export class RoomValidator {
         if (room === undefined || Object.keys(room).length === 0) {
             errorMessages.push('Room is undefined or empty')
             return errorMessages
+        }
+        const errorsCheckingProperties = this.validateProperties(room)
+        if (errorsCheckingProperties.length > 0) {
+            return errorsCheckingProperties
         }
 
         // this.validatePhotos(room.photos).errorMessages.map(error => allErrorMessages.push(error))
@@ -57,7 +50,7 @@ export class RoomValidator {
         }
 
         // this.validatePhotos(room.photos).errorMessages.map(error => allErrorMessages.push(error))
-        this.validateNewNumber(room.number, allRooms).map(error => errorMessages.push(error))
+        this.validateExistingNumber(room.number, room.number, allRooms).map(error => errorMessages.push(error))
         this.validateRoomType(room.type).map(error => errorMessages.push(error))
         this.validateAmenities(room.amenities).map(error => errorMessages.push(error))
         this.validateRoomPrice(room.price).map(error => errorMessages.push(error))
@@ -89,9 +82,9 @@ export class RoomValidator {
 
         return errorMessages
     }
-    validateNewNumber(number: string, allRooms: RoomInterface[]): string[] {
-        const errorMessages: string[] = []
-        const regex = new RegExp(/^\d{3}$/)
+    validateNumber(number: string, allRooms: RoomInterface[], actualNumber?: string): string[] {
+        const errorMessages: string[] = [];
+        const regex = /^\d{3}$/
 
         if (typeof number !== "string") {
             errorMessages.push('Number is not a string')
@@ -99,29 +92,18 @@ export class RoomValidator {
         if (!regex.test(number)) {
             errorMessages.push('Number must have 3 numeric digits between 000 and 999')
         }
-        if (allRooms.some(room => room.number === number)) {
+        if (allRooms.some(room => room.number === number && room.number !== actualNumber)) {
             errorMessages.push('Number is already taken')
         }
 
-        return errorMessages
+        return errorMessages;
     }
-    // validateExistingNumber(number: string, allRooms: RoomInterface[]): string[] {
-    //     const errorMessages: string[] = []
-    //     const regex = new RegExp(/^\d{3}$/)
-
-    //     if (typeof number !== "string") {
-    //         errorMessages.push('Number is not a string')
-    //     }
-    //     if (!regex.test(number)) {
-    //         errorMessages.push('Number must have 3 numeric digits between 000 and 999')
-    //     }
-    //     const roomExists = allRooms.some(room => room.number === number)
-    //     if (!roomExists) {
-    //         errorMessages.push('Number does not exist')
-    //     }
-
-    //     return errorMessages
-    // }
+    validateNewNumber(number: string, allRooms: RoomInterface[]): string[] {
+        return this.validateNumber(number, allRooms);
+    }
+    validateExistingNumber(number: string, actualNumber: string, allRooms: RoomInterface[]): string[] {
+        return this.validateNumber(number, allRooms, actualNumber);
+    }
     validateRoomType(type: string): string[] {
         const errorMessages: string[] = []
 

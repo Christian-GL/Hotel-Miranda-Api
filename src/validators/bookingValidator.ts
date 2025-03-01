@@ -8,7 +8,7 @@ import { RoomInterface } from "../interfaces/roomInterface"
 
 export class BookingValidator {
 
-    validateNewBookingProperties(booking: BookingInterface): string[] {
+    validateProperties(booking: BookingInterface): string[] {
         const errorMessages: string[] = []
         let bookingRequiredProperties = ['photo', 'full_name_guest', 'order_date',
             'check_in_date', 'check_out_date', 'status', 'special_request', 'room_id']
@@ -20,34 +20,24 @@ export class BookingValidator {
         })
         return errorMessages
     }
-    validateExistingBookingProperties(booking: BookingInterface): string[] {
-        const errorMessages: string[] = []
-        let bookingRequiredProperties = ['_id', 'photo', 'full_name_guest', 'order_date',
-            'check_in_date', 'check_out_date', 'status', 'special_request', 'room_id']
-
-        bookingRequiredProperties.map(property => {
-            if (!(property in booking)) {
-                errorMessages.push(`Property [${property}] is required in Booking`)
-            }
-        })
-        return errorMessages
-    }
 
     validateBooking(booking: BookingInterface, allBookings: BookingInterface[], allRooms: RoomInterface[]): string[] {
-
         const errorMessages: string[] = []
 
         if (booking === undefined || Object.keys(booking).length === 0) {
             errorMessages.push('Room is undefined or empty')
             return errorMessages
         }
+        const errorsCheckingProperties = this.validateProperties(booking)
+        if (errorsCheckingProperties.length > 0) {
+            return errorsCheckingProperties
+        }
 
-        validateIDObjectId(booking._id, '_ID').map(error => errorMessages.push(error))
+        // validateIDObjectId(booking._id, '_ID').map(error => errorMessages.push(error))
         // validatePhoto(booking.photo, 'Photo').map(error => allErrorMessages.push(error))
         validateFullName(booking.full_name_guest, 'Full name guest').map(error => errorMessages.push(error))
         validateDateRelativeToNow(new Date(booking.order_date), true, 'Order date').map(error => errorMessages.push(error))
         this.validateCheckInCheckOut(new Date(booking.check_in_date), new Date(booking.check_out_date)).map(error => errorMessages.push(error))
-        // this.validateDateIsOccupied(new Date(booking.check_in_date), new Date(booking.check_out_date), allBookings).map(error => allErrorMessages.push(error))
         this.validateDateIsOccupied(booking, allBookings).map(error => errorMessages.push(error))
         this.validateBookingStatus(booking.status).map(error => errorMessages.push(error))
         validateTextArea(booking.special_request, 'Special request').map(error => errorMessages.push(error))
@@ -110,7 +100,9 @@ export class BookingValidator {
         for (let i = 0; i < bookings.length; i++) {
             if (new Date(booking.check_in_date) < new Date(bookings[i].check_out_date) &&
                 new Date(booking.check_out_date) > new Date(bookings[i].check_in_date)) {
-                errorMessages.push(`This period is already occupied by booking #${bookings[i]._id}`)
+                if (booking._id.toString() !== bookings[i]._id.toString()) {
+                    errorMessages.push(`This period is already occupied by booking #${bookings[i]._id}`)
+                }
             }
         }
         return errorMessages
