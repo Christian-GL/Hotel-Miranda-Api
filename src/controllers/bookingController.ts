@@ -6,6 +6,7 @@ import { BookingService } from '../services/bookingService'
 import { RoomService } from '../services/roomService'
 import { BookingValidator } from '../validators/bookingValidator'
 import { RoomInterface } from '../interfaces/roomInterface'
+import { BookingInterfaceWithRoomData } from '../interfaces/bookingInterface'
 
 
 export const bookingRouter = Router()
@@ -144,7 +145,19 @@ bookingRouter.use(authMiddleware)
 bookingRouter.get('/', async (req: Request, res: Response) => {
     try {
         const bookingList = await bookingService.fetchAll()
-        res.json(bookingList)
+        const bookingListWithRoom: BookingInterfaceWithRoomData[] = []
+
+        for (const booking of bookingList) {
+            const room = await roomService.fetchById(booking.room_id)
+            if (room === null) {
+                res.status(404).json({ message: `Room #${booking.room_id} not found` })
+                return
+            }
+            const bookingWithRoomData: BookingInterfaceWithRoomData = { ...booking.toObject(), room_data: room }
+            bookingListWithRoom.push(bookingWithRoomData)
+        }
+
+        res.json(bookingListWithRoom)
     }
     catch (error) {
         console.error("Error in get (all) of bookingController:", error)
@@ -155,11 +168,19 @@ bookingRouter.get('/', async (req: Request, res: Response) => {
 bookingRouter.get('/:id', async (req: Request, res: Response) => {
     try {
         const booking = await bookingService.fetchById(req.params.id)
-        if (booking !== null) {
-            res.json(booking)
-        } else {
+        if (booking === null) {
             res.status(404).json({ message: `Booking #${req.params.id} not found` })
+            return
         }
+
+        const room = await roomService.fetchById(booking.room_id)
+        if (room === null) {
+            res.status(404).json({ message: `Room #${booking.room_id} not found` })
+            return
+        }
+
+        const bookingWithRoomData: BookingInterfaceWithRoomData = { ...booking.toObject(), room_data: room }
+        res.json(bookingWithRoomData)
     }
     catch (error) {
         console.error("Error in get (by id) of contactController:", error)

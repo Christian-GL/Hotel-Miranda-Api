@@ -50,11 +50,11 @@ export const loginRouter = Router()
  */
 
 loginRouter.post('', async (req: Request, res: Response) => {
-    const { userEmail, userPassword } = req.body
-
+    const { email, password } = req.body
     const userService = new UserService()
     const userData = await userService.fetchAll()
-    const user: UserInterface[] = userData.filter(u => u.email === userEmail)
+    const user: UserInterface[] = userData.filter(u => u.email === email)
+
     if (user.length === 0) {
         res.status(404).send({ message: 'User or password wrong' })
         return
@@ -64,10 +64,10 @@ loginRouter.post('', async (req: Request, res: Response) => {
         return
     }
 
-    bcrypt.compare(userPassword, user[0].password)
+    bcrypt.compare(password, user[0].password)
         .then(result => {
             if (!result) {
-                res.status(400).send({ message: 'User or password wrong' })
+                res.status(400).send({ message: 'User or password wronggg' })
                 return
             }
             else {

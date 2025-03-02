@@ -6,6 +6,7 @@ import { RoomService } from '../services/roomService'
 import { BookingService } from '../services/bookingService'
 import { RoomValidator } from '../validators/roomValidator'
 import { BookingInterface } from '../interfaces/bookingInterface'
+import { RoomInterfaceWithBookingData } from '../interfaces/roomInterface'
 
 
 export const roomRouter = Router()
@@ -149,7 +150,22 @@ roomRouter.use(authMiddleware)
 roomRouter.get('/', async (req: Request, res: Response) => {
     try {
         const roomList = await roomService.fetchAll()
-        res.json(roomList)
+        const roomListWithBookingsData: RoomInterfaceWithBookingData[] = []
+
+        for (const room of roomList) {
+            const bookings: BookingInterface[] = []
+            for (const bookingID of room.booking_list) {
+                const booking = await bookingService.fetchById(bookingID)
+                if (booking === null) {
+                    res.status(404).json({ message: `Booking #${bookingID} not found` })
+                    return
+                }
+                bookings.push(booking)
+            }
+            roomListWithBookingsData.push({ ...room.toObject(), booking_data_list: bookings })
+        }
+
+        res.json(roomListWithBookingsData)
     }
     catch (error) {
         console.error("Error in get (all) of roomController:", error)
@@ -160,17 +176,27 @@ roomRouter.get('/', async (req: Request, res: Response) => {
 roomRouter.get('/:id', async (req: Request, res: Response) => {
     try {
         const room = await roomService.fetchById(req.params.id)
-        if (room !== null) {
-            res.json(room)
-        } else {
-            res.status(404).json({ message: `Room  #${req.params.id} not found` })
+        if (room === null) {
+            res.status(404).json({ message: `Room #${req.params.id} not found` })
+            return
         }
+
+        const bookings: BookingInterface[] = []
+        for (const bookingID of room.booking_list) {
+            const booking = await bookingService.fetchById(bookingID)
+            if (booking === null) {
+                res.status(404).json({ message: `Booking #${bookingID} not found` })
+                return
+            }
+            bookings.push(booking)
+        }
+
+        const roomWithBookingData: RoomInterfaceWithBookingData = { ...room.toObject(), booking_data_list: bookings }
+        res.json(roomWithBookingData)
     }
     catch (error) {
         console.error("Error in get (by id) of roomController:", error)
-        // Manejar el codigo de error tambien que no sea 500 (este caso es 404)
-        if (error instanceof Error) res.status(500).json({ message: error.message })
-        else res.status(500).json({ message: 'Internal server error' })
+        res.status(500).json({ message: "Internal server error" })
     }
 })
 
