@@ -237,7 +237,18 @@ roomRouter.put('/:id', async (req: Request, res: Response) => {
                 return
             }
 
-            res.status(200).json(updatedRoom)
+            const bookingDataList = []
+            for (const bookingID of updatedRoom.booking_list) {
+                const bookingData = await bookingService.fetchById(bookingID)
+                if (bookingData === null) {
+                    res.status(404).json({ message: `Booking #${bookingID} not found` })
+                    return
+                }
+                bookingDataList.push(bookingData)
+            }
+
+            const roomToReturn: RoomInterfaceWithBookingData = { ...updatedRoom.toObject(), booking_data_list: bookingDataList }
+            res.status(200).json(roomToReturn)
         }
         catch (error) {
             console.error("Error in put of roomController:", error)

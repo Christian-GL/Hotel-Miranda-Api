@@ -48,7 +48,7 @@ export class RoomValidator {
             errorMessages.push('Room is undefined or empty')
             return errorMessages
         }
-
+        
         // this.validatePhotos(room.photos).errorMessages.map(error => allErrorMessages.push(error))
         this.validateExistingNumber(room.number, room.number, allRooms).map(error => errorMessages.push(error))
         this.validateRoomType(room.type).map(error => errorMessages.push(error))

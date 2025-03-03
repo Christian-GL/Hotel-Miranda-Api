@@ -212,7 +212,8 @@ bookingRouter.post('/', async (req: Request, res: Response) => {
                 return
             }
 
-            res.status(201).json(newBooking)
+            const bookingToReturn: BookingInterfaceWithRoomData = { ...newBooking.toObject(), room_data: roomOfBooking }
+            res.status(201).json(bookingToReturn)
         }
         catch (error) {
             console.error("Error in post of bookingController:", error)
@@ -234,6 +235,8 @@ bookingRouter.put('/:id', async (req: Request, res: Response) => {
 
     if (totalErrors.length === 0) {
         try {
+            let roomToReturn: RoomInterface
+
             const bookingToUpdate = await bookingService.fetchById(req.params.id)
             if (bookingToUpdate === null) {
                 res.status(404).json({ message: `Booking update failed, booking #${req.params.id} not found` })
@@ -248,7 +251,7 @@ bookingRouter.put('/:id', async (req: Request, res: Response) => {
                     res.status(404).json({ message: `Booking update failed, old room #${bookingToUpdate.room_id} not found` })
                     return
                 }
-                oldRoomOfBooking.booking_list = oldRoomOfBooking.booking_list.filter(bookingID => bookingID !== bookingToUpdate._id)
+                oldRoomOfBooking.booking_list = oldRoomOfBooking.booking_list.filter(bookingID => bookingID.toString() !== bookingToUpdate._id.toString())
                 const oldRoomOfBookingUpdated = await roomService.update(oldRoomOfBooking._id, oldRoomOfBooking)
                 if (oldRoomOfBookingUpdated === null) {
                     res.status(404).json({ message: `Old room #${req.params.id} not found (cant be updated)` })
@@ -267,23 +270,34 @@ bookingRouter.put('/:id', async (req: Request, res: Response) => {
                     res.status(404).json({ message: `New room #${req.body.room_id} not found (cant be updated)` })
                     return
                 }
+                roomToReturn = newRoomOfBookingUpdated
 
                 // Actualiza la booking
-                bookingToUpdate.room_id = req.body.room_id
-                const newBookingUpdated = await bookingService.update(bookingToUpdate._id, bookingToUpdate)
-                if (newBookingUpdated === null) {
-                    res.status(404).json({ message: `New booking #${bookingToUpdate._id} not found (cant be updated)` })
-                    return
-                }
+                // bookingToUpdate.room_id = req.body.room_id
+                // const newBookingUpdated = await bookingService.update(bookingToUpdate._id, bookingToUpdate)
+                // if (newBookingUpdated === null) {
+                //     res.status(404).json({ message: `New booking #${bookingToUpdate._id} not found (cant be updated)` })
+                //     return
+                // }
 
             }
+            else {
+                const oldRoomOfBooking = await roomService.fetchById(bookingToUpdate.room_id)
+                if (oldRoomOfBooking === null) {
+                    res.status(404).json({ message: `Booking update failed, old room #${bookingToUpdate.room_id} not found` })
+                    return
+                }
+                roomToReturn = oldRoomOfBooking
+            }
+
             const bookingUpdated = await bookingService.update(req.params.id, req.body)
             if (bookingUpdated === null) {
                 res.status(404).json({ message: `Booking update failed, booking #${req.params.id} not found` })
                 return
             }
 
-            else res.status(200).json(bookingUpdated)
+            const bookingToReturn: BookingInterfaceWithRoomData = { ...bookingUpdated.toObject(), room_data: roomToReturn }
+            res.status(200).json(bookingToReturn)
         }
         catch (error) {
             console.error("Error in put of bookingController:", error)
