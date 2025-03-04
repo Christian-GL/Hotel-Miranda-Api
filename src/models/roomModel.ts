@@ -33,7 +33,7 @@ const RoomSchema = new Schema<RoomInterface>
             type: Number,
             required: true
         },
-        booking_list: {
+        booking_id_list: {
             type: [String],
             required: true
         }

@@ -31,7 +31,7 @@ var RoomSchema = new mongoose_1.Schema({
         type: Number,
         required: true
     },
-    booking_list: {
+    booking_id_list: {
         type: [String],
         required: true
     }

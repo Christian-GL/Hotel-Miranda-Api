@@ -2,7 +2,7 @@
 import { ServiceInterface } from '../interfaces/serviceInterface'
 import { UserModel } from '../models/userModel'
 import { UserInterface } from '../interfaces/userInterface'
-import { hashPassword, comparePasswords } from '../utils/hashPassword'
+import { hashPassword } from '../utils/hashPassword'
 
 
 export class UserService implements ServiceInterface<UserInterface> {

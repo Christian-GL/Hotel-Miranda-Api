@@ -1,7 +1,6 @@
 
 import { validateIDstring, validateIDObjectId, validatePhoto, validateFullName, validateDateRelativeToNow, validateTextArea } from "./commonValidator"
 import { BookingInterface } from "../interfaces/bookingInterface"
-import { BookingStatus } from "../enums/bookingStatus"
 import { RoomType } from "../enums/roomType"
 import { RoomInterface } from "../interfaces/roomInterface"
 
@@ -11,7 +10,7 @@ export class BookingValidator {
     validateProperties(booking: BookingInterface): string[] {
         const errorMessages: string[] = []
         let bookingRequiredProperties = ['photo', 'full_name_guest', 'order_date',
-            'check_in_date', 'check_out_date', 'status', 'special_request', 'room_id']
+            'check_in_date', 'check_out_date', 'special_request', 'room_id']
 
         bookingRequiredProperties.map(property => {
             if (!(property in booking)) {
@@ -39,7 +38,6 @@ export class BookingValidator {
         validateDateRelativeToNow(new Date(booking.order_date), true, 'Order date').map(error => errorMessages.push(error))
         this.validateCheckInCheckOut(new Date(booking.check_in_date), new Date(booking.check_out_date)).map(error => errorMessages.push(error))
         this.validateDateIsOccupied(booking, allBookings).map(error => errorMessages.push(error))
-        this.validateBookingStatus(booking.status).map(error => errorMessages.push(error))
         validateTextArea(booking.special_request, 'Special request').map(error => errorMessages.push(error))
         this.validateRoomList(booking.room_id, allRooms).map(error => errorMessages.push(error))
 
@@ -63,18 +61,6 @@ export class BookingValidator {
         }
         if (!Object.values(RoomType).includes(type as RoomType)) {
             errorMessages.push('Room type is not a valid value')
-        }
-
-        return errorMessages
-    }
-    validateBookingStatus(type: string): string[] {
-        const errorMessages: string[] = []
-
-        if (typeof type !== "string") {
-            errorMessages.push('Booking status is not a String')
-        }
-        if (!Object.values(BookingStatus).includes(type as BookingStatus)) {
-            errorMessages.push('Booking status is not a valid value')
         }
 
         return errorMessages

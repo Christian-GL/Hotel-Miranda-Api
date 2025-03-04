@@ -204,7 +204,7 @@ bookingRouter.post('/', async (req: Request, res: Response) => {
 
             const newBooking = await bookingService.create(req.body)
 
-            roomOfBooking.booking_list.push(newBooking._id)
+            roomOfBooking.booking_id_list.push(newBooking._id)
             const roomUpdated = await roomService.update(roomOfBooking._id, roomOfBooking)
             if (roomUpdated === null) {
                 await bookingService.delete(newBooking._id)
@@ -251,7 +251,7 @@ bookingRouter.put('/:id', async (req: Request, res: Response) => {
                     res.status(404).json({ message: `Booking update failed, old room #${bookingToUpdate.room_id} not found` })
                     return
                 }
-                oldRoomOfBooking.booking_list = oldRoomOfBooking.booking_list.filter(bookingID => bookingID.toString() !== bookingToUpdate._id.toString())
+                oldRoomOfBooking.booking_id_list = oldRoomOfBooking.booking_id_list.filter(bookingID => bookingID.toString() !== bookingToUpdate._id.toString())
                 const oldRoomOfBookingUpdated = await roomService.update(oldRoomOfBooking._id, oldRoomOfBooking)
                 if (oldRoomOfBookingUpdated === null) {
                     res.status(404).json({ message: `Old room #${req.params.id} not found (cant be updated)` })
@@ -264,7 +264,7 @@ bookingRouter.put('/:id', async (req: Request, res: Response) => {
                     res.status(404).json({ message: `Booking update failed, new room #${req.body.room_id} not found` })
                     return
                 }
-                newRoomOfBooking.booking_list.push(bookingToUpdate._id)
+                newRoomOfBooking.booking_id_list.push(bookingToUpdate._id)
                 const newRoomOfBookingUpdated = await roomService.update(newRoomOfBooking._id, newRoomOfBooking)
                 if (newRoomOfBookingUpdated === null) {
                     res.status(404).json({ message: `New room #${req.body.room_id} not found (cant be updated)` })
@@ -325,7 +325,7 @@ bookingRouter.delete('/:id', async (req: Request, res: Response) => {
             res.status(404).json({ message: `Room to update #${bookingToDelete.room_id} not found` })
             return
         }
-        roomToUpdate.booking_list = roomToUpdate.booking_list.filter(bookingID => bookingID.toString() !== bookingToDelete._id.toString())
+        roomToUpdate.booking_id_list = roomToUpdate.booking_id_list.filter(bookingID => bookingID.toString() !== bookingToDelete._id.toString())
         const roomUpdated = await roomService.update(roomToUpdate._id, roomToUpdate)
         if (roomUpdated === null) {
             res.status(404).json({ message: `Room to update #${roomToUpdate._id} not found (cant be updated)` })

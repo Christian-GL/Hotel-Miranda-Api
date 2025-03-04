@@ -50,7 +50,6 @@ var userValidator_1 = require("./src/validators/userValidator");
 var userStatus_1 = require("./src/enums/userStatus");
 var roomType_1 = require("./src/enums/roomType");
 var roomAmenities_1 = require("./src/enums/roomAmenities");
-var bookingStatus_1 = require("./src/enums/bookingStatus");
 var createUsers = function () { return __awaiter(void 0, void 0, void 0, function () {
     var users, userValidator, totalErrors, i, fakeUser, _a, error_1;
     return __generator(this, function (_b) {
@@ -171,7 +170,7 @@ var createRoomsAndBookings = function () { return __awaiter(void 0, void 0, void
                         amenities: faker_1.faker.helpers.arrayElements(Object.values(roomAmenities_1.RoomAmenities), faker_1.faker.number.int({ min: 3, max: 10 })),
                         price: faker_1.faker.number.float({ min: 25, max: 100000, fractionDigits: 2 }),
                         discount: faker_1.faker.number.float({ min: 0, max: 100, fractionDigits: 2 }),
-                        booking_list: []
+                        booking_id_list: []
                     });
                     roomTotalErrors = roomValidator.validateNewRoom(fakeRoom.toObject(), rooms);
                     if (roomTotalErrors.length === 0) {
@@ -182,7 +181,7 @@ var createRoomsAndBookings = function () { return __awaiter(void 0, void 0, void
                         continue;
                     }
                 }
-                for (i = 0; i < 50; i++) {
+                for (i = 0; i < 75; i++) {
                     if (rooms.length === 0)
                         break;
                     selectedRoom = faker_1.faker.helpers.arrayElement(rooms);
@@ -193,14 +192,13 @@ var createRoomsAndBookings = function () { return __awaiter(void 0, void 0, void
                         order_date: faker_1.faker.date.recent({ days: 30 }).toISOString(),
                         check_in_date: check_in_date.toISOString(),
                         check_out_date: faker_1.faker.date.future({ years: faker_1.faker.number.float({ min: 0.1, max: 2 }), refDate: check_in_date }).toISOString(),
-                        status: faker_1.faker.helpers.arrayElement(Object.values(bookingStatus_1.BookingStatus)),
                         special_request: faker_1.faker.lorem.sentence(faker_1.faker.number.int({ min: 10, max: 40 })),
                         room_id: selectedRoom._id.toString()
                     });
                     bookingTotalErrors = bookingValidator.validateBooking(fakeBooking.toObject(), bookings, rooms);
                     if (bookingTotalErrors.length === 0) {
                         bookings.push(fakeBooking);
-                        selectedRoom.booking_list.push(fakeBooking._id.toString());
+                        selectedRoom.booking_id_list.push(fakeBooking._id.toString());
                     }
                     else {
                         console.error("Validaci\u00F3n fallida en el fakeBooking #".concat(i, ": ").concat(bookingTotalErrors.join(', ')));
@@ -238,4 +236,4 @@ var createRoomsAndBookings = function () { return __awaiter(void 0, void 0, void
 }); };
 // createUsers()
 // createContacts()
-// createRoomsAndBookings()
+createRoomsAndBookings();

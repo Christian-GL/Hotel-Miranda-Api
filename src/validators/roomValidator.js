@@ -9,7 +9,7 @@ var RoomValidator = /** @class */ (function () {
     }
     RoomValidator.prototype.validateProperties = function (room) {
         var errorMessages = [];
-        var requiredProperties = ['photos', 'number', 'type', 'amenities', 'price', 'discount', 'booking_list'];
+        var requiredProperties = ['photos', 'number', 'type', 'amenities', 'price', 'discount', 'booking_id_list'];
         requiredProperties.forEach(function (property) {
             if (!(property in room)) {
                 errorMessages.push("Property [".concat(property, "] is required in Room"));
@@ -47,7 +47,7 @@ var RoomValidator = /** @class */ (function () {
         this.validateAmenities(room.amenities).map(function (error) { return errorMessages.push(error); });
         this.validateRoomPrice(room.price).map(function (error) { return errorMessages.push(error); });
         this.validateRoomDiscount(room.discount).map(function (error) { return errorMessages.push(error); });
-        this.validateBookingList(room.booking_list, allBookings).map(function (error) { return errorMessages.push(error); });
+        this.validateBookingList(room.booking_id_list, allBookings).map(function (error) { return errorMessages.push(error); });
         return errorMessages;
     };
     RoomValidator.prototype.validatePhotos = function (photos) {

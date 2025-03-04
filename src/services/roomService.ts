@@ -1,9 +1,7 @@
 
-import { isEqual } from 'lodash'
 import { ServiceInterface } from '../interfaces/serviceInterface'
 import { RoomModel } from '../models/roomModel'
 import { RoomInterface } from '../interfaces/roomInterface'
-import { BookingModel } from '../models/bookingModel'
 
 
 export class RoomService implements ServiceInterface<RoomInterface> {

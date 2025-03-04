@@ -10,7 +10,7 @@ export class RoomValidator {
 
     validateProperties(room: RoomInterface): string[] {
         const errorMessages: string[] = []
-        let requiredProperties = ['photos', 'number', 'type', 'amenities', 'price', 'discount', 'booking_list']
+        let requiredProperties = ['photos', 'number', 'type', 'amenities', 'price', 'discount', 'booking_id_list']
 
         requiredProperties.forEach((property) => {
             if (!(property in room)) {
@@ -55,7 +55,7 @@ export class RoomValidator {
         this.validateAmenities(room.amenities).map(error => errorMessages.push(error))
         this.validateRoomPrice(room.price).map(error => errorMessages.push(error))
         this.validateRoomDiscount(room.discount).map(error => errorMessages.push(error))
-        this.validateBookingList(room.booking_list, allBookings).map(error => errorMessages.push(error))
+        this.validateBookingList(room.booking_id_list, allBookings).map(error => errorMessages.push(error))
 
         return errorMessages
     }

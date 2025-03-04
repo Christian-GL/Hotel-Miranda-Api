@@ -13,7 +13,7 @@ export interface RoomInterface extends Document {
     amenities: RoomAmenities[]
     price: number
     discount: number
-    booking_list: string[]
+    booking_id_list: string[]
 }
 
 export interface RoomInterfaceWithBookingData extends Document {

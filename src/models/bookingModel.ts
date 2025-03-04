@@ -1,7 +1,6 @@
 
 import { Schema, model } from "mongoose"
 import { BookingInterface } from "../interfaces/bookingInterface"
-import { BookingStatus } from "../enums/bookingStatus"
 
 
 const BookingSchema = new Schema<BookingInterface>
@@ -25,11 +24,6 @@ const BookingSchema = new Schema<BookingInterface>
         check_out_date: {
             type: Date,
             required: true
-        },
-        status: {
-            type: String,
-            required: true,
-            enum: Object.values(BookingStatus)
         },
         special_request: {
             type: String,

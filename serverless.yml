@@ -1,0 +1,19 @@
+service: Hotel-Miranda-API
+frameworkVersion: "3"
+
+provider:
+  name: aws
+  region: eu-west-3
+  runtime: nodejs18.x
+functions:
+  app:
+    handler: dist/index.handler
+    events:
+      - http:
+          path: /
+          method: ANY
+          cors: true
+      - http:
+          path: /{proxy+}
+          method: ANY
+          cors: true

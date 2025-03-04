@@ -154,7 +154,7 @@ roomRouter.get('/', async (req: Request, res: Response) => {
 
         for (const room of roomList) {
             const bookings: BookingInterface[] = []
-            for (const bookingID of room.booking_list) {
+            for (const bookingID of room.booking_id_list) {
                 const booking = await bookingService.fetchById(bookingID)
                 if (booking === null) {
                     res.status(404).json({ message: `Booking #${bookingID} not found` })
@@ -182,7 +182,7 @@ roomRouter.get('/:id', async (req: Request, res: Response) => {
         }
 
         const bookings: BookingInterface[] = []
-        for (const bookingID of room.booking_list) {
+        for (const bookingID of room.booking_id_list) {
             const booking = await bookingService.fetchById(bookingID)
             if (booking === null) {
                 res.status(404).json({ message: `Booking #${bookingID} not found` })
@@ -238,7 +238,7 @@ roomRouter.put('/:id', async (req: Request, res: Response) => {
             }
 
             const bookingDataList = []
-            for (const bookingID of updatedRoom.booking_list) {
+            for (const bookingID of updatedRoom.booking_id_list) {
                 const bookingData = await bookingService.fetchById(bookingID)
                 if (bookingData === null) {
                     res.status(404).json({ message: `Booking #${bookingID} not found` })
@@ -270,7 +270,7 @@ roomRouter.delete('/:id', async (req: Request, res: Response) => {
         }
 
         const bookingsToDelete: BookingInterface[] = []
-        for (const bookingId of roomToDelete.booking_list) {
+        for (const bookingId of roomToDelete.booking_id_list) {
             const booking = await bookingService.fetchById(bookingId)
             if (booking === null) {
                 res.status(404).json({ message: `Booking #${bookingId} not found` })
