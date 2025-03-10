@@ -5,12 +5,19 @@ import swaggerUi from 'swagger-ui-express'
 import swaggerJsDoc from 'swagger-jsdoc'
 import serverless from 'serverless-http'
 
-import { connectDB } from './utils/database'
+import { connectMongoDB } from './utils/database'
 import { loginRouter } from './controllers/loginController'
 import { bookingRouter } from './controllers/bookingController'
 import { roomRouter } from './controllers/roomController'
 import { contactRouter } from './controllers/contactController'
 import { userRouter } from './controllers/userController'
+
+import { connectMysqlDB } from './utils/databaseMysql'
+import { loginRouterMysql } from './controllers/mysql/loginControllerMysql'
+import { bookingRouterMysql } from './controllers/mysql/bookingControllerMysql'
+import { roomRouterMysql } from './controllers/mysql/roomControllerMysql'
+import { contactRouterMysql } from './controllers/mysql/contactControllerMysql'
+import { userRouterMysql } from './controllers/mysql/userControllerMysql'
 
 
 export const app = express()
@@ -208,11 +215,16 @@ app.use('/api-dashboard/v2/swagger', swaggerUi.serve, swaggerUi.setup(swaggerDoc
   customCss: darkTheme
 }))
 
-app.use('/login', loginRouter)
-app.use('/api-dashboard/v2/bookings', bookingRouter)
-app.use('/api-dashboard/v2/rooms', roomRouter)
-app.use('/api-dashboard/v2/contacts', contactRouter)
-app.use('/api-dashboard/v2/users', userRouter)
+// app.use('/login', loginRouter)
+// app.use('/api-dashboard/v2/bookings', bookingRouter)
+// app.use('/api-dashboard/v2/rooms', roomRouter)
+// app.use('/api-dashboard/v2/contacts', contactRouter)
+// app.use('/api-dashboard/v2/users', userRouter)
+app.use('/login', loginRouterMysql)
+app.use('/api-dashboard/v2/bookings', bookingRouterMysql)
+app.use('/api-dashboard/v2/rooms', roomRouterMysql)
+app.use('/api-dashboard/v2/contacts', contactRouterMysql)
+app.use('/api-dashboard/v2/users', userRouterMysql)
 
 app.get('/', (req: Request, res: Response) => {
   res.redirect('/api-dashboard/v2/swagger')
@@ -221,8 +233,10 @@ app.get('/live', (req: Request, res: Response) => {
   res.send(`${new Date().toISOString()}`)
 })
 
+
 const runServer = async () => {
-  await connectDB()
+  // await connectMongoDB()
+  await connectMysqlDB()
 
   app.listen(port, () => {
     console.log(`Servidor escuchando en http://localhost:${port}`)

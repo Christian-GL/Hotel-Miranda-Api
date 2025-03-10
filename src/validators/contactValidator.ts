@@ -4,11 +4,13 @@ import {
     validatePhoneNumber, validateTextArea
 } from "./commonValidator"
 import { ContactInterface } from "../interfaces/contactInterface"
+import { ContactInterfaceMysql } from "../interfaces/mysql/contactInterfaceMysql"
+import { ContactArchived } from "../enums/contactArchived"
 
 
 export class ContactValidator {
 
-    validateProperties(contact: ContactInterface): string[] {
+    validateProperties(contact: ContactInterface | ContactInterfaceMysql): string[] {
         const errorMessages: string[] = []
         const requiredProperties: string[] = ['publish_date', 'full_name', 'email', 'phone_number', 'comment', 'archived']
         requiredProperties.map((property) => {
@@ -19,7 +21,7 @@ export class ContactValidator {
         return errorMessages
     }
 
-    validateContact(contact: ContactInterface): string[] {
+    validateContact(contact: ContactInterfaceMysql): string[] {
         const allErrorMessages: string[] = []
 
         const errorsCheckingProperties = this.validateProperties(contact)
@@ -49,11 +51,14 @@ export class ContactValidator {
         return allErrorMessages
     }
 
-    validateArchived(archived: boolean): string[] {
+    validateArchived(archived: ContactArchived): string[] {
         const errorMessages: string[] = []
 
-        if (typeof archived !== "boolean") {
-            errorMessages.push('Archived is not a Boolean')
+        if (typeof archived !== "string") {
+            errorMessages.push('Archived is not a String')
+        }
+        if (!Object.values(ContactArchived).includes(archived as ContactArchived)) {
+            errorMessages.push('Archived is not a valid value')
         }
 
         return errorMessages

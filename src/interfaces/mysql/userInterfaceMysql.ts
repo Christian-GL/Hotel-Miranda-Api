@@ -1,9 +1,6 @@
 
-import { Document } from "mongoose"
-
-
-export interface UserInterface extends Document {
-    _id: string
+export interface UserInterfaceMysql {
+    _id: number
     photo: string
     full_name: string
     email: string

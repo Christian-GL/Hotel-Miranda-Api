@@ -2,11 +2,11 @@
 import { Request, Response, Router } from "express"
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
-import { UserInterface } from "../interfaces/userInterface"
-import { UserService } from "../services/userService"
+import { UserInterfaceMysql } from "../../interfaces/mysql/userInterfaceMysql"
+import { UserServiceMysql } from '../../services/mysql/userServiceMysql'
 
 
-export const loginRouter = Router()
+export const loginRouterMysql = Router()
 
 /**
  * @swagger
@@ -49,11 +49,11 @@ export const loginRouter = Router()
  *         description: Error en el servidor, no se ha definido TOKEN_SECRET
  */
 
-loginRouter.post('', async (req: Request, res: Response) => {
+loginRouterMysql.post('', async (req: Request, res: Response) => {
     const { email, password } = req.body
-    const userService = new UserService()
+    const userService = new UserServiceMysql()
     const userData = await userService.fetchAll()
-    const user: UserInterface[] = userData.filter(u => u.email === email)
+    const user: UserInterfaceMysql[] = userData.filter(u => u.email === email)
 
     if (user.length === 0) {
         res.status(404).send({ message: 'User or password wrong' })

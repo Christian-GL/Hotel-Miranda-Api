@@ -1,6 +1,6 @@
 
 import { faker } from '@faker-js/faker'
-import { connectDB } from './src/utils/database'
+import { connectMongoDB } from './src/utils/database'
 import { hashPassword } from './src/utils/hashPassword'
 
 import { BookingInterface } from './src/interfaces/bookingInterface'
@@ -22,7 +22,7 @@ import { RoomService } from './src/services/roomService'
 
 
 const createUsers = async (): Promise<void> => {
-    await connectDB()
+    await connectMongoDB()
     try {
         const users = []
         const userValidator = new UserValidator()
@@ -57,7 +57,7 @@ const createUsers = async (): Promise<void> => {
 }
 
 const createContacts = async (): Promise<void> => {
-    await connectDB()
+    await connectMongoDB()
     try {
         const contacts = []
         const contactValidator = new ContactValidator()
@@ -89,7 +89,7 @@ const createContacts = async (): Promise<void> => {
 }
 
 const createRoomsAndBookings = async (): Promise<void> => {
-    await connectDB()
+    await connectMongoDB()
     try {
         const rooms: RoomInterface[] = []
         const bookings: BookingInterface[] = []

@@ -1,13 +1,15 @@
 
 import { validateIDstring, validateIDObjectId, validatePhoto, validateFullName, validateDateRelativeToNow, validateTextArea } from "./commonValidator"
 import { BookingInterface } from "../interfaces/bookingInterface"
+import { BookingInterfaceMysql } from "../interfaces/mysql/bookingInterfaceMysql"
 import { RoomType } from "../enums/roomType"
 import { RoomInterface } from "../interfaces/roomInterface"
+import { RoomInterfaceMysql } from "../interfaces/mysql/roomInterfaceMysql"
 
 
 export class BookingValidator {
 
-    validateProperties(booking: BookingInterface): string[] {
+    validateProperties(booking: BookingInterface | BookingInterfaceMysql): string[] {
         const errorMessages: string[] = []
         let bookingRequiredProperties = ['photo', 'full_name_guest', 'order_date',
             'check_in_date', 'check_out_date', 'special_request', 'room_id']
@@ -20,7 +22,7 @@ export class BookingValidator {
         return errorMessages
     }
 
-    validateBooking(booking: BookingInterface, allBookings: BookingInterface[], allRooms: RoomInterface[]): string[] {
+    validateBooking(booking: BookingInterfaceMysql, allBookings: BookingInterface[] | BookingInterfaceMysql[], allRooms: RoomInterface[] | RoomInterfaceMysql[]): string[] {
         const errorMessages: string[] = []
 
         if (booking === undefined || Object.keys(booking).length === 0) {
@@ -39,7 +41,7 @@ export class BookingValidator {
         this.validateCheckInCheckOut(new Date(booking.check_in_date), new Date(booking.check_out_date)).map(error => errorMessages.push(error))
         this.validateDateIsOccupied(booking, allBookings).map(error => errorMessages.push(error))
         validateTextArea(booking.special_request, 'Special request').map(error => errorMessages.push(error))
-        this.validateRoomList(booking.room_id, allRooms).map(error => errorMessages.push(error))
+        // this.validateRoomList(booking.room_id, allRooms).map(error => errorMessages.push(error))
 
         return errorMessages
     }
@@ -80,7 +82,7 @@ export class BookingValidator {
 
         return errorMessages
     }
-    validateDateIsOccupied(booking: BookingInterface, bookings: BookingInterface[]): string[] {
+    validateDateIsOccupied(booking: BookingInterface | BookingInterfaceMysql, bookings: BookingInterface[] | BookingInterfaceMysql[]): string[] {
         const errorMessages: string[] = []
 
         for (let i = 0; i < bookings.length; i++) {
@@ -93,7 +95,7 @@ export class BookingValidator {
         }
         return errorMessages
     }
-    validateRoomList(roomId: string, allRooms: RoomInterface[]): string[] {
+    validateRoomList(roomId: string, allRooms: RoomInterface[] | RoomInterfaceMysql[]): string[] {
         const errorMessages: string[] = []
 
         validateIDstring(roomId, 'ID').map(error => {

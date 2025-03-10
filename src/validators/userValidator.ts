@@ -4,12 +4,13 @@ import {
     validateDateRelativeToNow, validateTextArea, validatePhoneNumber
 } from './commonValidator'
 import { UserInterface } from "../interfaces/userInterface"
+import { UserInterfaceMysql } from '../interfaces/mysql/userInterfaceMysql'
 import { UserStatus } from "../enums/userStatus"
 
 
 export class UserValidator {
 
-    validateProperties(user: UserInterface): string[] {
+    validateProperties(user: UserInterface | UserInterfaceMysql): string[] {
         const errorMessages: string[] = []
         const requiredProperties: string[] = ['photo', 'full_name', 'email', 'start_date', 'description', 'phone_number', 'status', 'password']
         requiredProperties.map((property) => {
@@ -17,15 +18,10 @@ export class UserValidator {
                 errorMessages.push(`Property [${property}] is required in User`)
             }
         })
-        // Object.keys(user).map((key) => {
-        //     if (!requiredProperties.includes(key)) {
-        //         errorMessages.push(`Unexpected property [${key}] found in User`);
-        //     }
-        // })
         return errorMessages
     }
 
-    validateUser(user: UserInterface, passwordHasChanged: boolean = false): string[] {
+    validateUser(user: UserInterface | UserInterfaceMysql, passwordHasChanged: boolean = false): string[] {
         const allErrorMessages: string[] = []
 
         const errorsCheckingProperties = this.validateProperties(user)

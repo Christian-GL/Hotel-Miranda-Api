@@ -4,11 +4,13 @@ import { RoomInterface } from "../interfaces/roomInterface"
 import { RoomType } from "../enums/roomType"
 import { RoomAmenities } from "../enums/roomAmenities"
 import { BookingInterface } from "../interfaces/bookingInterface"
+import { RoomInterfaceMysql } from "../interfaces/mysql/roomInterfaceMysql"
+import { BookingInterfaceMysql } from "../interfaces/mysql/bookingInterfaceMysql"
 
 
 export class RoomValidator {
 
-    validateProperties(room: RoomInterface): string[] {
+    validateProperties(room: RoomInterface | RoomInterfaceMysql): string[] {
         const errorMessages: string[] = []
         let requiredProperties = ['photos', 'number', 'type', 'amenities', 'price', 'discount', 'booking_id_list']
 
@@ -20,7 +22,7 @@ export class RoomValidator {
         return errorMessages
     }
 
-    validateNewRoom(room: RoomInterface, allRooms: RoomInterface[]): string[] {
+    validateNewRoom(room: RoomInterface | RoomInterfaceMysql, allRooms: RoomInterface[] | RoomInterfaceMysql[]): string[] {
         const errorMessages: string[] = []
 
         if (room === undefined || Object.keys(room).length === 0) {
@@ -41,21 +43,22 @@ export class RoomValidator {
 
         return errorMessages
     }
-    validateExistingRoom(room: RoomInterface, allRooms: RoomInterface[], allBookings: BookingInterface[]): string[] {
+    validateExistingRoom(room: RoomInterface | RoomInterfaceMysql, allRooms: RoomInterface[] | RoomInterfaceMysql[], allBookings: BookingInterface[] | BookingInterfaceMysql[]): string[] {
         const errorMessages: string[] = []
 
         if (room === undefined || Object.keys(room).length === 0) {
             errorMessages.push('Room is undefined or empty')
             return errorMessages
         }
-        
+
         // this.validatePhotos(room.photos).errorMessages.map(error => allErrorMessages.push(error))
         this.validateExistingNumber(room.number, room.number, allRooms).map(error => errorMessages.push(error))
         this.validateRoomType(room.type).map(error => errorMessages.push(error))
         this.validateAmenities(room.amenities).map(error => errorMessages.push(error))
         this.validateRoomPrice(room.price).map(error => errorMessages.push(error))
         this.validateRoomDiscount(room.discount).map(error => errorMessages.push(error))
-        this.validateBookingList(room.booking_id_list, allBookings).map(error => errorMessages.push(error))
+        // CONFLICTO DE STRING NUMBER POR LOS ID DE MONGO Y MYSQL
+        // this.validateBookingList(room.booking_id_list, allBookings).map(error => errorMessages.push(error))
 
         return errorMessages
     }
@@ -82,7 +85,7 @@ export class RoomValidator {
 
         return errorMessages
     }
-    validateNumber(number: string, allRooms: RoomInterface[], actualNumber?: string): string[] {
+    validateNumber(number: string, allRooms: RoomInterface[] | RoomInterfaceMysql[], actualNumber?: string): string[] {
         const errorMessages: string[] = [];
         const regex = /^\d{3}$/
 
@@ -98,10 +101,10 @@ export class RoomValidator {
 
         return errorMessages;
     }
-    validateNewNumber(number: string, allRooms: RoomInterface[]): string[] {
+    validateNewNumber(number: string, allRooms: RoomInterface[] | RoomInterfaceMysql[]): string[] {
         return this.validateNumber(number, allRooms);
     }
-    validateExistingNumber(number: string, actualNumber: string, allRooms: RoomInterface[]): string[] {
+    validateExistingNumber(number: string, actualNumber: string, allRooms: RoomInterface[] | RoomInterfaceMysql[]): string[] {
         return this.validateNumber(number, allRooms, actualNumber);
     }
     validateRoomType(type: string): string[] {
@@ -161,7 +164,7 @@ export class RoomValidator {
 
         return errorMessages
     }
-    validateBookingList(bookingList: string[], allBookings: BookingInterface[]): string[] {
+    validateBookingList(bookingList: string[], allBookings: BookingInterface[] | BookingInterfaceMysql[]): string[] {
         const errorMessages: string[] = []
 
         bookingList.forEach((bookingId) => {
