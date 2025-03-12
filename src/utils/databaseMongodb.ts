@@ -5,7 +5,7 @@ import * as dotenv from 'dotenv'
 dotenv.config()
 
 
-export const connectMongoDB = async (): Promise<void> => {
+export const connectMongodbDB = async (): Promise<void> => {
     try {
         await mongoose.connect(process.env.MONGODB_URL || '')
         // await mongoose.connect(process.env.MONGODB_URI || '')

@@ -1,9 +1,9 @@
 
 import { Document } from "mongoose"
-import { RoomInterface } from "./roomInterface"
+import { RoomInterfaceMongodb } from "./roomInterfaceMongodb"
 
 
-export interface BookingInterface extends Document {
+export interface BookingInterfaceMongodb extends Document {
     _id: string
     photo: string
     full_name_guest: string
@@ -14,7 +14,7 @@ export interface BookingInterface extends Document {
     room_id: string
 }
 
-export interface BookingInterfaceWithRoomData extends Document {
+export interface BookingInterfaceMongodbWithRoomData extends Document {
     _id: string
     photo: string
     full_name_guest: string
@@ -22,5 +22,5 @@ export interface BookingInterfaceWithRoomData extends Document {
     check_in_date: Date
     check_out_date: Date
     special_request: string
-    room_data: RoomInterface
+    room_data: RoomInterfaceMongodb
 }

@@ -2,7 +2,7 @@
 import { Document } from "mongoose"
 
 
-export interface ContactInterface extends Document {
+export interface ContactInterfaceMongodb extends Document {
     publish_date: Date
     full_name: string
     email: string

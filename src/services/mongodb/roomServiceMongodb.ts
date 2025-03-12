@@ -1,14 +1,14 @@
 
-import { ServiceInterface } from '../interfaces/serviceInterface'
-import { RoomModel } from '../models/roomModel'
-import { RoomInterface } from '../interfaces/roomInterface'
+import { ServiceInterfaceMongodb } from '../../interfaces/mongodb/serviceInterfaceMongodb'
+import { RoomModelMongodb } from '../../models/mongodb/roomModelMongodb'
+import { RoomInterfaceMongodb } from '../../interfaces/mongodb/roomInterfaceMongodb'
 
 
-export class RoomService implements ServiceInterface<RoomInterface> {
+export class RoomServiceMongodb implements ServiceInterfaceMongodb<RoomInterfaceMongodb> {
 
-    async fetchAll(): Promise<RoomInterface[]> {
+    async fetchAll(): Promise<RoomInterfaceMongodb[]> {
         try {
-            const rooms: RoomInterface[] = await RoomModel.find()
+            const rooms: RoomInterfaceMongodb[] = await RoomModelMongodb.find()
             return rooms
         }
         catch (error) {
@@ -17,9 +17,9 @@ export class RoomService implements ServiceInterface<RoomInterface> {
         }
     }
 
-    async fetchById(id: string): Promise<RoomInterface | null> {
+    async fetchById(id: string): Promise<RoomInterfaceMongodb | null> {
         try {
-            const room: RoomInterface | null = await RoomModel.findById(id)
+            const room: RoomInterfaceMongodb | null = await RoomModelMongodb.findById(id)
             if (room) return room
             else throw new Error('Room not found')
         }
@@ -29,9 +29,9 @@ export class RoomService implements ServiceInterface<RoomInterface> {
         }
     }
 
-    async create(room: RoomInterface): Promise<RoomInterface> {
+    async create(room: RoomInterfaceMongodb): Promise<RoomInterfaceMongodb> {
         try {
-            const newRoom: RoomInterface = new RoomModel(room)
+            const newRoom: RoomInterfaceMongodb = new RoomModelMongodb(room)
             await newRoom.save()
             return newRoom
         }
@@ -41,12 +41,12 @@ export class RoomService implements ServiceInterface<RoomInterface> {
         }
     }
 
-    async update(id: string, room: RoomInterface): Promise<RoomInterface | null> {
+    async update(id: string, room: RoomInterfaceMongodb): Promise<RoomInterfaceMongodb | null> {
         try {
-            const existingRoom: RoomInterface | null = await this.fetchById(id)
+            const existingRoom: RoomInterfaceMongodb | null = await this.fetchById(id)
             if (existingRoom == null) return null
 
-            const updatedRoom: RoomInterface | null = await RoomModel.findOneAndUpdate(
+            const updatedRoom: RoomInterfaceMongodb | null = await RoomModelMongodb.findOneAndUpdate(
                 { _id: id },
                 room,
                 { new: true }
@@ -63,16 +63,8 @@ export class RoomService implements ServiceInterface<RoomInterface> {
 
     async delete(id: string): Promise<boolean> {
         try {
-            const deletedRoom = await RoomModel.findByIdAndDelete(id)
+            const deletedRoom = await RoomModelMongodb.findByIdAndDelete(id)
             if (deletedRoom) {
-                // await BookingModel.updateMany(
-                //     { 'room_id.id': id },
-                //     { $pull: { room_id: { id } } }
-                // )
-                // await BookingModel.deleteMany({
-                //     'room_id.id': id,
-                //     $expr: { $eq: [{ $size: '$room_id' }, 1] }
-                // })
                 return true
             }
             else return false

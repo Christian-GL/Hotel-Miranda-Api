@@ -1,17 +1,17 @@
 
 import { Request, Response } from 'express'
 import Router from 'express'
-import { authMiddleware } from '../middleware/authMiddleware'
-import { UserModel } from '../models/userModel'
-import { UserService } from '../services/userService'
-import { UserValidator } from '../validators/userValidator'
-import { comparePasswords } from '../utils/hashPassword'
+import { authMiddleware } from '../../middleware/authMiddleware'
+import { UserModelMongodb } from '../../models/mongodb/userModelMongodb'
+import { UserServiceMongodb } from '../../services/mongodb/userServiceMongodb'
+import { UserValidator } from '../../validators/userValidator'
+import { comparePasswords } from '../../utils/hashPassword'
 
 
-export const userRouter = Router()
-const userService = new UserService()
+export const userRouterMongodb = Router()
+const userServiceMongodb = new UserServiceMongodb()
 
-userRouter.use(authMiddleware)
+userRouterMongodb.use(authMiddleware)
 
 /**
  * @swagger
@@ -137,9 +137,9 @@ userRouter.use(authMiddleware)
  *         description: Usuario no encontrado
  */
 
-userRouter.get('/', async (req: Request, res: Response) => {
+userRouterMongodb.get('/', async (req: Request, res: Response) => {
     try {
-        const userList = await userService.fetchAll()
+        const userList = await userServiceMongodb.fetchAll()
         res.json(userList)
     }
     catch (error) {
@@ -148,9 +148,9 @@ userRouter.get('/', async (req: Request, res: Response) => {
     }
 })
 
-userRouter.get('/:id', async (req: Request, res: Response) => {
+userRouterMongodb.get('/:id', async (req: Request, res: Response) => {
     try {
-        const user = await userService.fetchById(req.params.id)
+        const user = await userServiceMongodb.fetchById(req.params.id)
         if (user !== null) {
             res.json(user)
         } else {
@@ -163,12 +163,12 @@ userRouter.get('/:id', async (req: Request, res: Response) => {
     }
 })
 
-userRouter.post('/', async (req: Request, res: Response) => {
+userRouterMongodb.post('/', async (req: Request, res: Response) => {
     const userValidator = new UserValidator()
     const totalErrors = userValidator.validateUser(req.body)
     if (totalErrors.length === 0) {
         try {
-            const createdUser = await userService.create(req.body)
+            const createdUser = await userServiceMongodb.create(req.body)
             res.status(201).json(createdUser)
         }
         catch (error) {
@@ -183,9 +183,9 @@ userRouter.post('/', async (req: Request, res: Response) => {
     }
 })
 
-userRouter.put('/:id', async (req: Request, res: Response) => {
+userRouterMongodb.put('/:id', async (req: Request, res: Response) => {
     const userValidator = new UserValidator()
-    const existingUser = await UserModel.findById(req.body._id).select("password")
+    const existingUser = await UserModelMongodb.findById(req.body._id).select("password")
 
     let passwordHasChanged = false
     if (existingUser !== null) {
@@ -196,7 +196,7 @@ userRouter.put('/:id', async (req: Request, res: Response) => {
 
     if (totalErrors.length === 0) {
         try {
-            const updatedUser = await userService.update(req.params.id, req.body, passwordHasChanged)
+            const updatedUser = await userServiceMongodb.update(req.params.id, req.body, passwordHasChanged)
             if (updatedUser !== null) {
                 // res.status(204).json(updatedUser)
                 res.status(200).json(updatedUser)
@@ -216,9 +216,9 @@ userRouter.put('/:id', async (req: Request, res: Response) => {
     }
 })
 
-userRouter.delete('/:id', async (req: Request, res: Response) => {
+userRouterMongodb.delete('/:id', async (req: Request, res: Response) => {
     try {
-        const deletedUser = await userService.delete(req.params.id)
+        const deletedUser = await userServiceMongodb.delete(req.params.id)
         if (deletedUser) {
             res.status(204).json()
         } else {

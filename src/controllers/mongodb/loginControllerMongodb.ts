@@ -2,11 +2,11 @@
 import { Request, Response, Router } from "express"
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
-import { UserInterface } from "../interfaces/userInterface"
-import { UserService } from "../services/userService"
+import { UserInterfaceMongodb } from "../../interfaces/mongodb/userInterfaceMongodb"
+import { UserServiceMongodb } from "../../services/mongodb/userServiceMongodb"
 
 
-export const loginRouter = Router()
+export const loginRouterMongodb = Router()
 
 /**
  * @swagger
@@ -49,11 +49,11 @@ export const loginRouter = Router()
  *         description: Error en el servidor, no se ha definido TOKEN_SECRET
  */
 
-loginRouter.post('', async (req: Request, res: Response) => {
+loginRouterMongodb.post('', async (req: Request, res: Response) => {
     const { email, password } = req.body
-    const userService = new UserService()
+    const userService = new UserServiceMongodb()
     const userData = await userService.fetchAll()
-    const user: UserInterface[] = userData.filter(u => u.email === email)
+    const user: UserInterfaceMongodb[] = userData.filter(u => u.email === email)
 
     if (user.length === 0) {
         res.status(404).send({ message: 'User or password wrong' })

@@ -1,5 +1,5 @@
 
-export interface ServiceInterface<T> {
+export interface ServiceInterfaceMongodb<T> {
     fetchAll(): Promise<T[]>
     fetchById(id: string): Promise<T | null>
     create(item: T): Promise<T>

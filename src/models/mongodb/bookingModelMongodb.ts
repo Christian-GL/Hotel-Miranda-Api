@@ -1,9 +1,9 @@
 
 import { Schema, model } from "mongoose"
-import { BookingInterface } from "../interfaces/bookingInterface"
+import { BookingInterfaceMongodb } from "../../interfaces/mongodb/bookingInterfaceMongodb"
 
 
-const BookingSchema = new Schema<BookingInterface>
+const BookingSchemaMongodb = new Schema<BookingInterfaceMongodb>
     ({
         photo: {
             type: String,
@@ -35,4 +35,4 @@ const BookingSchema = new Schema<BookingInterface>
         }
     })
 
-export const BookingModel = model<BookingInterface>('Booking', BookingSchema)
+export const BookingModelMongodb = model<BookingInterfaceMongodb>('Booking', BookingSchemaMongodb)

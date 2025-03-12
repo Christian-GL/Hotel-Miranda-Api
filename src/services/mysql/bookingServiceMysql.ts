@@ -54,7 +54,17 @@ export class BookingServiceMysql implements ServiceInterfaceMysql<BookingInterfa
     async create(booking: BookingInterfaceMysql): Promise<BookingInterfaceMysql> {
         try {
             const newBooking: BookingInterfaceMysql = await BookingModelMysql.create(booking)
-            return newBooking
+            const bookingParsed = {
+                _id: newBooking._id,
+                photo: newBooking.photo,
+                full_name_guest: newBooking.full_name_guest,
+                order_date: newBooking.order_date,
+                check_in_date: newBooking.check_in_date,
+                check_out_date: newBooking.check_out_date,
+                special_request: newBooking.special_request,
+                room_id: newBooking.room_id
+            }
+            return bookingParsed
         }
         catch (error) {
             console.error('Error in create of bookingService', error)

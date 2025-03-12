@@ -2,7 +2,7 @@
 import { Document } from "mongoose"
 
 
-export interface UserInterface extends Document {
+export interface UserInterfaceMongodb extends Document {
     _id: string
     photo: string
     full_name: string

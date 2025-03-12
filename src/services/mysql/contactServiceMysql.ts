@@ -9,12 +9,6 @@ export class ContactServiceMysql implements ServiceInterfaceMysql<ContactInterfa
     async fetchAll(): Promise<ContactInterfaceMysql[]> {
         try {
             const contacts: ContactInterfaceMysql[] = await ContactModelMysql.findAll()
-            // console.log('==> ', contacts)
-            // const contactsToReturn: ContactInterfaceMysql[] = contacts.map(contact => ({
-            //     ...contact,
-            //     _id: contact._id.toString(),
-            //     archived: contact.archived === 1
-            // }));
             return contacts
         }
         catch (error) {

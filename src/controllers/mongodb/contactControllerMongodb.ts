@@ -1,15 +1,15 @@
 
 import { Request, Response } from 'express'
 import Router from 'express'
-import { authMiddleware } from '../middleware/authMiddleware'
-import { ContactService } from '../services/contactService'
-import { ContactValidator } from '../validators/contactValidator'
+import { authMiddleware } from '../../middleware/authMiddleware'
+import { ContactServiceMongodb } from '../../services/mongodb/contactServiceMongodb'
+import { ContactValidator } from '../../validators/contactValidator'
 
 
-export const contactRouter = Router()
-const contactService = new ContactService()
+export const contactRouterMongodb = Router()
+const contactServiceMongodb = new ContactServiceMongodb()
 
-contactRouter.use(authMiddleware)
+contactRouterMongodb.use(authMiddleware)
 
 
 /**
@@ -131,9 +131,9 @@ contactRouter.use(authMiddleware)
  *         description: Contacto no encontrado
  */
 
-contactRouter.get('/', async (req: Request, res: Response) => {
+contactRouterMongodb.get('/', async (req: Request, res: Response) => {
     try {
-        const contactList = await contactService.fetchAll()
+        const contactList = await contactServiceMongodb.fetchAll()
         res.json(contactList)
     }
     catch (error) {
@@ -142,9 +142,9 @@ contactRouter.get('/', async (req: Request, res: Response) => {
     }
 })
 
-contactRouter.get('/:id', async (req: Request, res: Response) => {
+contactRouterMongodb.get('/:id', async (req: Request, res: Response) => {
     try {
-        const contact = await contactService.fetchById(req.params.id)
+        const contact = await contactServiceMongodb.fetchById(req.params.id)
         if (contact !== null) {
             res.json(contact)
         } else {
@@ -157,12 +157,12 @@ contactRouter.get('/:id', async (req: Request, res: Response) => {
     }
 })
 
-contactRouter.post('/', async (req: Request, res: Response) => {
+contactRouterMongodb.post('/', async (req: Request, res: Response) => {
     const contactValidator = new ContactValidator()
     const totalErrors = contactValidator.validateContact(req.body)
     if (totalErrors.length === 0) {
         try {
-            const newContact = await contactService.create(req.body)
+            const newContact = await contactServiceMongodb.create(req.body)
             res.status(201).json(newContact)
         }
         catch (error) {
@@ -177,13 +177,13 @@ contactRouter.post('/', async (req: Request, res: Response) => {
     }
 })
 
-contactRouter.put('/:id', async (req: Request, res: Response) => {
+contactRouterMongodb.put('/:id', async (req: Request, res: Response) => {
     const contactValidator = new ContactValidator()
     const totalErrors = contactValidator.validateContact(req.body)
 
     if (totalErrors.length === 0) {
         try {
-            const updatedContact = await contactService.update(req.params.id, req.body)
+            const updatedContact = await contactServiceMongodb.update(req.params.id, req.body)
             if (updatedContact !== null) {
                 // res.status(204).json(updatedContact)
                 res.status(200).json(updatedContact)
@@ -202,9 +202,9 @@ contactRouter.put('/:id', async (req: Request, res: Response) => {
     }
 })
 
-contactRouter.delete('/:id', async (req: Request, res: Response) => {
+contactRouterMongodb.delete('/:id', async (req: Request, res: Response) => {
     try {
-        const deletedContact = await contactService.delete(req.params.id)
+        const deletedContact = await contactServiceMongodb.delete(req.params.id)
         if (deletedContact) {
             res.status(204).json()
         } else {
