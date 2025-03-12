@@ -1,16 +1,16 @@
 
 import { validateIDstring as validateIdString, validateIDObjectId, validateFullName, validateDateRelativeToNow, validateTextArea } from "./commonValidator"
-import { RoomInterface } from "../interfaces/roomInterface"
+import { RoomInterfaceMongodb } from "../interfaces/mongodb/roomInterfaceMongodb"
 import { RoomType } from "../enums/roomType"
 import { RoomAmenities } from "../enums/roomAmenities"
-import { BookingInterface } from "../interfaces/bookingInterface"
+import { BookingInterfaceMongodb } from "../interfaces/mongodb/bookingInterfaceMongodb"
 import { RoomInterfaceMysql } from "../interfaces/mysql/roomInterfaceMysql"
 import { BookingInterfaceMysql } from "../interfaces/mysql/bookingInterfaceMysql"
 
 
 export class RoomValidator {
 
-    validateProperties(room: RoomInterface | RoomInterfaceMysql): string[] {
+    validateProperties(room: RoomInterfaceMongodb | RoomInterfaceMysql): string[] {
         const errorMessages: string[] = []
         let requiredProperties = ['photos', 'number', 'type', 'amenities', 'price', 'discount', 'booking_id_list']
 
@@ -22,7 +22,7 @@ export class RoomValidator {
         return errorMessages
     }
 
-    validateNewRoom(room: RoomInterface | RoomInterfaceMysql, allRooms: RoomInterface[] | RoomInterfaceMysql[]): string[] {
+    validateNewRoom(room: RoomInterfaceMongodb | RoomInterfaceMysql, allRooms: RoomInterfaceMongodb[] | RoomInterfaceMysql[]): string[] {
         const errorMessages: string[] = []
 
         if (room === undefined || Object.keys(room).length === 0) {
@@ -43,7 +43,7 @@ export class RoomValidator {
 
         return errorMessages
     }
-    validateExistingRoom(room: RoomInterface | RoomInterfaceMysql, allRooms: RoomInterface[] | RoomInterfaceMysql[], allBookings: BookingInterface[] | BookingInterfaceMysql[]): string[] {
+    validateExistingRoom(room: RoomInterfaceMongodb | RoomInterfaceMysql, allRooms: RoomInterfaceMongodb[] | RoomInterfaceMysql[], allBookings: BookingInterfaceMongodb[] | BookingInterfaceMysql[]): string[] {
         const errorMessages: string[] = []
 
         if (room === undefined || Object.keys(room).length === 0) {
@@ -85,7 +85,7 @@ export class RoomValidator {
 
         return errorMessages
     }
-    validateNumber(number: string, allRooms: RoomInterface[] | RoomInterfaceMysql[], actualNumber?: string): string[] {
+    validateNumber(number: string, allRooms: RoomInterfaceMongodb[] | RoomInterfaceMysql[], actualNumber?: string): string[] {
         const errorMessages: string[] = [];
         const regex = /^\d{3}$/
 
@@ -101,10 +101,10 @@ export class RoomValidator {
 
         return errorMessages;
     }
-    validateNewNumber(number: string, allRooms: RoomInterface[] | RoomInterfaceMysql[]): string[] {
+    validateNewNumber(number: string, allRooms: RoomInterfaceMongodb[] | RoomInterfaceMysql[]): string[] {
         return this.validateNumber(number, allRooms);
     }
-    validateExistingNumber(number: string, actualNumber: string, allRooms: RoomInterface[] | RoomInterfaceMysql[]): string[] {
+    validateExistingNumber(number: string, actualNumber: string, allRooms: RoomInterfaceMongodb[] | RoomInterfaceMysql[]): string[] {
         return this.validateNumber(number, allRooms, actualNumber);
     }
     validateRoomType(type: string): string[] {
@@ -164,7 +164,7 @@ export class RoomValidator {
 
         return errorMessages
     }
-    validateBookingList(bookingList: string[], allBookings: BookingInterface[] | BookingInterfaceMysql[]): string[] {
+    validateBookingList(bookingList: string[], allBookings: BookingInterfaceMongodb[] | BookingInterfaceMysql[]): string[] {
         const errorMessages: string[] = []
 
         bookingList.forEach((bookingId) => {

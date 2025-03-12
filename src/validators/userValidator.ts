@@ -3,14 +3,14 @@ import {
     validatePhoto, validateFullName, validateEmail,
     validateDateRelativeToNow, validateTextArea, validatePhoneNumber
 } from './commonValidator'
-import { UserInterface } from "../interfaces/userInterface"
+import { UserInterfaceMongodb } from '../interfaces/mongodb/userInterfaceMongodb'
 import { UserInterfaceMysql } from '../interfaces/mysql/userInterfaceMysql'
 import { UserStatus } from "../enums/userStatus"
 
 
 export class UserValidator {
 
-    validateProperties(user: UserInterface | UserInterfaceMysql): string[] {
+    validateProperties(user: UserInterfaceMongodb | UserInterfaceMysql): string[] {
         const errorMessages: string[] = []
         const requiredProperties: string[] = ['photo', 'full_name', 'email', 'start_date', 'description', 'phone_number', 'status', 'password']
         requiredProperties.map((property) => {
@@ -21,7 +21,7 @@ export class UserValidator {
         return errorMessages
     }
 
-    validateUser(user: UserInterface | UserInterfaceMysql, passwordHasChanged: boolean = false): string[] {
+    validateUser(user: UserInterfaceMongodb | UserInterfaceMysql, passwordHasChanged: boolean = false): string[] {
         const allErrorMessages: string[] = []
 
         const errorsCheckingProperties = this.validateProperties(user)

@@ -1,15 +1,15 @@
 
 import { validateIDstring, validateIDObjectId, validatePhoto, validateFullName, validateDateRelativeToNow, validateTextArea } from "./commonValidator"
-import { BookingInterface } from "../interfaces/bookingInterface"
+import { BookingInterfaceMongodb } from "../interfaces/mongodb/bookingInterfaceMongodb"
 import { BookingInterfaceMysql } from "../interfaces/mysql/bookingInterfaceMysql"
 import { RoomType } from "../enums/roomType"
-import { RoomInterface } from "../interfaces/roomInterface"
+import { RoomInterfaceMongodb } from "../interfaces/mongodb/roomInterfaceMongodb"
 import { RoomInterfaceMysql } from "../interfaces/mysql/roomInterfaceMysql"
 
 
 export class BookingValidator {
 
-    validateProperties(booking: BookingInterface | BookingInterfaceMysql): string[] {
+    validateProperties(booking: BookingInterfaceMongodb | BookingInterfaceMysql): string[] {
         const errorMessages: string[] = []
         let bookingRequiredProperties = ['photo', 'full_name_guest', 'order_date',
             'check_in_date', 'check_out_date', 'special_request', 'room_id']
@@ -22,7 +22,7 @@ export class BookingValidator {
         return errorMessages
     }
 
-    validateBooking(booking: BookingInterfaceMysql, allBookings: BookingInterface[] | BookingInterfaceMysql[], allRooms: RoomInterface[] | RoomInterfaceMysql[]): string[] {
+    validateBooking(booking: BookingInterfaceMysql, allBookings: BookingInterfaceMongodb[] | BookingInterfaceMysql[], allRooms: RoomInterfaceMongodb[] | RoomInterfaceMysql[]): string[] {
         const errorMessages: string[] = []
 
         if (booking === undefined || Object.keys(booking).length === 0) {
@@ -82,7 +82,7 @@ export class BookingValidator {
 
         return errorMessages
     }
-    validateDateIsOccupied(booking: BookingInterface | BookingInterfaceMysql, bookings: BookingInterface[] | BookingInterfaceMysql[]): string[] {
+    validateDateIsOccupied(booking: BookingInterfaceMongodb | BookingInterfaceMysql, bookings: BookingInterfaceMongodb[] | BookingInterfaceMysql[]): string[] {
         const errorMessages: string[] = []
 
         for (let i = 0; i < bookings.length; i++) {
@@ -95,7 +95,7 @@ export class BookingValidator {
         }
         return errorMessages
     }
-    validateRoomList(roomId: string, allRooms: RoomInterface[] | RoomInterfaceMysql[]): string[] {
+    validateRoomList(roomId: string, allRooms: RoomInterfaceMongodb[] | RoomInterfaceMysql[]): string[] {
         const errorMessages: string[] = []
 
         validateIDstring(roomId, 'ID').map(error => {

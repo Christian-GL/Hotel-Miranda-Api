@@ -3,14 +3,14 @@ import {
     validateDateRelativeToNow, validateFullName, validateEmail,
     validatePhoneNumber, validateTextArea
 } from "./commonValidator"
-import { ContactInterface } from "../interfaces/contactInterface"
+import { ContactInterfaceMongodb } from "../interfaces/mongodb/contactInterfaceMongodb"
 import { ContactInterfaceMysql } from "../interfaces/mysql/contactInterfaceMysql"
 import { ContactArchived } from "../enums/contactArchived"
 
 
 export class ContactValidator {
 
-    validateProperties(contact: ContactInterface | ContactInterfaceMysql): string[] {
+    validateProperties(contact: ContactInterfaceMongodb | ContactInterfaceMysql): string[] {
         const errorMessages: string[] = []
         const requiredProperties: string[] = ['publish_date', 'full_name', 'email', 'phone_number', 'comment', 'archived']
         requiredProperties.map((property) => {
