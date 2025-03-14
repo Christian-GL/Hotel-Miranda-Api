@@ -51,11 +51,7 @@ RoomModelMysql.init(
         discount: {
             type: DataTypes.DECIMAL(5, 2),
             allowNull: false,
-        },
-        booking_id_list: {
-            type: DataTypes.JSONB,
-            allowNull: false,
-        },
+        }
     },
     {
         sequelize,

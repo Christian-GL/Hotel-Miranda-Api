@@ -16,10 +16,7 @@ export class RoomServiceMysql implements ServiceInterfaceMysql<RoomInterfaceMysq
                 type: room.type,
                 amenities: typeof room.amenities === 'string' ? JSON.parse(room.amenities) : room.amenities,
                 price: typeof room.price === 'string' ? parseFloat(room.price) : room.price,
-                discount: typeof room.discount === 'string' ? parseFloat(room.discount) : room.discount,
-                booking_id_list: typeof room.booking_id_list === 'string'
-                    ? JSON.parse(room.booking_id_list).map(Number)
-                    : room.booking_id_list.map(Number),
+                discount: typeof room.discount === 'string' ? parseFloat(room.discount) : room.discount
             }))
             return roomsParsed
         }
@@ -40,10 +37,7 @@ export class RoomServiceMysql implements ServiceInterfaceMysql<RoomInterfaceMysq
                     type: room.type,
                     amenities: typeof room.amenities === 'string' ? JSON.parse(room.amenities) : room.amenities,
                     price: typeof room.price === 'string' ? parseFloat(room.price) : room.price,
-                    discount: typeof room.discount === 'string' ? parseFloat(room.discount) : room.discount,
-                    booking_id_list: typeof room.booking_id_list === 'string'
-                        ? JSON.parse(room.booking_id_list).map(Number)
-                        : room.booking_id_list.map(Number),
+                    discount: typeof room.discount === 'string' ? parseFloat(room.discount) : room.discount
                 }
                 return roomParsed
             }

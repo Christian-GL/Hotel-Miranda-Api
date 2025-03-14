@@ -108,18 +108,18 @@ export const validateTextArea = (textArea: string, fieldName: string = 'Text are
     return errorMessages
 }
 
-export const validatePhoneNumber = (phoneNumber: string, fieldName: string = 'Phone number'): string[] => {
+export const validatePhoneNumber = (phoneNumber: any, fieldName: string = 'Phone number'): string[] => {
     const errorMessages: string[] = []
-    const regex = /^(\d{3}[-\s]?\d{3}[-\s]?\d{3,4})$/
+    const regex = /^\+?\d{1,4}([-\s]?\d{2,4})+$/
 
     if (typeof phoneNumber !== "string") {
         errorMessages.push(`${fieldName} is not a String`)
     }
     if (phoneNumber.length < 9 || phoneNumber.length > 20) {
-        errorMessages.push(`${fieldName} length must be bertween 9 and 20 characters`)
+        errorMessages.push(`${fieldName} length must be between 9 and 20 characters`)
     }
     if (!regex.test(phoneNumber)) {
-        errorMessages.push(`${fieldName} only digits are available`)
+        errorMessages.push(`${fieldName} only [digits, -, +, spaces] are available`)
     }
 
     return errorMessages

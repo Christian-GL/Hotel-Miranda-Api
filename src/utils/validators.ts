@@ -259,31 +259,6 @@ export const validateAmenities = (amenities: any[], fieldName: string = 'Ameniti
     return errorMessages
 }
 
-// export const validateBookingStatus = (type: any, fieldName: string = 'Booking Status'): string[] => {
-//     const errorMessages: string[] = []
-
-//     if (typeof type !== "string") {
-//         errorMessages.push(`${fieldName} is not a String`)
-//     }
-//     if (!Object.values(BookingStatus).includes(type as BookingStatus)) {
-//         errorMessages.push(`${fieldName} is not set`)
-//     }
-
-//     return errorMessages
-// }
-
-export const validateBookingList = (bookingList: any[], fieldName: string = 'Booking list'): string[] => {
-    const errorMessages: string[] = []
-
-    bookingList.forEach((bookingId) => {
-        if (typeof bookingId !== "number") {
-            errorMessages.push(`${fieldName} is not a Number`)
-        }
-    })
-
-    return errorMessages
-}
-
 const validateRoomNumber = (number: any, allRooms: RoomInterfaceMysqlWithBookingData[], actualNumber?: string, fieldName: string = 'Room number'): string[] => {
     const errorMessages: string[] = []
     const regex = new RegExp(/^\d{3}$/)

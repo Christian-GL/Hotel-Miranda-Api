@@ -51,6 +51,16 @@ export class BookingServiceMysql implements ServiceInterfaceMysql<BookingInterfa
         }
     }
 
+    async fetchAllByRoomId(id: number): Promise<BookingInterfaceMysql[]> {
+        try {
+            return await BookingModelMysql.findAll({ where: { room_id: id } })
+        }
+        catch (error) {
+            console.error('Error in fetchAllByRoomId of bookingService', error)
+            throw error
+        }
+    }
+
     async create(booking: BookingInterfaceMysql): Promise<BookingInterfaceMysql> {
         try {
             const newBooking: BookingInterfaceMysql = await BookingModelMysql.create(booking)

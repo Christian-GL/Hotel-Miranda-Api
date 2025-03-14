@@ -150,20 +150,13 @@ roomRouterMysql.use(authMiddleware)
 roomRouterMysql.get('/', async (req: Request, res: Response) => {
     try {
         const roomList = await roomServiceMysql.fetchAll()
-        const roomListWithBookingsData: RoomInterfaceMysqlWithBookingData[] = []
 
-        for (const room of roomList) {
-            const bookings: BookingInterfaceMysql[] = []
-            for (const bookingID of room.booking_id_list) {
-                const booking = await bookingServiceMysql.fetchById(bookingID)
-                if (booking === null) {
-                    res.status(404).json({ message: `Booking #${bookingID} not found` })
-                    return
-                }
-                bookings.push(booking)
-            }
-            roomListWithBookingsData.push({ ...room, booking_data_list: bookings })
-        }
+        const roomListWithBookingsData: RoomInterfaceMysqlWithBookingData[] = await Promise.all(
+            roomList.map(async (room) => {
+                const bookings: BookingInterfaceMysql[] = await bookingServiceMysql.fetchAllByRoomId(room._id)
+                return { ...room, booking_data_list: bookings }
+            })
+        )
 
         res.json(roomListWithBookingsData)
     }
@@ -181,16 +174,9 @@ roomRouterMysql.get('/:id', async (req: Request, res: Response) => {
             return
         }
 
-        const bookings: BookingInterfaceMysql[] = []
-        for (const bookingID of room.booking_id_list) {
-            const booking = await bookingServiceMysql.fetchById(bookingID)
-            if (booking === null) {
-                res.status(404).json({ message: `Booking #${bookingID} not found` })
-                return
-            }
-            bookings.push(booking)
-        }
+        const bookings: BookingInterfaceMysql[] = await bookingServiceMysql.fetchAllByRoomId(room._id)
         const roomWithBookingData: RoomInterfaceMysqlWithBookingData = { ...room, booking_data_list: bookings }
+
         res.json(roomWithBookingData)
     }
     catch (error) {
@@ -251,14 +237,17 @@ roomRouterMysql.put('/:id', async (req: Request, res: Response) => {
 roomRouterMysql.delete('/:id', async (req: Request, res: Response) => {
     try {
         const roomToDelete = await roomServiceMysql.fetchById(parseInt(req.params.id))
-
         if (roomToDelete === null) {
             res.status(404).json({ message: `Room #${req.params.id} not found` })
             return
         }
-
+        const bookingsToDelete = await bookingServiceMysql.fetchAllByRoomId(roomToDelete._id)
+        
         await roomServiceMysql.delete(roomToDelete._id)
-        res.status(204).json()
+        res.status(200).json({
+            roomId: roomToDelete._id,
+            bookingsToDelete: bookingsToDelete.map(booking => booking._id)
+        })
     }
     catch (error) {
         console.error("Error in delete of roomController:", error)

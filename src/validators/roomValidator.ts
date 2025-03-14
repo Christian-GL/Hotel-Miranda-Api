@@ -12,7 +12,7 @@ export class RoomValidator {
 
     validateProperties(room: RoomInterfaceMongodb | RoomInterfaceMysql): string[] {
         const errorMessages: string[] = []
-        let requiredProperties = ['photos', 'number', 'type', 'amenities', 'price', 'discount', 'booking_id_list']
+        let requiredProperties = ['photos', 'number', 'type', 'amenities', 'price', 'discount']
 
         requiredProperties.forEach((property) => {
             if (!(property in room)) {
@@ -161,21 +161,6 @@ export class RoomValidator {
         if (discount > 100) {
             errorMessages.push('Discount must be 100 or less')
         }
-
-        return errorMessages
-    }
-    validateBookingList(bookingList: string[], allBookings: BookingInterfaceMongodb[] | BookingInterfaceMysql[]): string[] {
-        const errorMessages: string[] = []
-
-        bookingList.forEach((bookingId) => {
-            validateIdString(bookingId, 'ID').map(error => {
-                errorMessages.push(error)
-            })
-            const bookingExists = allBookings.some(booking => booking._id.toString() === bookingId)
-            if (!bookingExists) {
-                errorMessages.push(`Booking with ID #${bookingId} does not exist`)
-            }
-        })
 
         return errorMessages
     }

@@ -12,7 +12,6 @@ export interface RoomInterfaceMysql {
     amenities: RoomAmenities[]
     price: number
     discount: number
-    booking_id_list: number[]
 }
 
 export interface RoomInterfaceMysqlWithBookingData {
