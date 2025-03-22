@@ -14,7 +14,6 @@ export class RoomModelMysql extends Model<RoomInterfaceMysql> {
     amenities!: RoomAmenities[]
     price!: number
     discount!: number
-    booking_id_list!: number[]
 }
 
 RoomModelMysql.init(
