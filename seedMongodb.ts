@@ -1,16 +1,16 @@
 
 import { faker } from '@faker-js/faker'
-import { connectMongoDB } from './src/utils/database'
+import { connectMongodbDB } from './src/utils/databaseMongodb'
 import { hashPassword } from './src/utils/hashPassword'
 
-import { BookingInterface } from './src/interfaces/bookingInterface'
-import { RoomInterface } from './src/interfaces/roomInterface'
-import { ContactInterface } from './src/interfaces/contactInterface'
-import { UserInterface } from './src/interfaces/userInterface'
-import { BookingModel } from './src/models/bookingModel'
-import { RoomModel } from './src/models/roomModel'
-import { ContactModel } from './src/models/contactModel'
-import { UserModel } from './src/models/userModel'
+import { BookingInterfaceMongodb } from './src/interfaces/mongodb/bookingInterfaceMongodb'
+import { RoomInterfaceMongodb } from './src/interfaces/mongodb/roomInterfaceMongodb'
+import { ContactInterfaceMongodb } from './src/interfaces/mongodb/contactInterfaceMongodb'
+import { UserInterfaceMongodb } from './src/interfaces/mongodb/userInterfaceMongodb'
+import { BookingModelMongodb } from './src/models/mongodb/bookingModelMongodb'
+import { RoomModelMongodb } from './src/models/mongodb/roomModelMongodb'
+import { ContactModelMongodb } from './src/models/mongodb/contactModelMongodb'
+import { UserModelMongodb } from './src/models/mongodb/userModelMongodb'
 import { BookingValidator } from './src/validators/bookingValidator'
 import { RoomValidator } from './src/validators/roomValidator'
 import { ContactValidator } from './src/validators/contactValidator'
@@ -18,17 +18,17 @@ import { UserValidator } from './src/validators/userValidator'
 import { UserStatus } from './src/enums/userStatus'
 import { RoomType } from './src/enums/roomType'
 import { RoomAmenities } from './src/enums/roomAmenities'
-import { RoomService } from './src/services/roomService'
+import { RoomServiceMongodb } from './src/services/mongodb/roomServiceMongodb'
 
 
 const createUsers = async (): Promise<void> => {
-    await connectMongoDB()
+    await connectMongodbDB()
     try {
         const users = []
         const userValidator = new UserValidator()
         let totalErrors
         for (let i = 0; i < 25; i++) {
-            const fakeUser = new UserModel({
+            const fakeUser = new UserModelMongodb({
                 photo: faker.image.avatar(),
                 full_name: faker.person.fullName(),
                 email: faker.internet.email(),
@@ -38,7 +38,7 @@ const createUsers = async (): Promise<void> => {
                 status: faker.helpers.arrayElement(Object.values(UserStatus)),
                 password: 'Abcd1234.'
             })
-            totalErrors = userValidator.validateUser(fakeUser.toObject() as UserInterface, true)
+            totalErrors = userValidator.validateUser(fakeUser.toObject() as UserInterfaceMongodb, true)
             if (totalErrors.length === 0) {
                 fakeUser.password = await hashPassword(fakeUser.password)
                 users.push(fakeUser)
@@ -48,7 +48,7 @@ const createUsers = async (): Promise<void> => {
                 continue
             }
         }
-        await UserModel.insertMany(users)
+        await UserModelMongodb.insertMany(users)
     }
     catch (error) {
         console.error('Error creating users with faker', error)
@@ -57,13 +57,13 @@ const createUsers = async (): Promise<void> => {
 }
 
 const createContacts = async (): Promise<void> => {
-    await connectMongoDB()
+    await connectMongodbDB()
     try {
         const contacts = []
         const contactValidator = new ContactValidator()
         let totalErrors
         for (let i = 0; i < 25; i++) {
-            const fakeContact = new ContactModel({
+            const fakeContact = new ContactModelMongodb({
                 full_name: faker.person.fullName(),
                 email: faker.internet.email(),
                 publish_date: faker.date.past().toISOString(),
@@ -71,7 +71,7 @@ const createContacts = async (): Promise<void> => {
                 comment: faker.lorem.paragraph(),
                 archived: faker.datatype.boolean()
             })
-            totalErrors = contactValidator.validateContact(fakeContact.toObject() as ContactInterface)
+            totalErrors = contactValidator.validateContact(fakeContact.toObject() as ContactInterfaceMongodb)
             if (totalErrors.length === 0) {
                 contacts.push(fakeContact)
             }
@@ -80,7 +80,7 @@ const createContacts = async (): Promise<void> => {
                 continue
             }
         }
-        await ContactModel.insertMany(contacts)
+        await ContactModelMongodb.insertMany(contacts)
     }
     catch (error) {
         console.error('Error creating contacts with faker', error)
@@ -89,17 +89,17 @@ const createContacts = async (): Promise<void> => {
 }
 
 const createRoomsAndBookings = async (): Promise<void> => {
-    await connectMongoDB()
+    await connectMongodbDB()
     try {
-        const rooms: RoomInterface[] = []
-        const bookings: BookingInterface[] = []
+        const rooms: RoomInterfaceMongodb[] = []
+        const bookings: BookingInterfaceMongodb[] = []
         const roomValidator = new RoomValidator()
         const bookingValidator = new BookingValidator()
         let roomTotalErrors: string[] = []
         let bookingTotalErrors: string[] = []
 
         for (let i = 0; i < 5; i++) {
-            const fakeRoom = new RoomModel({
+            const fakeRoom = new RoomModelMongodb({
                 photos: Array.from({ length: 3 }, () => faker.image.urlPicsumPhotos()),
                 number: faker.number.int({ min: 0, max: 999 }).toString().padStart(3, "0"),
                 type: faker.helpers.arrayElement(Object.values(RoomType)),
@@ -109,8 +109,8 @@ const createRoomsAndBookings = async (): Promise<void> => {
                 booking_id_list: []
             })
             roomTotalErrors = roomValidator.validateNewRoom(
-                fakeRoom.toObject() as RoomInterface,
-                rooms as RoomInterface[]
+                fakeRoom.toObject() as RoomInterfaceMongodb,
+                rooms as RoomInterfaceMongodb[]
             )
             if (roomTotalErrors.length === 0) {
                 rooms.push(fakeRoom)
@@ -124,7 +124,7 @@ const createRoomsAndBookings = async (): Promise<void> => {
             if (rooms.length === 0) break
             const selectedRoom = faker.helpers.arrayElement(rooms)
             const check_in_date = faker.date.future({ years: faker.number.float({ min: 0.2, max: 2 }) })
-            const fakeBooking = new BookingModel({
+            const fakeBooking = new BookingModelMongodb({
                 photo: faker.image.avatar(),
                 full_name_guest: faker.person.fullName(),
                 order_date: faker.date.recent({ days: 30 }).toISOString(),
@@ -134,9 +134,9 @@ const createRoomsAndBookings = async (): Promise<void> => {
                 room_id: selectedRoom._id.toString()
             })
             bookingTotalErrors = bookingValidator.validateBooking(
-                fakeBooking.toObject() as BookingInterface,
-                bookings as BookingInterface[],
-                rooms as RoomInterface[]
+                fakeBooking.toObject() as BookingInterfaceMongodb,
+                bookings as BookingInterfaceMongodb[],
+                rooms as RoomInterfaceMongodb[]
             )
             if (bookingTotalErrors.length === 0) {
                 bookings.push(fakeBooking)
@@ -155,8 +155,8 @@ const createRoomsAndBookings = async (): Promise<void> => {
         // bookings.map(booking => {
         //     console.log(booking._id, booking.room_id)
         // })
-        await RoomModel.insertMany(rooms)
-        await BookingModel.insertMany(bookings)
+        await RoomModelMongodb.insertMany(rooms)
+        await BookingModelMongodb.insertMany(bookings)
     }
     catch (error) {
         console.error('Error creating bookings and rooms with faker', error)

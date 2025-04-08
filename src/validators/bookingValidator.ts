@@ -22,7 +22,7 @@ export class BookingValidator {
         return errorMessages
     }
 
-    validateBooking(booking: BookingInterfaceMysql, allBookings: BookingInterfaceMongodb[] | BookingInterfaceMysql[], allRooms: RoomInterfaceMongodb[] | RoomInterfaceMysql[]): string[] {
+    validateBooking(booking: BookingInterfaceMongodb | BookingInterfaceMysql, allBookings: BookingInterfaceMongodb[] | BookingInterfaceMysql[], allRooms: RoomInterfaceMongodb[] | RoomInterfaceMysql[]): string[] {
         const errorMessages: string[] = []
 
         if (booking === undefined || Object.keys(booking).length === 0) {

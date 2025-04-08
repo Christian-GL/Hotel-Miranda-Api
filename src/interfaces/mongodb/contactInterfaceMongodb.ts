@@ -1,5 +1,6 @@
 
 import { Document } from "mongoose"
+import { ContactArchived } from "../../enums/contactArchived"
 
 
 export interface ContactInterfaceMongodb extends Document {
@@ -8,5 +9,5 @@ export interface ContactInterfaceMongodb extends Document {
     email: string
     phone_number: string
     comment: string
-    archived: boolean
+    archived: ContactArchived
 }

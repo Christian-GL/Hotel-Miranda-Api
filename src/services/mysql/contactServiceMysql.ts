@@ -31,7 +31,6 @@ export class ContactServiceMysql implements ServiceInterfaceMysql<ContactInterfa
 
     async create(contact: ContactInterfaceMysql): Promise<ContactInterfaceMysql> {
         try {
-            // contact.archived ? contact.archived = 'true' : contact.archived = 'false'
             const newContact: ContactInterfaceMysql = await ContactModelMysql.create(contact)
             return newContact
         }

@@ -1,6 +1,7 @@
 
 import { Schema, model } from "mongoose"
 import { ContactInterfaceMongodb } from "../../interfaces/mongodb/contactInterfaceMongodb"
+import { ContactArchived } from "../../enums/contactArchived"
 
 
 const ContactSchemaMongodb = new Schema<ContactInterfaceMongodb>
@@ -26,8 +27,9 @@ const ContactSchemaMongodb = new Schema<ContactInterfaceMongodb>
             required: true
         },
         archived: {
-            type: Boolean,
-            required: true
+            type: String,
+            required: true,
+            enum: Object.values(ContactArchived)
         }
     })
 

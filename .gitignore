@@ -9,6 +9,7 @@ lerna-debug.log*
 
 .env
 node_modules
+HotelMirandaDB.sql
 dist
 dist-ssr
 *.local

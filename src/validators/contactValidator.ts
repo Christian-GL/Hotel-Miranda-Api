@@ -21,7 +21,7 @@ export class ContactValidator {
         return errorMessages
     }
 
-    validateContact(contact: ContactInterfaceMysql): string[] {
+    validateContact(contact: ContactInterfaceMongodb | ContactInterfaceMysql): string[] {
         const allErrorMessages: string[] = []
 
         const errorsCheckingProperties = this.validateProperties(contact)

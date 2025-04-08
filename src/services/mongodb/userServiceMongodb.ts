@@ -28,6 +28,20 @@ export class UserServiceMongodb implements ServiceInterfaceMongodb<UserInterface
             console.error('Error in fetchById of userService', error)
             return null
         }
+
+
+        // const user: UserInterfaceMongodb = new UserModelMongodb({
+        //     _id: '67c0b7e411836cd096df50e1',
+        //     photo: 'https://example.com/photo.jpg',
+        //     full_name: 'Juan Pérez',
+        //     email: 'juan.perez@example.com',
+        //     start_date: new Date('2022-01-01T00:00:00Z'),
+        //     description: 'Desarrollador full stack con 5 años de experiencia.',
+        //     phone_number: '+34 612 345 678',
+        //     status: 'active',
+        //     password: 'hashedPassword123'
+        // })
+        // return user
     }
 
     async create(user: UserInterfaceMongodb): Promise<UserInterfaceMongodb> {

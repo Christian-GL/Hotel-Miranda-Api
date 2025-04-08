@@ -5,19 +5,19 @@ import swaggerUi from 'swagger-ui-express'
 import swaggerJsDoc from 'swagger-jsdoc'
 import serverless from 'serverless-http'
 
-// import { connectMongodbDB } from './utils/databaseMongodb'
-// import { loginRouterMongodb } from './controllers/mongodb/loginControllerMongodb'
-// import { bookingRouterMongodb } from './controllers/mongodb/bookingControllerMongodb'
-// import { roomRouterMongodb } from './controllers/mongodb/roomControllerMongodb'
-// import { contactRouterMongodb } from './controllers/mongodb/contactControllerMongodb'
-// import { userRouterMongodb } from './controllers/mongodb/userControllerMongodb'
+import { connectMongodbDB } from './utils/databaseMongodb'
+import { loginRouterMongodb } from './controllers/mongodb/loginControllerMongodb'
+import { bookingRouterMongodb } from './controllers/mongodb/bookingControllerMongodb'
+import { roomRouterMongodb } from './controllers/mongodb/roomControllerMongodb'
+import { contactRouterMongodb } from './controllers/mongodb/contactControllerMongodb'
+import { userRouterMongodb } from './controllers/mongodb/userControllerMongodb'
 
-import { connectMysqlDB } from './utils/databaseMysql'
-import { loginRouterMysql } from './controllers/mysql/loginControllerMysql'
-import { bookingRouterMysql } from './controllers/mysql/bookingControllerMysql'
-import { roomRouterMysql } from './controllers/mysql/roomControllerMysql'
-import { contactRouterMysql } from './controllers/mysql/contactControllerMysql'
-import { userRouterMysql } from './controllers/mysql/userControllerMysql'
+// import { connectMysqlDB } from './utils/databaseMysql'
+// import { loginRouterMysql } from './controllers/mysql/loginControllerMysql'
+// import { bookingRouterMysql } from './controllers/mysql/bookingControllerMysql'
+// import { roomRouterMysql } from './controllers/mysql/roomControllerMysql'
+// import { contactRouterMysql } from './controllers/mysql/contactControllerMysql'
+// import { userRouterMysql } from './controllers/mysql/userControllerMysql'
 
 
 export const app = express()
@@ -215,16 +215,17 @@ app.use('/api-dashboard/v2/swagger', swaggerUi.serve, swaggerUi.setup(swaggerDoc
   customCss: darkTheme
 }))
 
-// app.use('/login', loginRouterMongodb)
-// app.use('/api-dashboard/v2/bookings', bookingRouterMongodb)
-// app.use('/api-dashboard/v2/rooms', roomRouterMongodb)
-// app.use('/api-dashboard/v2/contacts', contactRouterMongodb)
-// app.use('/api-dashboard/v2/users', userRouterMongodb)
-app.use('/login', loginRouterMysql)
-app.use('/api-dashboard/v2/bookings', bookingRouterMysql)
-app.use('/api-dashboard/v2/rooms', roomRouterMysql)
-app.use('/api-dashboard/v2/contacts', contactRouterMysql)
-app.use('/api-dashboard/v2/users', userRouterMysql)
+app.use('/login', loginRouterMongodb)
+app.use('/api-dashboard/v2/bookings', bookingRouterMongodb)
+app.use('/api-dashboard/v2/rooms', roomRouterMongodb)
+app.use('/api-dashboard/v2/contacts', contactRouterMongodb)
+app.use('/api-dashboard/v2/users', userRouterMongodb)
+
+// app.use('/login', loginRouterMysql)
+// app.use('/api-dashboard/v2/bookings', bookingRouterMysql)
+// app.use('/api-dashboard/v2/rooms', roomRouterMysql)
+// app.use('/api-dashboard/v2/contacts', contactRouterMysql)
+// app.use('/api-dashboard/v2/users', userRouterMysql)
 
 app.get('/', (req: Request, res: Response) => {
   res.redirect('/api-dashboard/v2/swagger')
@@ -235,8 +236,8 @@ app.get('/live', (req: Request, res: Response) => {
 
 
 const runServer = async () => {
-  // await connectMongodbDB()
-  await connectMysqlDB()
+  await connectMongodbDB()
+  // await connectMysqlDB()
 
   app.listen(port, () => {
     console.log(`Servidor escuchando en http://localhost:${port}`)
