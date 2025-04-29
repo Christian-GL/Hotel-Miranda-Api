@@ -283,10 +283,11 @@ let isDbConnected = false
 export const main = async (event: any, context: any) => {
   context.callbackWaitsForEmptyEventLoop = false
 
-  console.log('🐇 Handler arrancado')
+  console.log('Handler ON')
   if (!isDbConnected) {
     console.log('Connecting to MongoDB Atlas…')
     await connectMongodbDB()
+    // await connectMysqlDB()
     console.log('Connection completed')
     isDbConnected = true
   }
