@@ -10,6 +10,7 @@ lerna-debug.log*
 .env
 node_modules
 HotelMirandaDB.sql
+.serverless/
 dist
 dist-ssr
 *.local
