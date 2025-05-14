@@ -20,6 +20,10 @@ import { userRouterMongodb } from './controllers/mongodb/userControllerMongodb'
 // import { userRouterMysql } from './controllers/mysql/userControllerMysql'
 
 
+
+
+
+/* VERSION PARA LOCAL */
 export const app = express()
 const port = 3002
 const options = {
@@ -227,9 +231,9 @@ app.use('/api-dashboard/v2/users', userRouterMongodb)
 // app.use('/api-dashboard/v2/contacts', contactRouterMysql)
 // app.use('/api-dashboard/v2/users', userRouterMysql)
 
-app.get('/', (req: Request, res: Response) => {
-  res.redirect('/api-dashboard/v2/swagger')
-})
+// app.get('/', (req: Request, res: Response) => {
+//   res.redirect('/api-dashboard/v2/swagger')
+// })
 app.get('/live', (req: Request, res: Response) => {
   res.send(`${new Date().toISOString()}`)
 })
@@ -240,10 +244,55 @@ const runServer = async () => {
   // await connectMysqlDB()
 
   app.listen(port, () => {
-    console.log(`Servidor escuchando en http://localhost:${port}`)
+    // console.log(`Servidor escuchando en http://localhost:${port}`)
   })
-  // console.log('Server is running')
+  console.log('Server is running')
 }
 
 runServer()
-// module.exports.hanler = serverless(app)
+// module.exports.handler = serverless(app)
+
+
+
+
+
+/* VERSION PARA AWS (SERVERLESS) */
+// export const app = express()
+// app.use(express.json())
+// app.use(cors())
+
+// app.use('/login', loginRouterMongodb)
+// app.use('/api-dashboard/v2/bookings', bookingRouterMongodb)
+// app.use('/api-dashboard/v2/rooms', roomRouterMongodb)
+// app.use('/api-dashboard/v2/contacts', contactRouterMongodb)
+// app.use('/api-dashboard/v2/users', userRouterMongodb)
+
+// // app.use('/login', loginRouterMysql)
+// // app.use('/api-dashboard/v2/bookings', bookingRouterMysql)
+// // app.use('/api-dashboard/v2/rooms', roomRouterMysql)
+// // app.use('/api-dashboard/v2/contacts', contactRouterMysql)
+// // app.use('/api-dashboard/v2/users', userRouterMysql)
+
+// app.get('/live', (_req: Request, res: Response) => {
+//   res.send(new Date().toISOString())
+// });
+
+// const handlerLambda = serverless(app)
+// let isDbConnected = false
+
+// export const main = async (event: any, context: any) => {
+//   context.callbackWaitsForEmptyEventLoop = false
+
+//   console.log('Handler ON')
+//   if (!isDbConnected) {
+//     console.log('Connecting to MongoDB Atlas…')
+//     await connectMongodbDB()
+//     // await connectMysqlDB()
+//     console.log('Connection completed')
+//     isDbConnected = true
+//   }
+
+//   return handlerLambda(event, context)
+// }
+
+// export const handler = main

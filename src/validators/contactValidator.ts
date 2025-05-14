@@ -20,6 +20,7 @@ export class ContactValidator {
         })
         return errorMessages
     }
+    
 
     validateContact(contact: ContactInterfaceMongodb | ContactInterfaceMysql): string[] {
         const allErrorMessages: string[] = []

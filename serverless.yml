@@ -1,13 +1,21 @@
 service: Hotel-Miranda-API
-frameworkVersion: "3"
-
+plugins:
+  - serverless-dotenv-plugin
+package:
+  patterns:
+    - "!./**"
+    - "package.json"
+    - "node_modules/**"
+    - "dist/**"
+    - "data/**"
+    - "public/**"
 provider:
   name: aws
   region: eu-west-3
-  runtime: nodejs18.x
+  runtime: nodejs20.x
 functions:
   app:
-    handler: dist/index.handler
+    handler: dist/src/index.handler
     events:
       - http:
           path: /
