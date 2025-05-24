@@ -283,7 +283,6 @@ roomRouterMongodb.delete('/:id', async (req: Request, res: Response) => {
             await bookingServiceMongodb.delete(booking._id)
         }
         await roomServiceMongodb.delete(roomToDelete._id)
-        // res.status(204).json()
         res.status(200).json({
             roomId: roomToDelete._id,
             bookingsToDelete: bookingsToDelete.map(booking => booking._id)
