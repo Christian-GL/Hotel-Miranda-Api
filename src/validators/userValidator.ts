@@ -29,6 +29,7 @@ export class UserValidator {
             return errorsCheckingProperties
         }
 
+        
         // validatePhoto(user.photo, 'Photo').map(
         //     error => allErrorMessages.push(error)
         // )
