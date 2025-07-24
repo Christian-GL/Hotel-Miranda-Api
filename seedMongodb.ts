@@ -27,7 +27,7 @@ const createUsers = async (): Promise<void> => {
         const users = []
         const userValidator = new UserValidator()
         let totalErrors
-        for (let i = 0; i < 25; i++) {
+        for (let i = 0; i < 2; i++) {
             const fakeUser = new UserModelMongodb({
                 photo: faker.image.avatar(),
                 full_name: faker.person.fullName(),
@@ -168,3 +168,8 @@ const createRoomsAndBookings = async (): Promise<void> => {
 // createUsers()
 // createContacts()
 // createRoomsAndBookings()
+
+
+// Ejecutar fichero Seed:
+// npx tsc seedMongoDB.ts
+// node seedMongoDB.js

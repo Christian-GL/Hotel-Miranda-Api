@@ -1,15 +1,16 @@
 
 import { Document } from "mongoose"
+import { JobPosition } from "../../enums/jobPosition"
 
 
-export interface UserInterfaceMongodb extends Document {
+export interface UserInterfaceMongoDB extends Document {
     _id: string
-    photo: string
+    photo: string | null
     full_name: string
     email: string
     start_date: Date
-    description: string
+    end_date: Date
+    job_position: JobPosition
     phone_number: string
-    status: string
     password: string
 }
