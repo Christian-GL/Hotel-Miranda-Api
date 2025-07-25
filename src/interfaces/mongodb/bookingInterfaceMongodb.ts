@@ -1,26 +1,28 @@
 
 import { Document } from "mongoose"
-import { RoomInterfaceMongoDB } from "./roomInterfaceMongodb"
-import { ClientInterfaceMongoDB } from "./clientInterfaceMongodb"
+import { OptionYesNo } from "../../enums/optionYesNo"
+import { RoomInterfaceMongodb } from "./roomInterfaceMongodb"
+import { ClientInterfaceMongodb } from "./clientInterfaceMongodb"
 
 
-export interface BookingInterfaceMongoDB extends Document {
+export interface BookingInterfaceMongodb extends Document {
     _id: string
     order_date: Date
     check_in_date: Date
     check_out_date: Date
     special_request: string
+    isArchived: OptionYesNo
     room_id: string
     client_id: string
 }
 
-export interface BookingInterfaceWithRoomDataMongoDB extends Document {
+export interface BookingInterfaceWithDataMongodb extends Document {
     _id: string
-    full_name_guest: string
     order_date: Date
     check_in_date: Date
     check_out_date: Date
     special_request: string
-    room_data: RoomInterfaceMongoDB
-    client_data: ClientInterfaceMongoDB
+    isArchived: OptionYesNo
+    room_data: RoomInterfaceMongodb
+    client_data: ClientInterfaceMongodb
 }

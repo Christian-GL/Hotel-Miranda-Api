@@ -3,7 +3,7 @@ import { validateIDstring as validateIdString, validateIDObjectId, validateFullN
 import { RoomInterfaceMongodb } from "../interfaces/mongodb/roomInterfaceMongodb"
 import { RoomType } from "../enums/roomType"
 import { RoomAmenities } from "../enums/roomAmenities"
-import { BookingInterfaceMongodb } from "../interfaces/mongodb/bookingInterfaceMongodb"
+import { BookingInterfaceMongodb } from "../interfaces/mongodb/bookingInterfaceMongodbts"
 import { RoomInterfaceMysql } from "../interfaces/mysql/roomInterfaceMysql"
 import { BookingInterfaceMysql } from "../interfaces/mysql/bookingInterfaceMysql"
 

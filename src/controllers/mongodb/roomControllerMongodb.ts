@@ -5,7 +5,7 @@ import { authMiddleware } from '../../middleware/authMiddleware'
 import { RoomServiceMongodb } from '../../services/mongodb/roomServiceMongodb'
 import { BookingServiceMongodb } from '../../services/mongodb/bookingServiceMongodb'
 import { RoomValidator } from '../../validators/roomValidator'
-import { BookingInterfaceMongodb } from '../../interfaces/mongodb/bookingInterfaceMongodb'
+import { BookingInterfaceMongodb } from '../../interfaces/mongodb/bookingInterfaceMongodbts'
 import { RoomInterfaceMongodbWithBookingData } from '../../interfaces/mongodb/roomInterfaceMongodb'
 
 

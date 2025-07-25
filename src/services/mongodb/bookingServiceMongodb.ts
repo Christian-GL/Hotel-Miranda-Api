@@ -1,7 +1,7 @@
 
 import { ServiceInterfaceMongodb } from '../../interfaces/mongodb/serviceInterfaceMongodb'
 import { BookingModelMongodb } from '../../models/mongodb/bookingModelMongodb'
-import { BookingInterfaceMongodb } from '../../interfaces/mongodb/bookingInterfaceMongodb'
+import { BookingInterfaceMongodb } from '../../interfaces/mongodb/bookingInterfaceMongodbts'
 
 
 export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInterfaceMongodb> {

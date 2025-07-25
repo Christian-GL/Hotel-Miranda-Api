@@ -1,14 +1,14 @@
 
 import { ServiceInterfaceMongodb } from '../../interfaces/mongodb/serviceInterfaceMongodb'
 import { ContactModelMongodb } from '../../models/mongodb/contactModelMongodb'
-import { ContactInterfaceMongodb } from '../../interfaces/mongodb/contactInterfaceMongodb'
+import { ClientInterfaceMongodb } from '../../interfaces/mongodb/clientInterfaceMongodb'
 
 
-export class ContactServiceMongodb implements ServiceInterfaceMongodb<ContactInterfaceMongodb> {
+export class ContactServiceMongodb implements ServiceInterfaceMongodb<ClientInterfaceMongodb> {
 
-    async fetchAll(): Promise<ContactInterfaceMongodb[]> {
+    async fetchAll(): Promise<ClientInterfaceMongodb[]> {
         try {
-            const contacts: ContactInterfaceMongodb[] = await ContactModelMongodb.find()
+            const contacts: ClientInterfaceMongodb[] = await ContactModelMongodb.find()
             return contacts
         }
         catch (error) {
@@ -17,9 +17,9 @@ export class ContactServiceMongodb implements ServiceInterfaceMongodb<ContactInt
         }
     }
 
-    async fetchById(id: string): Promise<ContactInterfaceMongodb | null> {
+    async fetchById(id: string): Promise<ClientInterfaceMongodb | null> {
         try {
-            const contact: ContactInterfaceMongodb | null = await ContactModelMongodb.findById(id)
+            const contact: ClientInterfaceMongodb | null = await ContactModelMongodb.findById(id)
             if (contact) return contact
             else throw new Error('Contact not found')
         }
@@ -29,9 +29,9 @@ export class ContactServiceMongodb implements ServiceInterfaceMongodb<ContactInt
         }
     }
 
-    async create(contact: ContactInterfaceMongodb): Promise<ContactInterfaceMongodb> {
+    async create(contact: ClientInterfaceMongodb): Promise<ClientInterfaceMongodb> {
         try {
-            const newContact: ContactInterfaceMongodb = new ContactModelMongodb(contact)
+            const newContact: ClientInterfaceMongodb = new ContactModelMongodb(contact)
             await newContact.save()
             return newContact
         }
@@ -41,9 +41,9 @@ export class ContactServiceMongodb implements ServiceInterfaceMongodb<ContactInt
         }
     }
 
-    async update(id: string, contact: ContactInterfaceMongodb): Promise<ContactInterfaceMongodb | null> {
+    async update(id: string, contact: ClientInterfaceMongodb): Promise<ClientInterfaceMongodb | null> {
         try {
-            const updatedContact: ContactInterfaceMongodb | null = await ContactModelMongodb.findOneAndUpdate(
+            const updatedContact: ClientInterfaceMongodb | null = await ContactModelMongodb.findOneAndUpdate(
                 { _id: id },
                 contact,
                 { new: true }

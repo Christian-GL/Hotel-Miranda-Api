@@ -73,7 +73,7 @@ contactRouterMongodb.use(authMiddleware)
  *       - in: path
  *         name: id
  *         required: true
- *         description: ID del contacto (MongoDB ObjectId)
+ *         description: ID del contacto (Mongodb ObjectId)
  *         schema:
  *           type: string
  *     responses:
@@ -93,7 +93,7 @@ contactRouterMongodb.use(authMiddleware)
  *       - in: path
  *         name: id
  *         required: true
- *         description: ID del contacto (MongoDB ObjectId)
+ *         description: ID del contacto (Mongodb ObjectId)
  *         schema:
  *           type: string
  *     requestBody:
@@ -121,7 +121,7 @@ contactRouterMongodb.use(authMiddleware)
  *       - in: path
  *         name: id
  *         required: true
- *         description: ID del contacto (MongoDB ObjectId)
+ *         description: ID del contacto (Mongodb ObjectId)
  *         schema:
  *           type: string
  *     responses:

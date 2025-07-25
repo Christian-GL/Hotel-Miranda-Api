@@ -3,6 +3,7 @@ import { Schema, model } from "mongoose"
 import { RoomInterfaceMongodb } from "../../interfaces/mongodb/roomInterfaceMongodb"
 import { RoomType } from "../../enums/roomType"
 import { RoomAmenities } from "../../enums/roomAmenities"
+import { OptionYesNo } from "../../enums/optionYesNo"
 
 
 const RoomSchemaMongodb = new Schema<RoomInterfaceMongodb>
@@ -32,6 +33,11 @@ const RoomSchemaMongodb = new Schema<RoomInterfaceMongodb>
         discount: {
             type: Number,
             required: true
+        },
+        isActive: {
+            type: String,
+            required: true,
+            enum: Object.values(OptionYesNo)
         },
         booking_id_list: {
             type: [String],

@@ -1,7 +1,7 @@
 
 import { Schema, model } from "mongoose"
 import { UserInterfaceMongodb } from "../../interfaces/mongodb/userInterfaceMongodb"
-import { UserStatus } from "../../enums/userStatus"
+import { Role } from "../../enums/role"
 
 
 const UserSchemaMongodb = new Schema<UserInterfaceMongodb>
@@ -18,22 +18,26 @@ const UserSchemaMongodb = new Schema<UserInterfaceMongodb>
             type: String,
             required: true
         },
-        start_date: {
-            type: Date,
-            required: true
-        },
-        description: {
-            type: String,
-            required: true
-        },
         phone_number: {
             type: String,
             required: true
         },
-        status: {
+        start_date: {
+            type: Date,
+            required: true
+        },
+        end_date: {
+            type: Date,
+            required: true
+        },
+        job_position: {
+            type: String,
+            required: true
+        },
+        role: {
             type: String,
             required: true,
-            enum: Object.values(UserStatus)
+            enum: Object.values(Role)
         },
         password: {
             type: String,

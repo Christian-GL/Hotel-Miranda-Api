@@ -285,7 +285,7 @@ runServer()
 
 //   console.log('Handler ON')
 //   if (!isDbConnected) {
-//     console.log('Connecting to MongoDB Atlas…')
+//     console.log('Connecting to Mongodb Atlas…')
 //     await connectMongodbDB()
 //     // await connectMysqlDB()
 //     console.log('Connection completed')

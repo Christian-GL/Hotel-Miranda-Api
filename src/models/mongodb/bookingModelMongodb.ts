@@ -1,18 +1,11 @@
 
 import { Schema, model } from "mongoose"
 import { BookingInterfaceMongodb } from "../../interfaces/mongodb/bookingInterfaceMongodb"
+import { OptionYesNo } from "../../enums/optionYesNo"
 
 
 const BookingSchemaMongodb = new Schema<BookingInterfaceMongodb>
     ({
-        photo: {
-            type: String,
-            required: true
-        },
-        full_name_guest: {
-            type: String,
-            required: true
-        },
         order_date: {
             type: Date,
             required: true
@@ -29,7 +22,16 @@ const BookingSchemaMongodb = new Schema<BookingInterfaceMongodb>
             type: String,
             required: true
         },
+        isArchived: {
+            type: String,
+            required: true,
+            enum: Object.values(OptionYesNo)
+        },
         room_id: {
+            type: String,
+            required: true
+        },
+        client_id: {
             type: String,
             required: true
         }

@@ -6,7 +6,7 @@ import { BookingServiceMongodb } from '../../services/mongodb/bookingServiceMong
 import { RoomServiceMongodb } from '../../services/mongodb/roomServiceMongodb'
 import { BookingValidator } from '../../validators/bookingValidator'
 import { RoomInterfaceMongodb } from '../../interfaces/mongodb/roomInterfaceMongodb'
-import { BookingInterfaceMongodbWithRoomData } from '../../interfaces/mongodb/bookingInterfaceMongodb'
+import { BookingInterfaceMongodbWithRoomData } from '../../interfaces/mongodb/bookingInterfaceMongodbts'
 
 
 export const bookingRouterMongodb = Router()

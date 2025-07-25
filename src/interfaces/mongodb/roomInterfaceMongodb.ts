@@ -2,10 +2,11 @@
 import { Document } from "mongoose"
 import { RoomType } from "../../enums/roomType"
 import { RoomAmenities } from "../../enums/roomAmenities"
-import { BookingInterfaceMongoDB } from "./bookingInterfaceMongodb"
+import { BookingInterfaceMongodb } from "./bookingInterfaceMongodb"
+import { OptionYesNo } from "../../enums/optionYesNo"
 
 
-export interface RoomInterfaceMongoDB extends Document {
+export interface RoomInterfaceMongodb extends Document {
     _id: string
     photos: string[]
     number: string
@@ -13,10 +14,11 @@ export interface RoomInterfaceMongoDB extends Document {
     amenities: RoomAmenities[]
     price: number
     discount: number
+    isActive: OptionYesNo
     booking_id_list: string[]
 }
 
-export interface RoomInterfaceWithBookingDataMongoDB extends Document {
+export interface RoomInterfaceWithDataMongodb extends Document {
     _id: string
     photos: string[]
     number: string
@@ -24,5 +26,6 @@ export interface RoomInterfaceWithBookingDataMongoDB extends Document {
     amenities: RoomAmenities[]
     price: number
     discount: number
-    booking_data_list: BookingInterfaceMongoDB[]
+    isActive: OptionYesNo
+    booking_data_list: BookingInterfaceMongodb[]
 }

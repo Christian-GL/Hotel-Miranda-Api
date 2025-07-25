@@ -79,7 +79,7 @@ userRouterMongodb.use(authMiddleware)
  *       - in: path
  *         name: id
  *         required: true
- *         description: ID del usuario (MongoDB ObjectId)
+ *         description: ID del usuario (Mongodb ObjectId)
  *         schema:
  *           type: string
  *     responses:
@@ -99,7 +99,7 @@ userRouterMongodb.use(authMiddleware)
  *       - in: path
  *         name: id
  *         required: true
- *         description: ID del usuario (MongoDB ObjectId)
+ *         description: ID del usuario (Mongodb ObjectId)
  *         schema:
  *           type: string
  *     requestBody:
@@ -127,7 +127,7 @@ userRouterMongodb.use(authMiddleware)
  *       - in: path
  *         name: id
  *         required: true
- *         description: ID del usuario (MongoDB ObjectId)
+ *         description: ID del usuario (Mongodb ObjectId)
  *         schema:
  *           type: string
  *     responses:

@@ -5,7 +5,7 @@ import { hashPassword } from './src/utils/hashPassword'
 
 import { BookingInterfaceMongodb } from './src/interfaces/mongodb/bookingInterfaceMongodb'
 import { RoomInterfaceMongodb } from './src/interfaces/mongodb/roomInterfaceMongodb'
-import { ContactInterfaceMongodb } from './src/interfaces/mongodb/contactInterfaceMongodb'
+import { ClientInterfaceMongodb } from './src/interfaces/mongodb/clientInterfaceMongodb'
 import { UserInterfaceMongodb } from './src/interfaces/mongodb/userInterfaceMongodb'
 import { BookingModelMongodb } from './src/models/mongodb/bookingModelMongodb'
 import { RoomModelMongodb } from './src/models/mongodb/roomModelMongodb'
@@ -56,7 +56,7 @@ const createUsers = async (): Promise<void> => {
     }
 }
 
-const createContacts = async (): Promise<void> => {
+const createClients = async (): Promise<void> => {
     await connectMongodbDB()
     try {
         const contacts = []
@@ -71,7 +71,7 @@ const createContacts = async (): Promise<void> => {
                 comment: faker.lorem.paragraph(),
                 archived: faker.datatype.boolean()
             })
-            totalErrors = contactValidator.validateContact(fakeContact.toObject() as ContactInterfaceMongodb)
+            totalErrors = contactValidator.validateContact(fakeContact.toObject() as ClientInterfaceMongodb)
             if (totalErrors.length === 0) {
                 contacts.push(fakeContact)
             }
@@ -166,10 +166,10 @@ const createRoomsAndBookings = async (): Promise<void> => {
 
 
 // createUsers()
-// createContacts()
+// createClients()
 // createRoomsAndBookings()
 
 
 // Ejecutar fichero Seed:
-// npx tsc seedMongoDB.ts
-// node seedMongoDB.js
+// npx tsc seedMongodb.ts
+// node seedMongodb.js
