@@ -1,70 +1,70 @@
 
 import { ServiceInterfaceMongodb } from '../../interfaces/mongodb/serviceInterfaceMongodb'
-import { ContactModelMongodb } from '../../models/mongodb/contactModelMongodb'
+import { ClientModelMongodb } from '../../models/mongodb/clientModelMongodb'
 import { ClientInterfaceMongodb } from '../../interfaces/mongodb/clientInterfaceMongodb'
 
 
-export class ContactServiceMongodb implements ServiceInterfaceMongodb<ClientInterfaceMongodb> {
+export class ClientServiceMongodb implements ServiceInterfaceMongodb<ClientInterfaceMongodb> {
 
     async fetchAll(): Promise<ClientInterfaceMongodb[]> {
         try {
-            const contacts: ClientInterfaceMongodb[] = await ContactModelMongodb.find()
-            return contacts
+            const clients: ClientInterfaceMongodb[] = await ClientModelMongodb.find()
+            return clients
         }
         catch (error) {
-            console.error('Error in fetchAll of contactService', error)
+            console.error('Error in fetchAll of clientService', error)
             throw error
         }
     }
 
     async fetchById(id: string): Promise<ClientInterfaceMongodb | null> {
         try {
-            const contact: ClientInterfaceMongodb | null = await ContactModelMongodb.findById(id)
-            if (contact) return contact
-            else throw new Error('Contact not found')
+            const client: ClientInterfaceMongodb | null = await ClientModelMongodb.findById(id)
+            if (client) return client
+            else throw new Error('Client not found')
         }
         catch (error) {
-            console.error('Error in fetchById of contactService', error)
+            console.error('Error in fetchById of clientService', error)
             return null
         }
     }
 
-    async create(contact: ClientInterfaceMongodb): Promise<ClientInterfaceMongodb> {
+    async create(client: ClientInterfaceMongodb): Promise<ClientInterfaceMongodb> {
         try {
-            const newContact: ClientInterfaceMongodb = new ContactModelMongodb(contact)
-            await newContact.save()
-            return newContact
+            const newClient: ClientInterfaceMongodb = new ClientModelMongodb(client)
+            await newClient.save()
+            return newClient
         }
         catch (error) {
-            console.error('Error in create of contactService', error)
+            console.error('Error in create of clientService', error)
             throw error
         }
     }
 
-    async update(id: string, contact: ClientInterfaceMongodb): Promise<ClientInterfaceMongodb | null> {
+    async update(id: string, client: ClientInterfaceMongodb): Promise<ClientInterfaceMongodb | null> {
         try {
-            const updatedContact: ClientInterfaceMongodb | null = await ContactModelMongodb.findOneAndUpdate(
+            const updatedClient: ClientInterfaceMongodb | null = await ClientModelMongodb.findOneAndUpdate(
                 { _id: id },
-                contact,
+                client,
                 { new: true }
             )
-            if (updatedContact) return updatedContact
+            if (updatedClient) return updatedClient
             else return null
         }
         catch (error) {
-            console.error('Error in update of contactService', error)
+            console.error('Error in update of clientService', error)
             throw error
         }
     }
 
     async delete(id: string): Promise<boolean> {
         try {
-            const deletedContact = await ContactModelMongodb.findByIdAndDelete(id)
-            if (deletedContact) return true
+            const deletedClient = await ClientModelMongodb.findByIdAndDelete(id)
+            if (deletedClient) return true
             else return false
         }
         catch (error) {
-            console.error('Error in delete of contactService', error)
+            console.error('Error in delete of clientService', error)
             throw error
         }
     }

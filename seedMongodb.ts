@@ -9,16 +9,16 @@ import { ClientInterfaceMongodb } from './src/interfaces/mongodb/clientInterface
 import { UserInterfaceMongodb } from './src/interfaces/mongodb/userInterfaceMongodb'
 import { BookingModelMongodb } from './src/models/mongodb/bookingModelMongodb'
 import { RoomModelMongodb } from './src/models/mongodb/roomModelMongodb'
-import { ContactModelMongodb } from './src/models/mongodb/contactModelMongodb'
+import { ClientModelMongodb } from './src/models/mongodb/clientModelMongodb'
 import { UserModelMongodb } from './src/models/mongodb/userModelMongodb'
 import { BookingValidator } from './src/validators/bookingValidator'
 import { RoomValidator } from './src/validators/roomValidator'
-import { ContactValidator } from './src/validators/contactValidator'
+import { ClientValidator } from './src/validators/clientValidator'
 import { UserValidator } from './src/validators/userValidator'
-import { UserStatus } from './src/enums/userStatus'
 import { RoomType } from './src/enums/roomType'
 import { RoomAmenities } from './src/enums/roomAmenities'
 import { RoomServiceMongodb } from './src/services/mongodb/roomServiceMongodb'
+import { Role } from './src/enums/role'
 
 
 const createUsers = async (): Promise<void> => {
@@ -27,15 +27,31 @@ const createUsers = async (): Promise<void> => {
         const users = []
         const userValidator = new UserValidator()
         let totalErrors
-        for (let i = 0; i < 2; i++) {
+        for (let i = 0; i < 5; i++) {
+
+            const dayMs = 24 * 60 * 60 * 1000
+            const now = new Date()
+            const oneYearFromNow = new Date(now.getTime() + 365 * dayMs)
+            const startDate = faker.date.between({
+                from: now,
+                to: oneYearFromNow
+            })
+            const minEnd = new Date(startDate.getTime() + 30 * dayMs)
+            const maxEnd = new Date(startDate.getTime() + 365 * dayMs)
+            const endDate = faker.date.between({
+                from: minEnd,
+                to: maxEnd
+            })
+
             const fakeUser = new UserModelMongodb({
                 photo: faker.image.avatar(),
                 full_name: faker.person.fullName(),
                 email: faker.internet.email(),
-                start_date: faker.date.future().toISOString(),
-                description: faker.lorem.paragraph(),
                 phone_number: faker.string.numeric(9),
-                status: faker.helpers.arrayElement(Object.values(UserStatus)),
+                start_date: startDate.toISOString(),
+                end_date: endDate.toISOString(),
+                job_position: faker.lorem.paragraph(),
+                role: faker.helpers.arrayElement(Object.values(Role)),
                 password: 'Abcd1234.'
             })
             totalErrors = userValidator.validateUser(fakeUser.toObject() as UserInterfaceMongodb, true)
@@ -59,11 +75,11 @@ const createUsers = async (): Promise<void> => {
 const createClients = async (): Promise<void> => {
     await connectMongodbDB()
     try {
-        const contacts = []
-        const contactValidator = new ContactValidator()
+        const clients = []
+        const clientValidator = new ClientValidator()
         let totalErrors
         for (let i = 0; i < 25; i++) {
-            const fakeContact = new ContactModelMongodb({
+            const fakeContact = new ClientModelMongodb({
                 full_name: faker.person.fullName(),
                 email: faker.internet.email(),
                 publish_date: faker.date.past().toISOString(),
@@ -71,19 +87,19 @@ const createClients = async (): Promise<void> => {
                 comment: faker.lorem.paragraph(),
                 archived: faker.datatype.boolean()
             })
-            totalErrors = contactValidator.validateContact(fakeContact.toObject() as ClientInterfaceMongodb)
+            totalErrors = clientValidator.validateClient(fakeContact.toObject() as ClientInterfaceMongodb)
             if (totalErrors.length === 0) {
-                contacts.push(fakeContact)
+                clients.push(fakeContact)
             }
             else {
                 console.error(`Validación fallida en el fakeContact #${i}: ${totalErrors.join(', ')}`)
                 continue
             }
         }
-        await ContactModelMongodb.insertMany(contacts)
+        await ClientModelMongodb.insertMany(clients)
     }
     catch (error) {
-        console.error('Error creating contacts with faker', error)
+        console.error('Error creating clients with faker', error)
         throw error
     }
 }

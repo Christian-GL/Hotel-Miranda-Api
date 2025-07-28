@@ -1,6 +1,6 @@
 
-import { validateIDstring, validateIDObjectId, validatePhoto, validateFullName, validateDateRelativeToNow, validateTextArea } from "./commonValidator"
-import { BookingInterfaceMongodb } from "../interfaces/mongodb/bookingInterfaceMongodbts"
+import { validatePhoto, validateFullName, validateDateRelativeToNow, validateTextArea } from "./commonValidator"
+import { BookingInterfaceMongodb } from "../interfaces/mongodb/bookingInterfaceMongodb"
 import { BookingInterfaceMysql } from "../interfaces/mysql/bookingInterfaceMysql"
 import { RoomType } from "../enums/roomType"
 import { RoomInterfaceMongodb } from "../interfaces/mongodb/roomInterfaceMongodb"
@@ -36,7 +36,7 @@ export class BookingValidator {
 
         // validateIDObjectId(booking._id, '_ID').map(error => errorMessages.push(error))
         // validatePhoto(booking.photo, 'Photo').map(error => allErrorMessages.push(error))
-        validateFullName(booking.full_name_guest, 'Full name guest').map(error => errorMessages.push(error))
+        // validateFullName(booking.full_name_guest, 'Full name guest').map(error => errorMessages.push(error))
         validateDateRelativeToNow(new Date(booking.order_date), true, 'Order date').map(error => errorMessages.push(error))
         this.validateCheckInCheckOut(new Date(booking.check_in_date), new Date(booking.check_out_date)).map(error => errorMessages.push(error))
         this.validateDateIsOccupied(booking, allBookings).map(error => errorMessages.push(error))
@@ -98,9 +98,9 @@ export class BookingValidator {
     validateRoomList(roomId: string, allRooms: RoomInterfaceMongodb[] | RoomInterfaceMysql[]): string[] {
         const errorMessages: string[] = []
 
-        validateIDstring(roomId, 'ID').map(error => {
-            errorMessages.push(error)
-        })
+        // validateIDstring(roomId, 'ID').map(error => {
+        //     errorMessages.push(error)
+        // })
         const roomExists = allRooms.some(room => room._id.toString() === roomId)
         if (!roomExists) {
             errorMessages.push(`Room with ID #${roomId} does not exist`)

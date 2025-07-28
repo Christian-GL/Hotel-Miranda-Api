@@ -43,7 +43,7 @@ bookingRouterMysql.use(authMiddleware)
  *         special_request:
  *           type: string
  *
- * /api-dashboard/v2/bookings:
+ * /api-dashboard/v3/bookings:
  *   get:
  *     summary: Obtener todas las reservas
  *     tags: [Bookings]
@@ -76,7 +76,7 @@ bookingRouterMysql.use(authMiddleware)
  *       400:
  *         description: Datos inválidos
  *
- * /api-dashboard/v2/bookings/{id}:
+ * /api-dashboard/v3/bookings/{id}:
  *   get:
  *     summary: Obtener una reserva por su ID
  *     tags: [Bookings]
@@ -183,7 +183,7 @@ bookingRouterMysql.get('/:id', async (req: Request, res: Response) => {
         res.json(bookingWithRoomData)
     }
     catch (error) {
-        console.error("Error in get (by id) of contactController:", error)
+        console.error("Error in get (by id) of clientController:", error)
         res.status(500).json({ message: "Internal server error" })
     }
 })

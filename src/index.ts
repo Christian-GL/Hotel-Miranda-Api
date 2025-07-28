@@ -9,7 +9,7 @@ import { connectMongodbDB } from './utils/databaseMongodb'
 import { loginRouterMongodb } from './controllers/mongodb/loginControllerMongodb'
 import { bookingRouterMongodb } from './controllers/mongodb/bookingControllerMongodb'
 import { roomRouterMongodb } from './controllers/mongodb/roomControllerMongodb'
-import { contactRouterMongodb } from './controllers/mongodb/contactControllerMongodb'
+import { clientRouterMongodb } from './controllers/mongodb/clientControllerMongodb'
 import { userRouterMongodb } from './controllers/mongodb/userControllerMongodb'
 
 // import { connectMysqlDB } from './utils/databaseMysql'
@@ -214,25 +214,25 @@ const darkTheme = `
     color: #B0B0B0 !important; /* Títulos h4 dentro de las respuestas en gris claro */
   }
 `
-// app.use('/api-dashboard/v2/swagger', swaggerUi.serve, swaggerUi.setup(swaggerDocs))
-app.use('/api-dashboard/v2/swagger', swaggerUi.serve, swaggerUi.setup(swaggerDocs, {
+// app.use('/api-dashboard/v3/swagger', swaggerUi.serve, swaggerUi.setup(swaggerDocs))
+app.use('/api-dashboard/v3/swagger', swaggerUi.serve, swaggerUi.setup(swaggerDocs, {
   customCss: darkTheme
 }))
 
 app.use('/login', loginRouterMongodb)
-app.use('/api-dashboard/v2/bookings', bookingRouterMongodb)
-app.use('/api-dashboard/v2/rooms', roomRouterMongodb)
-app.use('/api-dashboard/v2/contacts', contactRouterMongodb)
-app.use('/api-dashboard/v2/users', userRouterMongodb)
+app.use('/api-dashboard/v3/bookings', bookingRouterMongodb)
+app.use('/api-dashboard/v3/rooms', roomRouterMongodb)
+app.use('/api-dashboard/v3/clients', clientRouterMongodb)
+app.use('/api-dashboard/v3/users', userRouterMongodb)
 
 // app.use('/login', loginRouterMysql)
-// app.use('/api-dashboard/v2/bookings', bookingRouterMysql)
-// app.use('/api-dashboard/v2/rooms', roomRouterMysql)
-// app.use('/api-dashboard/v2/contacts', contactRouterMysql)
-// app.use('/api-dashboard/v2/users', userRouterMysql)
+// app.use('/api-dashboard/v3/bookings', bookingRouterMysql)
+// app.use('/api-dashboard/v3/rooms', roomRouterMysql)
+// app.use('/api-dashboard/v3/contacts', contactRouterMysql)
+// app.use('/api-dashboard/v3/users', userRouterMysql)
 
 // app.get('/', (req: Request, res: Response) => {
-//   res.redirect('/api-dashboard/v2/swagger')
+//   res.redirect('/api-dashboard/v3/swagger')
 // })
 app.get('/live', (req: Request, res: Response) => {
   res.send(`${new Date().toISOString()}`)
@@ -262,16 +262,16 @@ runServer()
 // app.use(cors())
 
 // app.use('/login', loginRouterMongodb)
-// app.use('/api-dashboard/v2/bookings', bookingRouterMongodb)
-// app.use('/api-dashboard/v2/rooms', roomRouterMongodb)
-// app.use('/api-dashboard/v2/contacts', contactRouterMongodb)
-// app.use('/api-dashboard/v2/users', userRouterMongodb)
+// app.use('/api-dashboard/v3/bookings', bookingRouterMongodb)
+// app.use('/api-dashboard/v3/rooms', roomRouterMongodb)
+// app.use('/api-dashboard/v3/contacts', contactRouterMongodb)
+// app.use('/api-dashboard/v3/users', userRouterMongodb)
 
 // // app.use('/login', loginRouterMysql)
-// // app.use('/api-dashboard/v2/bookings', bookingRouterMysql)
-// // app.use('/api-dashboard/v2/rooms', roomRouterMysql)
-// // app.use('/api-dashboard/v2/contacts', contactRouterMysql)
-// // app.use('/api-dashboard/v2/users', userRouterMysql)
+// // app.use('/api-dashboard/v3/bookings', bookingRouterMysql)
+// // app.use('/api-dashboard/v3/rooms', roomRouterMysql)
+// // app.use('/api-dashboard/v3/contacts', contactRouterMysql)
+// // app.use('/api-dashboard/v3/users', userRouterMysql)
 
 // app.get('/live', (_req: Request, res: Response) => {
 //   res.send(new Date().toISOString())

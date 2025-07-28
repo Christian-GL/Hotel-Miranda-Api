@@ -6,7 +6,7 @@ import { BookingServiceMongodb } from '../../services/mongodb/bookingServiceMong
 import { RoomServiceMongodb } from '../../services/mongodb/roomServiceMongodb'
 import { BookingValidator } from '../../validators/bookingValidator'
 import { RoomInterfaceMongodb } from '../../interfaces/mongodb/roomInterfaceMongodb'
-import { BookingInterfaceMongodbWithRoomData } from '../../interfaces/mongodb/bookingInterfaceMongodbts'
+import { BookingInterfaceWithDataMongodb } from '../../interfaces/mongodb/bookingInterfaceMongodb'
 
 
 export const bookingRouterMongodb = Router()
@@ -43,7 +43,7 @@ bookingRouterMongodb.use(authMiddleware)
  *         special_request:
  *           type: string
  *
- * /api-dashboard/v2/bookings:
+ * /api-dashboard/v3/bookings:
  *   get:
  *     summary: Obtener todas las reservas
  *     tags: [Bookings]
@@ -76,7 +76,7 @@ bookingRouterMongodb.use(authMiddleware)
  *       400:
  *         description: Datos inválidos
  *
- * /api-dashboard/v2/bookings/{id}:
+ * /api-dashboard/v3/bookings/{id}:
  *   get:
  *     summary: Obtener una reserva por su ID
  *     tags: [Bookings]
@@ -145,7 +145,7 @@ bookingRouterMongodb.use(authMiddleware)
 bookingRouterMongodb.get('/', async (req: Request, res: Response) => {
     try {
         const bookingList = await bookingServiceMongodb.fetchAll()
-        const bookingListWithRoom: BookingInterfaceMongodbWithRoomData[] = []
+        const bookingListWithRoom: BookingInterfaceWithDataMongodb[] = []
 
         for (const booking of bookingList) {
             const room = await roomServiceMongodb.fetchById(booking.room_id)
@@ -153,7 +153,7 @@ bookingRouterMongodb.get('/', async (req: Request, res: Response) => {
                 res.status(404).json({ message: `Room #${booking.room_id} not found` })
                 return
             }
-            const bookingWithRoomData: BookingInterfaceMongodbWithRoomData = { ...booking.toObject(), room_data: room }
+            const bookingWithRoomData: BookingInterfaceWithDataMongodb = { ...booking.toObject(), room_data: room }
             bookingListWithRoom.push(bookingWithRoomData)
         }
 
@@ -179,11 +179,11 @@ bookingRouterMongodb.get('/:id', async (req: Request, res: Response) => {
             return
         }
 
-        const bookingWithRoomData: BookingInterfaceMongodbWithRoomData = { ...booking.toObject(), room_data: room }
+        const bookingWithRoomData: BookingInterfaceWithDataMongodb = { ...booking.toObject(), room_data: room }
         res.json(bookingWithRoomData)
     }
     catch (error) {
-        console.error("Error in get (by id) of contactController:", error)
+        console.error("Error in get (by id) of clientController:", error)
         res.status(500).json({ message: "Internal server error" })
     }
 })
@@ -212,7 +212,7 @@ bookingRouterMongodb.post('/', async (req: Request, res: Response) => {
                 return
             }
 
-            const bookingToReturn: BookingInterfaceMongodbWithRoomData = { ...newBooking.toObject(), room_data: roomOfBooking }
+            const bookingToReturn: BookingInterfaceWithDataMongodb = { ...newBooking.toObject(), room_data: roomOfBooking }
             res.status(201).json(bookingToReturn)
         }
         catch (error) {
@@ -287,7 +287,7 @@ bookingRouterMongodb.put('/:id', async (req: Request, res: Response) => {
                 return
             }
 
-            const bookingToReturn: BookingInterfaceMongodbWithRoomData = { ...bookingUpdated.toObject(), room_data: roomToReturn }
+            const bookingToReturn: BookingInterfaceWithDataMongodb = { ...bookingUpdated.toObject(), room_data: roomToReturn }
             res.status(200).json(bookingToReturn)
         }
         catch (error) {

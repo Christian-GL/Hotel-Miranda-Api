@@ -3,7 +3,7 @@ import { Request, Response } from 'express'
 import Router from 'express'
 import { authMiddleware } from '../../middleware/authMiddleware'
 import { ContactServiceMysql } from '../../services/mysql/contactServiceMysql'
-import { ContactValidator } from '../../validators/contactValidator'
+// import { ContactValidator } from '../../validators/contactValidator'
 
 
 export const contactRouterMysql = Router()
@@ -34,7 +34,7 @@ contactRouterMysql.use(authMiddleware)
  *         archived:
  *           type: boolean
  * 
- * /api-dashboard/v2/contacts:
+ * /api-dashboard/v3/contacts:
  *   get:
  *     summary: Obtener todos los contactos
  *     tags: [Contacts]
@@ -65,7 +65,7 @@ contactRouterMysql.use(authMiddleware)
  *             schema:
  *               $ref: '#/components/schemas/Contact'
  *
- * /api-dashboard/v2/contacts/{id}:
+ * /api-dashboard/v3/contacts/{id}:
  *   get:
  *     summary: Obtener un contacto por su ID
  *     tags: [Contacts]
@@ -131,6 +131,11 @@ contactRouterMysql.use(authMiddleware)
  *         description: Contacto no encontrado
  */
 
+/* !!!
+ Parte del código relacionada con "Contact" comentada debido a
+que en la V3 de la API ahora es "client" y se actualizó para MongoDB
+*/
+
 contactRouterMysql.get('/', async (req: Request, res: Response) => {
     try {
         const contactList = await contactServiceMysql.fetchAll()
@@ -158,47 +163,47 @@ contactRouterMysql.get('/:id', async (req: Request, res: Response) => {
 })
 
 contactRouterMysql.post('/', async (req: Request, res: Response) => {
-    const contactValidator = new ContactValidator()
-    const totalErrors = contactValidator.validateContact(req.body)
-    if (totalErrors.length === 0) {
-        try {
-            const newContact = await contactServiceMysql.create(req.body)
-            res.status(201).json(newContact)
-        }
-        catch (error) {
-            console.error("Error in post of contactController:", error)
-            res.status(500).json({ message: "Internal server error" })
-        }
+    // const contactValidator = new ContactValidator()
+    // const totalErrors = contactValidator.validateContact(req.body)
+    // if (totalErrors.length === 0) {
+    try {
+        const newContact = await contactServiceMysql.create(req.body)
+        res.status(201).json(newContact)
     }
-    else {
-        res.status(400).json({
-            message: totalErrors.join(', ')
-        })
+    catch (error) {
+        console.error("Error in post of contactController:", error)
+        res.status(500).json({ message: "Internal server error" })
     }
+    // }
+    // else {
+    //     res.status(400).json({
+    //         message: totalErrors.join(', ')
+    //     })
+    // }
 })
 
 contactRouterMysql.put('/:id', async (req: Request, res: Response) => {
-    const contactValidator = new ContactValidator()
-    const totalErrors = contactValidator.validateContact(req.body)
+    // const contactValidator = new ContactValidator()
+    // const totalErrors = contactValidator.validateContact(req.body)
 
-    if (totalErrors.length === 0) {
-        try {
-            const updatedContact = await contactServiceMysql.update(parseInt(req.params.id), req.body)
-            if (updatedContact !== null) {
-                res.status(200).json(updatedContact)
-            }
-            else {
-                res.status(404).json({ message: `Contact #${req.params.id} not found` })
-            }
+    // if (totalErrors.length === 0) {
+    try {
+        const updatedContact = await contactServiceMysql.update(parseInt(req.params.id), req.body)
+        if (updatedContact !== null) {
+            res.status(200).json(updatedContact)
         }
-        catch (error) {
-            console.error("Error in put of contactController:", error)
-            res.status(500).json({ message: "Internal server error" })
+        else {
+            res.status(404).json({ message: `Contact #${req.params.id} not found` })
         }
     }
-    else {
-        res.status(400).json({ message: totalErrors.join(', ') })
+    catch (error) {
+        console.error("Error in put of contactController:", error)
+        res.status(500).json({ message: "Internal server error" })
     }
+    // }
+    // else {
+    //     res.status(400).json({ message: totalErrors.join(', ') })
+    // }
 })
 
 contactRouterMysql.delete('/:id', async (req: Request, res: Response) => {

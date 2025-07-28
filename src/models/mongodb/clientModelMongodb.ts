@@ -37,4 +37,4 @@ const ClientSchemaMongodb = new Schema<ClientInterfaceMongodb>
         },
     })
 
-export const ContactModelMongodb = model<ClientInterfaceMongodb>('Contact', ClientSchemaMongodb)
+export const ClientModelMongodb = model<ClientInterfaceMongodb>('Contact', ClientSchemaMongodb)

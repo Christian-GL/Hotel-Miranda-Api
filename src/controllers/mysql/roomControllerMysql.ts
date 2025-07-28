@@ -48,7 +48,7 @@ roomRouterMysql.use(authMiddleware)
  *           items:
  *             type: integer
  *
- * /api-dashboard/v2/rooms:
+ * /api-dashboard/v3/rooms:
  *   get:
  *     summary: Obtener todas las habitaciones
  *     tags: [Rooms]
@@ -81,7 +81,7 @@ roomRouterMysql.use(authMiddleware)
  *       400:
  *         description: Datos inválidos
  *
- * /api-dashboard/v2/rooms/{id}:
+ * /api-dashboard/v3/rooms/{id}:
  *   get:
  *     summary: Obtener una habitación por ID
  *     tags: [Rooms]

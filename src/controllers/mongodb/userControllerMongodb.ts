@@ -40,7 +40,7 @@ userRouterMongodb.use(authMiddleware)
  *           type: string
  *           description: Contraseña encriptada del usuario
  * 
- * /api-dashboard/v2/users:
+ * /api-dashboard/v3/users:
  *   get:
  *     summary: Obtener todos los usuarios
  *     tags: [Users]
@@ -71,7 +71,7 @@ userRouterMongodb.use(authMiddleware)
  *             schema:
  *               $ref: '#/components/schemas/User'
  *
- * /api-dashboard/v2/users/{id}:
+ * /api-dashboard/v3/users/{id}:
  *   get:
  *     summary: Obtener un usuario por su ID
  *     tags: [Users]

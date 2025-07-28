@@ -1,9 +1,9 @@
 
-import { validateIDstring as validateIdString, validateIDObjectId, validateFullName, validateDateRelativeToNow, validateTextArea } from "./commonValidator"
+import { validateFullName, validateDateRelativeToNow, validateTextArea } from "./commonValidator"
 import { RoomInterfaceMongodb } from "../interfaces/mongodb/roomInterfaceMongodb"
 import { RoomType } from "../enums/roomType"
 import { RoomAmenities } from "../enums/roomAmenities"
-import { BookingInterfaceMongodb } from "../interfaces/mongodb/bookingInterfaceMongodbts"
+import { BookingInterfaceMongodb } from "../interfaces/mongodb/bookingInterfaceMongodb"
 import { RoomInterfaceMysql } from "../interfaces/mysql/roomInterfaceMysql"
 import { BookingInterfaceMysql } from "../interfaces/mysql/bookingInterfaceMysql"
 

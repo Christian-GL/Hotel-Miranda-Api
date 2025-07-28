@@ -5,8 +5,8 @@ import { authMiddleware } from '../../middleware/authMiddleware'
 import { RoomServiceMongodb } from '../../services/mongodb/roomServiceMongodb'
 import { BookingServiceMongodb } from '../../services/mongodb/bookingServiceMongodb'
 import { RoomValidator } from '../../validators/roomValidator'
-import { BookingInterfaceMongodb } from '../../interfaces/mongodb/bookingInterfaceMongodbts'
-import { RoomInterfaceMongodbWithBookingData } from '../../interfaces/mongodb/roomInterfaceMongodb'
+import { BookingInterfaceMongodb } from '../../interfaces/mongodb/bookingInterfaceMongodb'
+import { RoomInterfaceWithDataMongodb } from '../../interfaces/mongodb/roomInterfaceMongodb'
 
 
 export const roomRouterMongodb = Router()
@@ -48,7 +48,7 @@ roomRouterMongodb.use(authMiddleware)
  *           items:
  *             type: integer
  *
- * /api-dashboard/v2/rooms:
+ * /api-dashboard/v3/rooms:
  *   get:
  *     summary: Obtener todas las habitaciones
  *     tags: [Rooms]
@@ -81,7 +81,7 @@ roomRouterMongodb.use(authMiddleware)
  *       400:
  *         description: Datos inválidos
  *
- * /api-dashboard/v2/rooms/{id}:
+ * /api-dashboard/v3/rooms/{id}:
  *   get:
  *     summary: Obtener una habitación por ID
  *     tags: [Rooms]
@@ -150,7 +150,7 @@ roomRouterMongodb.use(authMiddleware)
 roomRouterMongodb.get('/', async (req: Request, res: Response) => {
     try {
         const roomList = await roomServiceMongodb.fetchAll()
-        const roomListWithBookingsData: RoomInterfaceMongodbWithBookingData[] = []
+        const roomListWithBookingsData: RoomInterfaceWithDataMongodb[] = []
 
         for (const room of roomList) {
             const bookings: BookingInterfaceMongodb[] = []
@@ -191,7 +191,7 @@ roomRouterMongodb.get('/:id', async (req: Request, res: Response) => {
             bookings.push(booking)
         }
 
-        const roomWithBookingData: RoomInterfaceMongodbWithBookingData = { ...room.toObject(), booking_data_list: bookings }
+        const roomWithBookingData: RoomInterfaceWithDataMongodb = { ...room.toObject(), booking_data_list: bookings }
         res.json(roomWithBookingData)
     }
     catch (error) {
@@ -247,7 +247,7 @@ roomRouterMongodb.put('/:id', async (req: Request, res: Response) => {
                 bookingDataList.push(bookingData)
             }
 
-            const roomToReturn: RoomInterfaceMongodbWithBookingData = { ...updatedRoom.toObject(), booking_data_list: bookingDataList }
+            const roomToReturn: RoomInterfaceWithDataMongodb = { ...updatedRoom.toObject(), booking_data_list: bookingDataList }
             res.status(200).json(roomToReturn)
         }
         catch (error) {
