@@ -8,7 +8,8 @@ const UserSchemaMongodb = new Schema<UserInterfaceMongodb>
     ({
         photo: {
             type: String,
-            required: true
+            required: false,
+            default: null
         },
         full_name: {
             type: String,

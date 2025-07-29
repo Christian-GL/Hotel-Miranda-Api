@@ -181,11 +181,16 @@ const createRoomsAndBookings = async (): Promise<void> => {
 }
 
 
-// createUsers()
+createUsers()
 // createClients()
 // createRoomsAndBookings()
+
+
 
 
 // Ejecutar fichero Seed:
 // npx tsc seedMongodb.ts
 // node seedMongodb.js
+
+// Ejecuta el fichero .ts sin necesidad de crear previamente un .js (tampoco se crean otros .js en por el poryecto)
+// npx ts-node seedMongodb.ts
