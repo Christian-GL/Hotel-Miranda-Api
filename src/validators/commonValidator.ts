@@ -4,6 +4,7 @@ import { Types } from "mongoose"
 import { BookingInterfaceMongodb } from "../interfaces/mongodb/bookingInterfaceMongodb"
 import { RoomInterfaceMongodb } from "../interfaces/mongodb/roomInterfaceMongodb"
 import { RoomType } from "../enums/roomType"
+import { Role } from "../enums/role"
 import { RoomAmenities } from "../enums/roomAmenities"
 
 
@@ -78,7 +79,7 @@ export const validateEmail = (email: any, fieldName: string = 'Email'): string[]
     return errorMessages
 }
 
-export const validateDate = (date: any, fieldName: string = 'Date'): string[] => {
+export const validateDate = (date: Date, fieldName: string = 'Date'): string[] => {
     const errorMessages: string[] = []
 
     if (!(date instanceof Date) || isNaN(date.getTime())) {
@@ -89,18 +90,21 @@ export const validateDate = (date: any, fieldName: string = 'Date'): string[] =>
     return errorMessages
 }
 
-export const validateDateRelativeToNow = (date: any, mustBeBeforeNow: boolean, fieldName: string = 'Date'): string[] => {
+export const validateDateRelativeToAnother = (date1: Date, mustBeBeforeNow: boolean, date2: Date, fieldName: string = 'Date'): string[] => {
     const errorMessages: string[] = []
-    const currentTime = new Date()
 
-    validateDate(date, 'Date').map(error => {
+    validateDate(date1, 'Date 1').map(error => {
         errorMessages.push(error)
-        return errorMessages
     })
-    if (mustBeBeforeNow && date > currentTime) {
+    validateDate(date2, 'Date 2').map(error => {
+        errorMessages.push(error)
+    })
+    if (errorMessages.length > 0) { return errorMessages }
+
+    if (mustBeBeforeNow && date1 > date2) {
         errorMessages.push(`${fieldName} can't be after now`)
     }
-    if (!mustBeBeforeNow && date < currentTime) {
+    if (!mustBeBeforeNow && date1 < date2) {
         errorMessages.push(`${fieldName} can't be before now`)
     }
 
@@ -110,10 +114,10 @@ export const validateDateRelativeToNow = (date: any, mustBeBeforeNow: boolean, f
 export const validateCheckInCheckOut = (checkIn: Date, checkOut: Date): string[] => {
     const errorMessages: string[] = []
 
-    validateDateRelativeToNow(checkIn, false, 'Check in date').map(
+    validateDateRelativeToAnother(checkIn, false, new Date(), 'Check in date').map(
         error => errorMessages.push(error)
     )
-    validateDateRelativeToNow(checkOut, false, 'Check out date').map(
+    validateDateRelativeToAnother(checkOut, false, new Date(), 'Check out date').map(
         error => errorMessages.push(error)
     )
     if (checkIn >= checkOut) {
@@ -189,7 +193,7 @@ export const validateBoolean = (bool: any, fieldName: string = 'Bool field'): st
     return errorMessages
 }
 
-export const validateCreatePassword = (password: any, fieldName: string = 'Password'): string[] => {
+export const validateNewPassword = (password: any, fieldName: string = 'Password'): string[] => {
     const errorMessages: string[] = []
     const regexUppercase = /[A-Z]/
     const regexNumber = /\d/
@@ -231,35 +235,6 @@ export const validateNumberBetween = (price: any, minor: number, mayor: number, 
     return errorMessages
 }
 
-export const validateRoomType = (type: any, fieldName: string = 'Room type'): string[] => {
-    const errorMessages: string[] = []
-
-    if (typeof type !== "string") {
-        errorMessages.push(`${fieldName} is not a String`)
-    }
-    if (!Object.values(RoomType).includes(type as RoomType)) {
-        errorMessages.push(`${fieldName} is not set`)
-    }
-
-    return errorMessages
-}
-
-export const validateAmenities = (amenities: any[], fieldName: string = 'Amenities'): string[] => {
-    const errorMessages: string[] = []
-
-    if (!Array.isArray(amenities)) {
-        errorMessages.push(`${fieldName} is not an array of strings`)
-        return errorMessages
-    }
-    amenities.map(amenity => {
-        if (!Object.values(RoomAmenities).includes(amenity as RoomAmenities)) {
-            errorMessages.push(`${fieldName}: ${amenity} is not a valid value`)
-        }
-    })
-
-    return errorMessages
-}
-
 const validateRoomNumber = (number: any, allRooms: RoomInterfaceMongodb[], actualNumber?: string, fieldName: string = 'Room number'): string[] => {
     const errorMessages: string[] = []
     const regex = new RegExp(/^\d{3}$/)
@@ -288,4 +263,48 @@ export const validateNewRoomNumber = (number: string, allRooms: RoomInterfaceMon
 
 export const validateExistingRoomNumber = (number: string, actualNumber: string, allRooms: RoomInterfaceMongodb[], fieldName: string = 'Room number'): string[] => {
     return validateRoomNumber(number, allRooms, actualNumber, fieldName)
+}
+
+
+/* ENUM VALIDATORS */
+export const validateRoomType = (type: any, fieldName: string = 'Room type'): string[] => {
+    const errorMessages: string[] = []
+
+    if (typeof type !== "string") {
+        errorMessages.push(`${fieldName} is not a String`)
+    }
+    if (!Object.values(RoomType).includes(type as RoomType)) {
+        errorMessages.push(`${fieldName} is not set`)
+    }
+
+    return errorMessages
+}
+
+export const validateRole = (type: any, fieldName: string = 'Role'): string[] => {
+    const errorMessages: string[] = []
+
+    if (typeof type !== "string") {
+        errorMessages.push(`${fieldName} is not a String`)
+    }
+    if (!Object.values(Role).includes(type as Role)) {
+        errorMessages.push(`${fieldName} is not set`)
+    }
+
+    return errorMessages
+}
+
+export const validateAmenities = (amenities: any[], fieldName: string = 'Amenities'): string[] => {
+    const errorMessages: string[] = []
+
+    if (!Array.isArray(amenities)) {
+        errorMessages.push(`${fieldName} is not an array of strings`)
+        return errorMessages
+    }
+    amenities.map(amenity => {
+        if (!Object.values(RoomAmenities).includes(amenity as RoomAmenities)) {
+            errorMessages.push(`${fieldName}: ${amenity} is not a valid value`)
+        }
+    })
+
+    return errorMessages
 }
