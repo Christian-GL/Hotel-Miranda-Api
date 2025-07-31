@@ -5,12 +5,11 @@ import {
     validateTextArea, validateRole, validateNewPassword
 } from './commonValidator'
 import { UserInterfaceMongodb } from '../interfaces/mongodb/userInterfaceMongodb'
-import { UserInterfaceMysql } from '../interfaces/mysql/userInterfaceMysql'
 
 
 export class UserValidator {
 
-    validateProperties(user: UserInterfaceMongodb): string[] {
+    validateExistingProperties(user: UserInterfaceMongodb): string[] {
         const errorMessages: string[] = []
         const requiredProperties: string[] = [
             'photo',
@@ -36,7 +35,7 @@ export class UserValidator {
     validateUser(user: UserInterfaceMongodb, passwordHasChanged: boolean = false): string[] {
         const allErrorMessages: string[] = []
 
-        const errorsCheckingProperties = this.validateProperties(user)
+        const errorsCheckingProperties = this.validateExistingProperties(user)
         if (errorsCheckingProperties.length > 0) {
             return errorsCheckingProperties
         }

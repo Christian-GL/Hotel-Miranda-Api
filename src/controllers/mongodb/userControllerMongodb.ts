@@ -5,7 +5,6 @@ import { authMiddleware } from '../../middleware/authMiddleware'
 import { UserModelMongodb } from '../../models/mongodb/userModelMongodb'
 import { UserServiceMongodb } from '../../services/mongodb/userServiceMongodb'
 import { UserValidator } from '../../validators/userValidator'
-import { comparePasswords } from '../../utils/hashPassword'
 
 
 export const userRouterMongodb = Router()
@@ -198,7 +197,6 @@ userRouterMongodb.put('/:id', async (req: Request, res: Response) => {
         try {
             const updatedUser = await userServiceMongodb.update(req.params.id, req.body, passwordHasChanged)
             if (updatedUser !== null) {
-                // res.status(204).json(updatedUser)
                 res.status(200).json(updatedUser)
             }
             else {
