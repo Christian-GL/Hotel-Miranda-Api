@@ -8,6 +8,7 @@ import { Role } from "../enums/role"
 import { RoomAmenities } from "../enums/roomAmenities"
 
 
+/* COMMON VALIDATORS */
 export const validatePhotos = (photos: any[], fieldName: string = 'Photo'): string[] => {
     const errorMessages: string[] = []
     // const regex = /\.(png|jpe?g)$/i
@@ -90,69 +91,6 @@ export const validateDate = (date: Date, fieldName: string = 'Date'): string[] =
     return errorMessages
 }
 
-export const validateDateRelativeToAnother = (date1: Date, mustBeBeforeNow: boolean, date2: Date, fieldName: string = 'Date'): string[] => {
-    const errorMessages: string[] = []
-
-    validateDate(date1, 'Date 1').map(error => {
-        errorMessages.push(error)
-    })
-    validateDate(date2, 'Date 2').map(error => {
-        errorMessages.push(error)
-    })
-    if (errorMessages.length > 0) { return errorMessages }
-
-    if (mustBeBeforeNow && date1 > date2) {
-        errorMessages.push(`${fieldName} can't be after now`)
-    }
-    if (!mustBeBeforeNow && date1 < date2) {
-        errorMessages.push(`${fieldName} can't be before now`)
-    }
-
-    return errorMessages
-}
-
-export const validateCheckInCheckOut = (checkIn: Date, checkOut: Date): string[] => {
-    const errorMessages: string[] = []
-
-    validateDateRelativeToAnother(checkIn, false, new Date(), 'Check in date').map(
-        error => errorMessages.push(error)
-    )
-    validateDateRelativeToAnother(checkOut, false, new Date(), 'Check out date').map(
-        error => errorMessages.push(error)
-    )
-    if (checkIn >= checkOut) {
-        errorMessages.push('Check in date must be before Check out date')
-    }
-
-    return errorMessages
-}
-
-export const validateDateIsOccupied = (booking: BookingInterfaceMongodb, bookings: BookingInterfaceMongodb[]): string[] => {
-    const errorMessages: string[] = []
-
-    for (let i = 0; i < bookings.length; i++) {
-        if (new Date(booking.check_in_date) < new Date(bookings[i].check_out_date) &&
-            new Date(booking.check_out_date) > new Date(bookings[i].check_in_date)) {
-            errorMessages.push(`This period is already occupied by booking #${bookings[i]._id}`)
-        }
-    }
-    return errorMessages
-}
-
-export const validateDateIsOccupiedIfBookingExists = (booking: BookingInterfaceMongodb, bookings: BookingInterfaceMongodb[]): string[] => {
-    const errorMessages: string[] = []
-
-    for (let i = 0; i < bookings.length; i++) {
-        if (new Date(booking.check_in_date) < new Date(bookings[i].check_out_date) &&
-            new Date(booking.check_out_date) > new Date(bookings[i].check_in_date)) {
-            if (booking._id.toString() !== bookings[i]._id.toString()) {
-                errorMessages.push(`This period is already occupied by booking #${bookings[i]._id}`)
-            }
-        }
-    }
-    return errorMessages
-}
-
 export const validateTextArea = (textArea: any, fieldName: string = 'Text area'): string[] => {
     const errorMessages: string[] = []
 
@@ -218,23 +156,6 @@ export const validateNewPassword = (password: any, fieldName: string = 'Password
     return errorMessages
 }
 
-export const validateNumberBetween = (price: any, minor: number, mayor: number, fieldName: string = 'Number'): string[] => {
-    const errorMessages: string[] = []
-
-    if (price === null || typeof price !== "number" || isNaN(price)) {
-        errorMessages.push(`${fieldName} is not a number`)
-        return errorMessages
-    }
-    if (price < minor) {
-        errorMessages.push(`${fieldName} must be ${minor} or more`)
-    }
-    if (price > mayor) {
-        errorMessages.push(`${fieldName} must be ${mayor} or less`)
-    }
-
-    return errorMessages
-}
-
 const validateRoomNumber = (number: any, allRooms: RoomInterfaceMongodb[], actualNumber?: string, fieldName: string = 'Room number'): string[] => {
     const errorMessages: string[] = []
     const regex = new RegExp(/^\d{3}$/)
@@ -252,6 +173,88 @@ const validateRoomNumber = (number: any, allRooms: RoomInterfaceMongodb[], actua
     }
     if (allRooms.some(room => room.number === numStr && room.number !== actualNumber)) {
         errorMessages.push('Number is already taken')
+    }
+
+    return errorMessages
+}
+
+
+/* OPERATION VALIDATORS */
+export const validateDateRelativeToAnother = (date1: Date, mustBeBeforeNow: boolean, date2: Date, fieldName: string = 'Date'): string[] => {
+    const errorMessages: string[] = []
+
+    validateDate(date1, 'Date 1').map(error => {
+        errorMessages.push(error)
+    })
+    validateDate(date2, 'Date 2').map(error => {
+        errorMessages.push(error)
+    })
+    if (errorMessages.length > 0) { return errorMessages }
+
+    if (mustBeBeforeNow && date1 > date2) {
+        errorMessages.push(`${fieldName} can't be after now`)
+    }
+    if (!mustBeBeforeNow && date1 < date2) {
+        errorMessages.push(`${fieldName} can't be before now`)
+    }
+
+    return errorMessages
+}
+
+export const validateCheckInCheckOut = (checkIn: Date, checkOut: Date): string[] => {
+    const errorMessages: string[] = []
+
+    validateDateRelativeToAnother(checkIn, false, new Date(), 'Check in date').map(
+        error => errorMessages.push(error)
+    )
+    validateDateRelativeToAnother(checkOut, false, new Date(), 'Check out date').map(
+        error => errorMessages.push(error)
+    )
+    if (checkIn >= checkOut) {
+        errorMessages.push('Check in date must be before Check out date')
+    }
+
+    return errorMessages
+}
+
+export const validateDateIsOccupied = (booking: BookingInterfaceMongodb, bookings: BookingInterfaceMongodb[]): string[] => {
+    const errorMessages: string[] = []
+
+    for (let i = 0; i < bookings.length; i++) {
+        if (new Date(booking.check_in_date) < new Date(bookings[i].check_out_date) &&
+            new Date(booking.check_out_date) > new Date(bookings[i].check_in_date)) {
+            errorMessages.push(`This period is already occupied by booking #${bookings[i]._id}`)
+        }
+    }
+    return errorMessages
+}
+
+export const validateDateIsOccupiedIfBookingExists = (booking: BookingInterfaceMongodb, bookings: BookingInterfaceMongodb[]): string[] => {
+    const errorMessages: string[] = []
+
+    for (let i = 0; i < bookings.length; i++) {
+        if (new Date(booking.check_in_date) < new Date(bookings[i].check_out_date) &&
+            new Date(booking.check_out_date) > new Date(bookings[i].check_in_date)) {
+            if (booking._id.toString() !== bookings[i]._id.toString()) {
+                errorMessages.push(`This period is already occupied by booking #${bookings[i]._id}`)
+            }
+        }
+    }
+    return errorMessages
+}
+
+export const validateNumberBetween = (price: any, minor: number, mayor: number, fieldName: string = 'Number'): string[] => {
+    const errorMessages: string[] = []
+
+    if (price === null || typeof price !== "number" || isNaN(price)) {
+        errorMessages.push(`${fieldName} is not a number`)
+        return errorMessages
+    }
+    if (price < minor) {
+        errorMessages.push(`${fieldName} must be ${minor} or more`)
+    }
+    if (price > mayor) {
+        errorMessages.push(`${fieldName} must be ${mayor} or less`)
     }
 
     return errorMessages

@@ -3,14 +3,14 @@ import {
     validateDateRelativeToNow, validateFullName, validateEmail,
     validatePhoneNumber, validateTextArea
 } from "./commonValidator"
-import { ClientInterfaceMongodb } from "../interfaces/mongodb/clientInterfaceMongodb"
+import { ClientInterfaceBaseMongodb } from "../interfaces/mongodb/clientInterfaceMongodb"
 import { ContactInterfaceMysql } from "../interfaces/mysql/contactInterfaceMysql"
 // import { ClientArchived } from "../enums/clientArchived"
 
 
 export class ClientValidator {
 
-    validateProperties(client: ClientInterfaceMongodb | ContactInterfaceMysql): string[] {
+    validateProperties(client: ClientInterfaceBaseMongodb | ContactInterfaceMysql): string[] {
         const errorMessages: string[] = []
         const requiredProperties: string[] = ['publish_date', 'full_name', 'email', 'phone_number', 'comment', 'archived']
         requiredProperties.map((property) => {
@@ -22,7 +22,7 @@ export class ClientValidator {
     }
     
 
-    validateClient(client: ClientInterfaceMongodb | ContactInterfaceMysql): string[] {
+    validateClient(client: ClientInterfaceBaseMongodb | ContactInterfaceMysql): string[] {
         const allErrorMessages: string[] = []
 
         // const errorsCheckingProperties = this.validateProperties(client)

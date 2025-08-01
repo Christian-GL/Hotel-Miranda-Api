@@ -1,27 +1,21 @@
 
 import { Document } from "mongoose"
-import { BookingInterfaceMongodb } from "./bookingInterfaceMongodb"
+import { BookingInterfaceReviewMongodb } from "./bookingInterfaceMongodb"
 import { OptionYesNo } from "../../enums/optionYesNo"
 
 
-export interface ClientInterfaceMongodb extends Document {
+interface ClientInterfaceBaseMongodb extends Document {
     _id: string
     full_name: string
     email: string
     phone_number: string
-    review_date: Date
-    review_comment: string
     isArchived: OptionYesNo
+}
+
+export interface ClientInterfaceIdMongodb extends ClientInterfaceBaseMongodb {
     booking_id_list: string[]
 }
 
-export interface ClientInterfaceWithDataMongodb extends Document {
-    _id: string
-    full_name: string
-    email: string
-    phone_number: string
-    review_date: Date
-    review_comment: string
-    isArchived: OptionYesNo
-    booking_data: BookingInterfaceMongodb[]
+export interface ClientInterfaceFullDataMongodb extends ClientInterfaceBaseMongodb {
+    booking_data: BookingInterfaceReviewMongodb[]
 }

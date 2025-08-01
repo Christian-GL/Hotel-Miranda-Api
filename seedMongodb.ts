@@ -5,7 +5,7 @@ import { hashPassword } from './src/utils/hashPassword'
 
 import { BookingInterfaceMongodb } from './src/interfaces/mongodb/bookingInterfaceMongodb'
 import { RoomInterfaceMongodb } from './src/interfaces/mongodb/roomInterfaceMongodb'
-import { ClientInterfaceMongodb } from './src/interfaces/mongodb/clientInterfaceMongodb'
+import { ClientInterfaceBaseMongodb } from './src/interfaces/mongodb/clientInterfaceMongodb'
 import { UserInterfaceMongodb } from './src/interfaces/mongodb/userInterfaceMongodb'
 import { BookingModelMongodb } from './src/models/mongodb/bookingModelMongodb'
 import { RoomModelMongodb } from './src/models/mongodb/roomModelMongodb'
@@ -87,7 +87,7 @@ const createClients = async (): Promise<void> => {
                 comment: faker.lorem.paragraph(),
                 archived: faker.datatype.boolean()
             })
-            totalErrors = clientValidator.validateClient(fakeContact.toObject() as ClientInterfaceMongodb)
+            totalErrors = clientValidator.validateClient(fakeContact.toObject() as ClientInterfaceBaseMongodb)
             if (totalErrors.length === 0) {
                 clients.push(fakeContact)
             }
