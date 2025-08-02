@@ -1,11 +1,10 @@
 
-import { Types } from "mongoose"
-
-import { BookingInterfaceMongodb } from "../interfaces/mongodb/bookingInterfaceMongodb"
-import { RoomInterfaceMongodb } from "../interfaces/mongodb/roomInterfaceMongodb"
+import { BookingInterfaceIdMongodb } from "../interfaces/mongodb/bookingInterfaceMongodb"
+import { RoomInterfaceIdMongodb } from "../interfaces/mongodb/roomInterfaceMongodb"
 import { RoomType } from "../enums/roomType"
 import { Role } from "../enums/role"
 import { RoomAmenities } from "../enums/roomAmenities"
+import { OptionYesNo } from "../enums/optionYesNo"
 
 
 /* COMMON VALIDATORS */
@@ -156,7 +155,26 @@ export const validateNewPassword = (password: any, fieldName: string = 'Password
     return errorMessages
 }
 
-const validateRoomNumber = (number: any, allRooms: RoomInterfaceMongodb[], actualNumber?: string, fieldName: string = 'Room number'): string[] => {
+export const validateMongoDBObjectIdList = (list: any, fieldName: string = 'ID list'): string[] => {
+    const errorMessages: string[] = []
+    const objectIdRegex = /^[a-f\d]{24}$/i
+
+    if (!Array.isArray(list)) {
+        errorMessages.push(`${fieldName} must be an array`)
+        return errorMessages
+    }
+
+    list.forEach((id, index) => {
+        if (typeof id !== 'string' || !objectIdRegex.test(id)) {
+            errorMessages.push(`${fieldName}[${index}] is not a valid MongoDB ObjectId`)
+        }
+    })
+
+    return errorMessages
+}
+
+
+const validateRoomNumber = (number: any, allRooms: RoomInterfaceIdMongodb[], actualNumber?: string, fieldName: string = 'Room number'): string[] => {
     const errorMessages: string[] = []
     const regex = new RegExp(/^\d{3}$/)
 
@@ -217,7 +235,7 @@ export const validateCheckInCheckOut = (checkIn: Date, checkOut: Date): string[]
     return errorMessages
 }
 
-export const validateDateIsOccupied = (booking: BookingInterfaceMongodb, bookings: BookingInterfaceMongodb[]): string[] => {
+export const validateDateIsOccupied = (booking: BookingInterfaceIdMongodb, bookings: BookingInterfaceIdMongodb[]): string[] => {
     const errorMessages: string[] = []
 
     for (let i = 0; i < bookings.length; i++) {
@@ -229,7 +247,7 @@ export const validateDateIsOccupied = (booking: BookingInterfaceMongodb, booking
     return errorMessages
 }
 
-export const validateDateIsOccupiedIfBookingExists = (booking: BookingInterfaceMongodb, bookings: BookingInterfaceMongodb[]): string[] => {
+export const validateDateIsOccupiedIfBookingExists = (booking: BookingInterfaceIdMongodb, bookings: BookingInterfaceIdMongodb[]): string[] => {
     const errorMessages: string[] = []
 
     for (let i = 0; i < bookings.length; i++) {
@@ -260,11 +278,11 @@ export const validateNumberBetween = (price: any, minor: number, mayor: number, 
     return errorMessages
 }
 
-export const validateNewRoomNumber = (number: string, allRooms: RoomInterfaceMongodb[], fieldName: string = 'Room number'): string[] => {
+export const validateNewRoomNumber = (number: string, allRooms: RoomInterfaceIdMongodb[], fieldName: string = 'Room number'): string[] => {
     return validateRoomNumber(number, allRooms, undefined, fieldName)
 }
 
-export const validateExistingRoomNumber = (number: string, actualNumber: string, allRooms: RoomInterfaceMongodb[], fieldName: string = 'Room number'): string[] => {
+export const validateExistingRoomNumber = (number: string, actualNumber: string, allRooms: RoomInterfaceIdMongodb[], fieldName: string = 'Room number'): string[] => {
     return validateRoomNumber(number, allRooms, actualNumber, fieldName)
 }
 
@@ -308,6 +326,19 @@ export const validateAmenities = (amenities: any[], fieldName: string = 'Ameniti
             errorMessages.push(`${fieldName}: ${amenity} is not a valid value`)
         }
     })
+
+    return errorMessages
+}
+
+export const validateOptionYesNo = (option: any, fieldName: string = 'Option Yes-No'): string[] => {
+    const errorMessages: string[] = []
+
+    if (typeof option !== "string") {
+        errorMessages.push(`${fieldName} is not a String`)
+    }
+    if (!Object.values(OptionYesNo).includes(option as OptionYesNo)) {
+        errorMessages.push(`${fieldName} is not set`)
+    }
 
     return errorMessages
 }
