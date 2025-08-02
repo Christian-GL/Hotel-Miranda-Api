@@ -1,12 +1,12 @@
 
 import { Schema, model } from "mongoose"
-import { RoomInterfaceMongodb } from "../../interfaces/mongodb/roomInterfaceMongodb"
+import { RoomInterfaceIdMongodb } from "../../interfaces/mongodb/roomInterfaceMongodb"
 import { RoomType } from "../../enums/roomType"
 import { RoomAmenities } from "../../enums/roomAmenities"
 import { OptionYesNo } from "../../enums/optionYesNo"
 
 
-const RoomSchemaMongodb = new Schema<RoomInterfaceMongodb>
+const RoomSchemaMongodb = new Schema<RoomInterfaceIdMongodb>
     ({
         photos: {
             type: [String],
@@ -45,4 +45,4 @@ const RoomSchemaMongodb = new Schema<RoomInterfaceMongodb>
         }
     })
 
-export const RoomModelMongodb = model<RoomInterfaceMongodb>('Room', RoomSchemaMongodb)
+export const RoomModelMongodb = model<RoomInterfaceIdMongodb>('Room', RoomSchemaMongodb)

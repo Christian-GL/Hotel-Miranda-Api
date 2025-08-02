@@ -95,6 +95,7 @@ const createClientsNoBookings = async (): Promise<void> => {
                 continue
             }
         }
+        console.log(`Clientes válidos: ${clients}`)
         await ClientModelMongodb.insertMany(clients)
     }
     catch (error) {
@@ -180,9 +181,13 @@ const createRoomsAndBookings = async (): Promise<void> => {
 }
 
 
-// createUsers()
-createClientsNoBookings()
-// createRoomsAndBookings()
+const main = async () => {
+    // await createUsers()
+    await createClientsNoBookings()
+    // await createRoomsAndBookings()
+}
+
+main()
 
 
 

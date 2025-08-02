@@ -1,10 +1,10 @@
 
 import { Schema, model } from "mongoose"
-import { BookingInterfaceMongodb } from "../../interfaces/mongodb/bookingInterfaceMongodb"
+import { BookingInterfaceIdMongodb } from "../../interfaces/mongodb/bookingInterfaceMongodb"
 import { OptionYesNo } from "../../enums/optionYesNo"
 
 
-const BookingSchemaMongodb = new Schema<BookingInterfaceMongodb>
+const BookingSchemaMongodb = new Schema<BookingInterfaceIdMongodb>
     ({
         order_date: {
             type: Date,
@@ -37,4 +37,4 @@ const BookingSchemaMongodb = new Schema<BookingInterfaceMongodb>
         }
     })
 
-export const BookingModelMongodb = model<BookingInterfaceMongodb>('Booking', BookingSchemaMongodb)
+export const BookingModelMongodb = model<BookingInterfaceIdMongodb>('Booking', BookingSchemaMongodb)
