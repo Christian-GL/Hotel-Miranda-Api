@@ -1,5 +1,6 @@
 
 import {
+    validateString, validateDate,
     validatePhoto, validateFullName, validateEmail,
     validatePhoneNumber, validateDateRelativeToAnother,
     validateTextArea, validateRole, validateNewPassword
@@ -9,25 +10,38 @@ import { UserInterfaceDTO } from '../interfaces/mongodb/userInterfaceMongodb'
 
 export class UserValidator {
 
-    validateExistingProperties(user: UserInterfaceDTO): string[] {
+    validatePropertyTypes(user: UserInterfaceDTO): string[] {
         const errorMessages: string[] = []
-        const requiredProperties: string[] = [
-            'photo',
-            'full_name',
-            'email',
-            'start_date',
-            'end_date',
-            'job_position',
-            'phone_number',
-            'role',
-            'password'
-        ]
 
-        requiredProperties.map((property) => {
-            if (!(property in user)) {
-                errorMessages.push(`Property [${property}] is required in User`)
-            }
-        })
+        if (user.photo !== null) {
+            validateString(user.photo, 'photo').map(
+                error => errorMessages.push(error)
+            )
+        }
+        validateString(user.full_name, 'full_name').map(
+            error => errorMessages.push(error)
+        )
+        validateString(user.email, 'email').map(
+            error => errorMessages.push(error)
+        )
+        validateString(user.phone_number, 'phone_number').map(
+            error => errorMessages.push(error)
+        )
+        validateDate(user.start_date, 'start_date').map(
+            error => errorMessages.push(error)
+        )
+        validateDate(user.end_date, 'end_date').map(
+            error => errorMessages.push(error)
+        )
+        validateString(user.job_position, 'job_position').map(
+            error => errorMessages.push(error)
+        )
+        validateString(user.role, 'role').map(
+            error => errorMessages.push(error)
+        )
+        validateString(user.password, 'password').map(
+            error => errorMessages.push(error)
+        )
 
         return errorMessages
     }
@@ -35,7 +49,7 @@ export class UserValidator {
     validateUser(user: UserInterfaceDTO, passwordHasChanged: boolean = false): string[] {
         const allErrorMessages: string[] = []
 
-        const errorsCheckingProperties = this.validateExistingProperties(user)
+        const errorsCheckingProperties = this.validatePropertyTypes(user)
         if (errorsCheckingProperties.length > 0) {
             return errorsCheckingProperties
         }

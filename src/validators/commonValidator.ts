@@ -7,6 +7,51 @@ import { RoomAmenities } from "../enums/roomAmenities"
 import { OptionYesNo } from "../enums/optionYesNo"
 
 
+/* TYPE VALIDATORS */
+export const validateString = (str: any, fieldName: string = 'String field'): string[] => {
+    const errorMessages: string[] = []
+
+    if (typeof str !== "string") {
+        errorMessages.push(`${fieldName} is not a String`)
+    }
+
+    return errorMessages
+}
+
+export const validateStringList = (list: any[], fieldName: string = 'String list field'): string[] => {
+    const errorMessages: string[] = []
+
+    list.forEach((element, index) => {
+        if (typeof element !== "string") {
+            errorMessages.push(`${fieldName} ${index} is not a String`)
+        }
+    })
+
+    return errorMessages
+}
+
+export const validateBoolean = (bool: any, fieldName: string = 'Boolean field'): string[] => {
+    const errorMessages: string[] = []
+
+    if (typeof bool !== "boolean") {
+        errorMessages.push(`${fieldName} is not a Boolean`)
+    }
+
+    return errorMessages
+}
+
+export const validateDate = (date: any, fieldName: string = 'Date field'): string[] => {
+    const errorMessages: string[] = []
+
+    if (!(date instanceof Date) || isNaN(date.getTime())) {
+        errorMessages.push(`${fieldName} is not a valid date (must be in ISO format: YYYY-MM-DDTHH:mm:ss.sssZ)`)
+        return errorMessages
+    }
+
+    return errorMessages
+}
+
+
 /* COMMON VALIDATORS */
 export const validatePhotos = (photos: any[], fieldName: string = 'Photo'): string[] => {
     const errorMessages: string[] = []
@@ -79,17 +124,6 @@ export const validateEmail = (email: any, fieldName: string = 'Email'): string[]
     return errorMessages
 }
 
-export const validateDate = (date: Date, fieldName: string = 'Date'): string[] => {
-    const errorMessages: string[] = []
-
-    if (!(date instanceof Date) || isNaN(date.getTime())) {
-        errorMessages.push(`${fieldName} is not a valid date (must be in ISO format: YYYY-MM-DDTHH:mm:ss.sssZ)`)
-        return errorMessages
-    }
-
-    return errorMessages
-}
-
 export const validateTextArea = (textArea: any, fieldName: string = 'Text area'): string[] => {
     const errorMessages: string[] = []
 
@@ -115,16 +149,6 @@ export const validatePhoneNumber = (phoneNumber: any, fieldName: string = 'Phone
     }
     if (!regex.test(phoneNumber)) {
         errorMessages.push(`${fieldName} only [digits, -, +, spaces] are available`)
-    }
-
-    return errorMessages
-}
-
-export const validateBoolean = (bool: any, fieldName: string = 'Bool field'): string[] => {
-    const errorMessages: string[] = []
-
-    if (typeof bool !== "boolean") {
-        errorMessages.push(`${fieldName} is not a Boolean`)
     }
 
     return errorMessages
