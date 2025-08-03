@@ -1,10 +1,10 @@
 
 import { Schema, model } from "mongoose"
-import { UserInterfaceMongodb } from "../../interfaces/mongodb/userInterfaceMongodb"
+import { UserInterfaceIdMongodb } from "../../interfaces/mongodb/userInterfaceMongodb"
 import { Role } from "../../enums/role"
 
 
-const UserSchemaMongodb = new Schema<UserInterfaceMongodb>
+const UserSchemaMongodb = new Schema<UserInterfaceIdMongodb>
     ({
         photo: {
             type: String,
@@ -46,4 +46,4 @@ const UserSchemaMongodb = new Schema<UserInterfaceMongodb>
         }
     })
 
-export const UserModelMongodb = model<UserInterfaceMongodb>('User', UserSchemaMongodb)
+export const UserModelMongodb = model<UserInterfaceIdMongodb>('User', UserSchemaMongodb)

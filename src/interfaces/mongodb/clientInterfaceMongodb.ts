@@ -4,18 +4,18 @@ import { BookingInterfaceReviewMongodb } from "./bookingInterfaceMongodb"
 import { OptionYesNo } from "../../enums/optionYesNo"
 
 
-interface ClientInterfaceBaseMongodb extends Document {
-    _id: string
+export interface ClientInterfaceDTO {
     full_name: string
     email: string
     phone_number: string
     isArchived: OptionYesNo
-}
-
-export interface ClientInterfaceIdMongodb extends ClientInterfaceBaseMongodb {
     booking_id_list: string[]
 }
 
-export interface ClientInterfaceFullDataMongodb extends ClientInterfaceBaseMongodb {
+export interface ClientInterfaceIdMongodb extends ClientInterfaceDTO, Document {
+    _id: string
+}
+
+export interface ClientInterfaceFullDataMongodb extends Omit<ClientInterfaceDTO, 'booking_id_list'>, Document {
     booking_data: BookingInterfaceReviewMongodb[]
 }

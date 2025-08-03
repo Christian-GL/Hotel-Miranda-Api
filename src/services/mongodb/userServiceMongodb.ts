@@ -1,15 +1,15 @@
 
 import { ServiceInterfaceMongodb } from '../../interfaces/mongodb/serviceInterfaceMongodb'
 import { UserModelMongodb } from '../../models/mongodb/userModelMongodb'
-import { UserInterfaceDTO, UserInterfaceMongodb } from '../../interfaces/mongodb/userInterfaceMongodb'
+import { UserInterfaceDTO, UserInterfaceIdMongodb } from '../../interfaces/mongodb/userInterfaceMongodb'
 import { hashPassword } from '../../utils/hashPassword'
 
 
-export class UserServiceMongodb implements ServiceInterfaceMongodb<UserInterfaceMongodb> {
+export class UserServiceMongodb implements ServiceInterfaceMongodb<UserInterfaceIdMongodb> {
 
-    async fetchAll(): Promise<UserInterfaceMongodb[]> {
+    async fetchAll(): Promise<UserInterfaceIdMongodb[]> {
         try {
-            const users: UserInterfaceMongodb[] = await UserModelMongodb.find()
+            const users: UserInterfaceIdMongodb[] = await UserModelMongodb.find()
             return users
         }
         catch (error) {
@@ -18,9 +18,9 @@ export class UserServiceMongodb implements ServiceInterfaceMongodb<UserInterface
         }
     }
 
-    async fetchById(id: string): Promise<UserInterfaceMongodb | null> {
+    async fetchById(id: string): Promise<UserInterfaceIdMongodb | null> {
         try {
-            const user: UserInterfaceMongodb | null = await UserModelMongodb.findById(id)
+            const user: UserInterfaceIdMongodb | null = await UserModelMongodb.findById(id)
             if (user) return user
             else throw new Error('User not found')
         }
@@ -30,10 +30,10 @@ export class UserServiceMongodb implements ServiceInterfaceMongodb<UserInterface
         }
     }
 
-    async create(user: UserInterfaceDTO): Promise<UserInterfaceMongodb> {
+    async create(user: UserInterfaceDTO): Promise<UserInterfaceIdMongodb> {
         try {
             user.password = await hashPassword(user.password)
-            const newUser: UserInterfaceMongodb = new UserModelMongodb(user)
+            const newUser: UserInterfaceIdMongodb = new UserModelMongodb(user)
             await newUser.save()
             return newUser
         }
@@ -43,13 +43,13 @@ export class UserServiceMongodb implements ServiceInterfaceMongodb<UserInterface
         }
     }
 
-    async update(id: string, user: UserInterfaceDTO, passwordHasChanged: boolean = false): Promise<UserInterfaceMongodb | null> {
+    async update(id: string, user: UserInterfaceDTO, passwordHasChanged: boolean = false): Promise<UserInterfaceIdMongodb | null> {
         try {
             if (passwordHasChanged) {
                 user.password = await hashPassword(user.password)
             }
 
-            const updatedUser: UserInterfaceMongodb | null = await UserModelMongodb.findOneAndUpdate(
+            const updatedUser: UserInterfaceIdMongodb | null = await UserModelMongodb.findOneAndUpdate(
                 { _id: id },
                 user,
                 { new: true }

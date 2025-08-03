@@ -176,7 +176,6 @@ userRouterMongodb.post('/', async (req: Request, res: Response) => {
         role: req.body.role,
         password: req.body.password
     }
-
     const userValidator = new UserValidator()
     const totalErrors = userValidator.validateUser(userToValidate)
     if (totalErrors.length === 0) {
@@ -215,7 +214,6 @@ userRouterMongodb.put('/:id', async (req: Request, res: Response) => {
         role: req.body.role,
         password: req.body.password
     }
-
     const userValidator = new UserValidator()
     const totalErrors = userValidator.validateUser(userToValidate, passwordHasChanged)
     if (totalErrors.length === 0) {

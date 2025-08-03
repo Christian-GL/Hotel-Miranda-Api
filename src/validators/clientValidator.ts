@@ -1,35 +1,40 @@
 
 import {
+    validateString, validateStringList,
     validateFullName, validateEmail, validatePhoneNumber,
     validateOptionYesNo, validateMongoDBObjectIdList
 } from "./commonValidator"
-import { ClientInterfaceIdMongodb } from "../interfaces/mongodb/clientInterfaceMongodb"
+import { ClientInterfaceDTO } from "../interfaces/mongodb/clientInterfaceMongodb"
 
 
 export class ClientValidator {
 
-    validateProperties(client: ClientInterfaceIdMongodb): string[] {
+    validatePropertyTypes(client: ClientInterfaceDTO): string[] {
         const errorMessages: string[] = []
-        const requiredProperties: string[] = [
-            'full_name',
-            'email',
-            'phone_number',
-            'isArchived',
-            'booking_id_list'
-        ]
+        
+        validateString(client.full_name, 'full_name').map(
+            error => errorMessages.push(error)
+        )
+        validateString(client.email, 'email').map(
+            error => errorMessages.push(error)
+        )
+        validateString(client.phone_number, 'phone_number').map(
+            error => errorMessages.push(error)
+        )
+        validateString(client.isArchived, 'isArchived').map(
+            error => errorMessages.push(error)
+        )
+        validateStringList(client.booking_id_list, 'booking_id_list').map(
+            error => errorMessages.push(error)
+        )
 
-        requiredProperties.map((property) => {
-            if (!(property in client)) {
-                errorMessages.push(`Property [${property}] is required in Client`)
-            }
-        })
         return errorMessages
     }
 
-    validateClient(client: ClientInterfaceIdMongodb): string[] {
+    validateClient(client: ClientInterfaceDTO): string[] {
         const allErrorMessages: string[] = []
 
-        const errorsCheckingProperties = this.validateProperties(client)
+        const errorsCheckingProperties = this.validatePropertyTypes(client)
         if (errorsCheckingProperties.length > 0) {
             return errorsCheckingProperties
         }

@@ -6,7 +6,7 @@ import { hashPassword } from './src/utils/hashPassword'
 import { BookingInterfaceIdMongodb } from './src/interfaces/mongodb/bookingInterfaceMongodb'
 import { RoomInterfaceIdMongodb } from './src/interfaces/mongodb/roomInterfaceMongodb'
 import { ClientInterfaceIdMongodb } from './src/interfaces/mongodb/clientInterfaceMongodb'
-import { UserInterfaceMongodb } from './src/interfaces/mongodb/userInterfaceMongodb'
+import { UserInterfaceIdMongodb } from './src/interfaces/mongodb/userInterfaceMongodb'
 import { BookingModelMongodb } from './src/models/mongodb/bookingModelMongodb'
 import { RoomModelMongodb } from './src/models/mongodb/roomModelMongodb'
 import { ClientModelMongodb } from './src/models/mongodb/clientModelMongodb'
@@ -54,7 +54,7 @@ const createUsers = async (): Promise<void> => {
                 role: faker.helpers.arrayElement(Object.values(Role)),
                 password: 'Abcd1234.'
             })
-            totalErrors = userValidator.validateUser(fakeUser.toObject() as UserInterfaceMongodb, true)
+            totalErrors = userValidator.validateUser(fakeUser.toObject() as UserInterfaceIdMongodb, true)
             if (totalErrors.length === 0) {
                 fakeUser.password = await hashPassword(fakeUser.password)
                 users.push(fakeUser)

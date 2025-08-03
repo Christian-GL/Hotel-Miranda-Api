@@ -16,6 +16,6 @@ export interface UserInterfaceDTO {
     password: string
 }
 
-export interface UserInterfaceMongodb extends UserInterfaceDTO, Document {
+export interface UserInterfaceIdMongodb extends UserInterfaceDTO, Document {
     _id: string
 }

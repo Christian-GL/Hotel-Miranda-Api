@@ -2,7 +2,7 @@
 import { Request, Response, Router } from "express"
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
-import { UserInterfaceMongodb } from "../../interfaces/mongodb/userInterfaceMongodb"
+import { UserInterfaceIdMongodb } from "../../interfaces/mongodb/userInterfaceMongodb"
 import { UserServiceMongodb } from "../../services/mongodb/userServiceMongodb"
 
 
@@ -53,7 +53,7 @@ loginRouterMongodb.post('', async (req: Request, res: Response) => {
     const { email, password } = req.body
     const userService = new UserServiceMongodb()
     const userData = await userService.fetchAll()
-    const user: UserInterfaceMongodb[] = userData.filter(u => u.email === email)
+    const user: UserInterfaceIdMongodb[] = userData.filter(u => u.email === email)
 
     if (user.length === 0) {
         res.status(404).send({ message: 'User or password wrong' })

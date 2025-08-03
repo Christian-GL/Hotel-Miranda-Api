@@ -1,7 +1,7 @@
 
 import { ServiceInterfaceMongodb } from '../../interfaces/mongodb/serviceInterfaceMongodb'
 import { ClientModelMongodb } from '../../models/mongodb/clientModelMongodb'
-import { ClientInterfaceIdMongodb } from '../../interfaces/mongodb/clientInterfaceMongodb'
+import { ClientInterfaceDTO, ClientInterfaceIdMongodb } from '../../interfaces/mongodb/clientInterfaceMongodb'
 
 
 export class ClientServiceMongodb implements ServiceInterfaceMongodb<ClientInterfaceIdMongodb> {
@@ -29,7 +29,7 @@ export class ClientServiceMongodb implements ServiceInterfaceMongodb<ClientInter
         }
     }
 
-    async create(client: ClientInterfaceIdMongodb): Promise<ClientInterfaceIdMongodb> {
+    async create(client: ClientInterfaceDTO): Promise<ClientInterfaceIdMongodb> {
         try {
             const newClient: ClientInterfaceIdMongodb = new ClientModelMongodb(client)
             await newClient.save()
@@ -41,7 +41,7 @@ export class ClientServiceMongodb implements ServiceInterfaceMongodb<ClientInter
         }
     }
 
-    async update(id: string, client: ClientInterfaceIdMongodb): Promise<ClientInterfaceIdMongodb | null> {
+    async update(id: string, client: ClientInterfaceDTO): Promise<ClientInterfaceIdMongodb | null> {
         try {
             const updatedClient: ClientInterfaceIdMongodb | null = await ClientModelMongodb.findOneAndUpdate(
                 { _id: id },

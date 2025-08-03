@@ -2,6 +2,7 @@
 import { Request, Response } from 'express'
 import Router from 'express'
 import { authMiddleware } from '../../middleware/authMiddleware'
+import { ClientInterfaceDTO } from '../../interfaces/mongodb/clientInterfaceMongodb'
 import { ClientServiceMongodb } from '../../services/mongodb/clientServiceMongodb'
 import { ClientValidator } from '../../validators/clientValidator'
 
@@ -158,11 +159,19 @@ clientRouterMongodb.get('/:id', async (req: Request, res: Response) => {
 })
 
 clientRouterMongodb.post('/', async (req: Request, res: Response) => {
+
+    const clientToValidate: ClientInterfaceDTO = {
+        full_name: req.body.full_name,
+        email: req.body.email,
+        phone_number: req.body.phone_number,
+        isArchived: req.body.isArchived,
+        booking_id_list: req.body.booking_id_list
+    }
     const clientValidator = new ClientValidator()
-    const totalErrors = clientValidator.validateClient(req.body)
+    const totalErrors = clientValidator.validateClient(clientToValidate)
     if (totalErrors.length === 0) {
         try {
-            const newClient = await clientServiceMongodb.create(req.body)
+            const newClient = await clientServiceMongodb.create(clientToValidate)
             res.status(201).json(newClient)
         }
         catch (error) {
@@ -178,14 +187,20 @@ clientRouterMongodb.post('/', async (req: Request, res: Response) => {
 })
 
 clientRouterMongodb.put('/:id', async (req: Request, res: Response) => {
-    const clientValidator = new ClientValidator()
-    const totalErrors = clientValidator.validateClient(req.body)
 
+    const clientToValidate: ClientInterfaceDTO = {
+        full_name: req.body.full_name,
+        email: req.body.email,
+        phone_number: req.body.phone_number,
+        isArchived: req.body.isArchived,
+        booking_id_list: req.body.booking_id_list
+    }
+    const clientValidator = new ClientValidator()
+    const totalErrors = clientValidator.validateClient(clientToValidate)
     if (totalErrors.length === 0) {
         try {
-            const updatedClient = await clientServiceMongodb.update(req.params.id, req.body)
+            const updatedClient = await clientServiceMongodb.update(req.params.id, clientToValidate)
             if (updatedClient !== null) {
-                // res.status(204).json(updatedClient)
                 res.status(200).json(updatedClient)
             }
             else {
