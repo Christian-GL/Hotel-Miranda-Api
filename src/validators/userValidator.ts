@@ -4,12 +4,12 @@ import {
     validatePhoneNumber, validateDateRelativeToAnother,
     validateTextArea, validateRole, validateNewPassword
 } from './commonValidator'
-import { UserInterfaceMongodb } from '../interfaces/mongodb/userInterfaceMongodb'
+import { UserInterfaceDTO } from '../interfaces/mongodb/userInterfaceMongodb'
 
 
 export class UserValidator {
 
-    validateExistingProperties(user: UserInterfaceMongodb): string[] {
+    validateExistingProperties(user: UserInterfaceDTO): string[] {
         const errorMessages: string[] = []
         const requiredProperties: string[] = [
             'photo',
@@ -32,7 +32,7 @@ export class UserValidator {
         return errorMessages
     }
 
-    validateUser(user: UserInterfaceMongodb, passwordHasChanged: boolean = false): string[] {
+    validateUser(user: UserInterfaceDTO, passwordHasChanged: boolean = false): string[] {
         const allErrorMessages: string[] = []
 
         const errorsCheckingProperties = this.validateExistingProperties(user)

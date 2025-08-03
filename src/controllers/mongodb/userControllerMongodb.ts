@@ -2,6 +2,7 @@
 import { Request, Response } from 'express'
 import Router from 'express'
 import { authMiddleware } from '../../middleware/authMiddleware'
+import { UserInterfaceDTO } from '../../interfaces/mongodb/userInterfaceMongodb'
 import { UserModelMongodb } from '../../models/mongodb/userModelMongodb'
 import { UserServiceMongodb } from '../../services/mongodb/userServiceMongodb'
 import { UserValidator } from '../../validators/userValidator'
@@ -163,11 +164,24 @@ userRouterMongodb.get('/:id', async (req: Request, res: Response) => {
 })
 
 userRouterMongodb.post('/', async (req: Request, res: Response) => {
+
+    const userToValidate: UserInterfaceDTO = {
+        photo: req.body.photo,
+        full_name: req.body.full_name,
+        email: req.body.email,
+        phone_number: req.body.phone_number,
+        start_date: new Date(req.body.start_date),
+        end_date: new Date(req.body.end_date),
+        job_position: req.body.job_position,
+        role: req.body.role,
+        password: req.body.password
+    }
+
     const userValidator = new UserValidator()
-    const totalErrors = userValidator.validateUser(req.body)
+    const totalErrors = userValidator.validateUser(userToValidate)
     if (totalErrors.length === 0) {
         try {
-            const createdUser = await userServiceMongodb.create(req.body)
+            const createdUser = await userServiceMongodb.create(userToValidate)
             res.status(201).json(createdUser)
         }
         catch (error) {
@@ -183,19 +197,30 @@ userRouterMongodb.post('/', async (req: Request, res: Response) => {
 })
 
 userRouterMongodb.put('/:id', async (req: Request, res: Response) => {
-    const userValidator = new UserValidator()
-    const existingUser = await UserModelMongodb.findById(req.body._id).select("password")
 
+    const existingUser = await UserModelMongodb.findById(req.body._id).select("password")
     let passwordHasChanged = false
     if (existingUser !== null) {
         if (req.body.password !== existingUser.password) passwordHasChanged = true
     }
 
-    const totalErrors = userValidator.validateUser(req.body, passwordHasChanged)
+    const userToValidate: UserInterfaceDTO = {
+        photo: req.body.photo,
+        full_name: req.body.full_name,
+        email: req.body.email,
+        phone_number: req.body.phone_number,
+        start_date: new Date(req.body.start_date),
+        end_date: new Date(req.body.end_date),
+        job_position: req.body.job_position,
+        role: req.body.role,
+        password: req.body.password
+    }
 
+    const userValidator = new UserValidator()
+    const totalErrors = userValidator.validateUser(userToValidate, passwordHasChanged)
     if (totalErrors.length === 0) {
         try {
-            const updatedUser = await userServiceMongodb.update(req.params.id, req.body, passwordHasChanged)
+            const updatedUser = await userServiceMongodb.update(req.params.id, userToValidate, passwordHasChanged)
             if (updatedUser !== null) {
                 res.status(200).json(updatedUser)
             }

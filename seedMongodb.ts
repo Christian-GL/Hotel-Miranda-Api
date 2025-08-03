@@ -48,8 +48,8 @@ const createUsers = async (): Promise<void> => {
                 full_name: faker.person.fullName(),
                 email: faker.internet.email(),
                 phone_number: faker.string.numeric(9),
-                start_date: startDate.toISOString(),
-                end_date: endDate.toISOString(),
+                start_date: startDate,
+                end_date: endDate,
                 job_position: faker.lorem.paragraph(),
                 role: faker.helpers.arrayElement(Object.values(Role)),
                 password: 'Abcd1234.'
@@ -183,7 +183,7 @@ const createRoomsAndBookings = async (): Promise<void> => {
 
 const main = async () => {
     // await createUsers()
-    await createClientsNoBookings()
+    // await createClientsNoBookings()
     // await createRoomsAndBookings()
 }
 

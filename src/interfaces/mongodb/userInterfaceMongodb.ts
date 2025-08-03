@@ -4,8 +4,7 @@ import { JobPosition } from "../../enums/jobPosition"
 import { Role } from "../../enums/role"
 
 
-export interface UserInterfaceMongodb extends Document {
-    _id: string
+export interface UserInterfaceDTO {
     photo: string | null
     full_name: string
     email: string
@@ -15,4 +14,8 @@ export interface UserInterfaceMongodb extends Document {
     job_position: JobPosition
     role: Role
     password: string
+}
+
+export interface UserInterfaceMongodb extends UserInterfaceDTO, Document {
+    _id: string
 }
