@@ -1,14 +1,14 @@
 
 import { ServiceInterfaceMongodb } from '../../interfaces/mongodb/serviceInterfaceMongodb'
 import { RoomModelMongodb } from '../../models/mongodb/roomModelMongodb'
-import { RoomInterfaceMongodb } from '../../interfaces/mongodb/roomInterfaceMongodb'
+import { RoomInterfaceIdMongodb } from '../../interfaces/mongodb/roomInterfaceMongodb'
 
 
-export class RoomServiceMongodb implements ServiceInterfaceMongodb<RoomInterfaceMongodb> {
+export class RoomServiceMongodb implements ServiceInterfaceMongodb<RoomInterfaceIdMongodb> {
 
-    async fetchAll(): Promise<RoomInterfaceMongodb[]> {
+    async fetchAll(): Promise<RoomInterfaceIdMongodb[]> {
         try {
-            const rooms: RoomInterfaceMongodb[] = await RoomModelMongodb.find()
+            const rooms: RoomInterfaceIdMongodb[] = await RoomModelMongodb.find()
             return rooms
         }
         catch (error) {
@@ -17,9 +17,9 @@ export class RoomServiceMongodb implements ServiceInterfaceMongodb<RoomInterface
         }
     }
 
-    async fetchById(id: string): Promise<RoomInterfaceMongodb | null> {
+    async fetchById(id: string): Promise<RoomInterfaceIdMongodb | null> {
         try {
-            const room: RoomInterfaceMongodb | null = await RoomModelMongodb.findById(id)
+            const room: RoomInterfaceIdMongodb | null = await RoomModelMongodb.findById(id)
             if (room) return room
             else throw new Error('Room not found')
         }
@@ -29,9 +29,9 @@ export class RoomServiceMongodb implements ServiceInterfaceMongodb<RoomInterface
         }
     }
 
-    async create(room: RoomInterfaceMongodb): Promise<RoomInterfaceMongodb> {
+    async create(room: RoomInterfaceIdMongodb): Promise<RoomInterfaceIdMongodb> {
         try {
-            const newRoom: RoomInterfaceMongodb = new RoomModelMongodb(room)
+            const newRoom: RoomInterfaceIdMongodb = new RoomModelMongodb(room)
             await newRoom.save()
             return newRoom
         }
@@ -41,12 +41,12 @@ export class RoomServiceMongodb implements ServiceInterfaceMongodb<RoomInterface
         }
     }
 
-    async update(id: string, room: RoomInterfaceMongodb): Promise<RoomInterfaceMongodb | null> {
+    async update(id: string, room: RoomInterfaceIdMongodb): Promise<RoomInterfaceIdMongodb | null> {
         try {
-            const existingRoom: RoomInterfaceMongodb | null = await this.fetchById(id)
+            const existingRoom: RoomInterfaceIdMongodb | null = await this.fetchById(id)
             if (existingRoom == null) return null
 
-            const updatedRoom: RoomInterfaceMongodb | null = await RoomModelMongodb.findOneAndUpdate(
+            const updatedRoom: RoomInterfaceIdMongodb | null = await RoomModelMongodb.findOneAndUpdate(
                 { _id: id },
                 room,
                 { new: true }

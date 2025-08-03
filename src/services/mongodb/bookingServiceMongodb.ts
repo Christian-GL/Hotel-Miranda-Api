@@ -1,14 +1,14 @@
 
 import { ServiceInterfaceMongodb } from '../../interfaces/mongodb/serviceInterfaceMongodb'
 import { BookingModelMongodb } from '../../models/mongodb/bookingModelMongodb'
-import { BookingInterfaceMongodb } from '../../interfaces/mongodb/bookingInterfaceMongodb'
+import { BookingInterfaceIdMongodb } from '../../interfaces/mongodb/bookingInterfaceMongodb'
 
 
-export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInterfaceMongodb> {
+export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInterfaceIdMongodb> {
 
-    async fetchAll(): Promise<BookingInterfaceMongodb[]> {
+    async fetchAll(): Promise<BookingInterfaceIdMongodb[]> {
         try {
-            const bookings: BookingInterfaceMongodb[] = await BookingModelMongodb.find()
+            const bookings: BookingInterfaceIdMongodb[] = await BookingModelMongodb.find()
             return bookings
         }
         catch (error) {
@@ -17,9 +17,9 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
         }
     }
 
-    async fetchById(id: string): Promise<BookingInterfaceMongodb | null> {
+    async fetchById(id: string): Promise<BookingInterfaceIdMongodb | null> {
         try {
-            const booking: BookingInterfaceMongodb | null = await BookingModelMongodb.findById(id)
+            const booking: BookingInterfaceIdMongodb | null = await BookingModelMongodb.findById(id)
             if (booking) return booking
             else throw new Error('Booking not found')
         }
@@ -29,9 +29,9 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
         }
     }
 
-    async create(booking: BookingInterfaceMongodb): Promise<BookingInterfaceMongodb> {
+    async create(booking: BookingInterfaceIdMongodb): Promise<BookingInterfaceIdMongodb> {
         try {
-            const newBooking: BookingInterfaceMongodb = new BookingModelMongodb(booking)
+            const newBooking: BookingInterfaceIdMongodb = new BookingModelMongodb(booking)
             await newBooking.save()
             return newBooking
         }
@@ -41,12 +41,12 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
         }
     }
 
-    async update(id: string, booking: BookingInterfaceMongodb): Promise<BookingInterfaceMongodb | null> {
+    async update(id: string, booking: BookingInterfaceIdMongodb): Promise<BookingInterfaceIdMongodb | null> {
         try {
-            const existingBooking: BookingInterfaceMongodb | null = await this.fetchById(id)
+            const existingBooking: BookingInterfaceIdMongodb | null = await this.fetchById(id)
             if (existingBooking == null) return null
 
-            const updatedBooking: BookingInterfaceMongodb | null = await BookingModelMongodb.findOneAndUpdate(
+            const updatedBooking: BookingInterfaceIdMongodb | null = await BookingModelMongodb.findOneAndUpdate(
                 { _id: id },
                 booking,
                 { new: true }

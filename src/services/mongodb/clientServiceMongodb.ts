@@ -1,14 +1,14 @@
 
 import { ServiceInterfaceMongodb } from '../../interfaces/mongodb/serviceInterfaceMongodb'
 import { ClientModelMongodb } from '../../models/mongodb/clientModelMongodb'
-import { ClientInterfaceBaseMongodb } from '../../interfaces/mongodb/clientInterfaceMongodb'
+import { ClientInterfaceIdMongodb } from '../../interfaces/mongodb/clientInterfaceMongodb'
 
 
-export class ClientServiceMongodb implements ServiceInterfaceMongodb<ClientInterfaceBaseMongodb> {
+export class ClientServiceMongodb implements ServiceInterfaceMongodb<ClientInterfaceIdMongodb> {
 
-    async fetchAll(): Promise<ClientInterfaceBaseMongodb[]> {
+    async fetchAll(): Promise<ClientInterfaceIdMongodb[]> {
         try {
-            const clients: ClientInterfaceBaseMongodb[] = await ClientModelMongodb.find()
+            const clients: ClientInterfaceIdMongodb[] = await ClientModelMongodb.find()
             return clients
         }
         catch (error) {
@@ -17,9 +17,9 @@ export class ClientServiceMongodb implements ServiceInterfaceMongodb<ClientInter
         }
     }
 
-    async fetchById(id: string): Promise<ClientInterfaceBaseMongodb | null> {
+    async fetchById(id: string): Promise<ClientInterfaceIdMongodb | null> {
         try {
-            const client: ClientInterfaceBaseMongodb | null = await ClientModelMongodb.findById(id)
+            const client: ClientInterfaceIdMongodb | null = await ClientModelMongodb.findById(id)
             if (client) return client
             else throw new Error('Client not found')
         }
@@ -29,9 +29,9 @@ export class ClientServiceMongodb implements ServiceInterfaceMongodb<ClientInter
         }
     }
 
-    async create(client: ClientInterfaceBaseMongodb): Promise<ClientInterfaceBaseMongodb> {
+    async create(client: ClientInterfaceIdMongodb): Promise<ClientInterfaceIdMongodb> {
         try {
-            const newClient: ClientInterfaceBaseMongodb = new ClientModelMongodb(client)
+            const newClient: ClientInterfaceIdMongodb = new ClientModelMongodb(client)
             await newClient.save()
             return newClient
         }
@@ -41,9 +41,9 @@ export class ClientServiceMongodb implements ServiceInterfaceMongodb<ClientInter
         }
     }
 
-    async update(id: string, client: ClientInterfaceBaseMongodb): Promise<ClientInterfaceBaseMongodb | null> {
+    async update(id: string, client: ClientInterfaceIdMongodb): Promise<ClientInterfaceIdMongodb | null> {
         try {
-            const updatedClient: ClientInterfaceBaseMongodb | null = await ClientModelMongodb.findOneAndUpdate(
+            const updatedClient: ClientInterfaceIdMongodb | null = await ClientModelMongodb.findOneAndUpdate(
                 { _id: id },
                 client,
                 { new: true }

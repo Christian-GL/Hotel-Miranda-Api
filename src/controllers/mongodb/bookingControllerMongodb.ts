@@ -5,7 +5,7 @@ import { authMiddleware } from '../../middleware/authMiddleware'
 import { BookingServiceMongodb } from '../../services/mongodb/bookingServiceMongodb'
 import { RoomServiceMongodb } from '../../services/mongodb/roomServiceMongodb'
 import { BookingValidator } from '../../validators/bookingValidator'
-import { RoomInterfaceMongodb } from '../../interfaces/mongodb/roomInterfaceMongodb'
+import { RoomInterfaceIdMongodb } from '../../interfaces/mongodb/roomInterfaceMongodb'
 import { BookingInterfaceFullDataMongodb } from '../../interfaces/mongodb/bookingInterfaceMongodb'
 
 
@@ -235,7 +235,7 @@ bookingRouterMongodb.put('/:id', async (req: Request, res: Response) => {
 
     if (totalErrors.length === 0) {
         try {
-            let roomToReturn: RoomInterfaceMongodb
+            let roomToReturn: RoomInterfaceIdMongodb
 
             const bookingToUpdate = await bookingServiceMongodb.fetchById(req.params.id)
             if (bookingToUpdate === null) {
@@ -251,12 +251,12 @@ bookingRouterMongodb.put('/:id', async (req: Request, res: Response) => {
                     res.status(404).json({ message: `Booking update failed, old room #${bookingToUpdate.room_id} not found` })
                     return
                 }
-                oldRoomOfBooking.booking_id_list = oldRoomOfBooking.booking_id_list.filter(bookingID => bookingID.toString() !== bookingToUpdate._id.toString())
-                const oldRoomOfBookingUpdated = await roomServiceMongodb.update(oldRoomOfBooking._id, oldRoomOfBooking)
-                if (oldRoomOfBookingUpdated === null) {
-                    res.status(404).json({ message: `Old room #${req.params.id} not found (cant be updated)` })
-                    return
-                }
+                // oldRoomOfBooking.booking_id_list = oldRoomOfBooking.booking_id_list.filter(bookingID => bookingID.toString() !== bookingToUpdate._id.toString())
+                // const oldRoomOfBookingUpdated = await roomServiceMongodb.update(oldRoomOfBooking._id, oldRoomOfBooking)
+                // if (oldRoomOfBookingUpdated === null) {
+                //     res.status(404).json({ message: `Old room #${req.params.id} not found (cant be updated)` })
+                //     return
+                // }
 
                 // Le añade el id del booking al room nuevo
                 const newRoomOfBooking = await roomServiceMongodb.fetchById(req.body.room_id)
@@ -316,12 +316,12 @@ bookingRouterMongodb.delete('/:id', async (req: Request, res: Response) => {
             res.status(404).json({ message: `Room to update #${bookingToDelete.room_id} not found` })
             return
         }
-        roomToUpdate.booking_id_list = roomToUpdate.booking_id_list.filter(bookingID => bookingID.toString() !== bookingToDelete._id.toString())
-        const roomUpdated = await roomServiceMongodb.update(roomToUpdate._id, roomToUpdate)
-        if (roomUpdated === null) {
-            res.status(404).json({ message: `Room to update #${roomToUpdate._id} not found (cant be updated)` })
-            return
-        }
+        // roomToUpdate.booking_id_list = roomToUpdate.booking_id_list.filter(bookingID => bookingID.toString() !== bookingToDelete._id.toString())
+        // const roomUpdated = await roomServiceMongodb.update(roomToUpdate._id, roomToUpdate)
+        // if (roomUpdated === null) {
+        //     res.status(404).json({ message: `Room to update #${roomToUpdate._id} not found (cant be updated)` })
+        //     return
+        // }
 
         await bookingServiceMongodb.delete(bookingToDelete._id)
         res.status(204).json()
