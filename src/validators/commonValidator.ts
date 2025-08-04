@@ -1,6 +1,6 @@
 
 import { BookingInterfaceIdMongodb } from "../interfaces/mongodb/bookingInterfaceMongodb"
-import { RoomInterfaceIdMongodb } from "../interfaces/mongodb/roomInterfaceMongodb"
+import { RoomInterfaceDTO } from "../interfaces/mongodb/roomInterfaceMongodb"
 import { RoomType } from "../enums/roomType"
 import { Role } from "../enums/role"
 import { RoomAmenities } from "../enums/roomAmenities"
@@ -26,6 +26,16 @@ export const validateStringList = (list: any[], fieldName: string = 'String list
             errorMessages.push(`${fieldName} ${index} is not a String`)
         }
     })
+
+    return errorMessages
+}
+
+export const validateNumber = (str: any, fieldName: string = 'Number field'): string[] => {
+    const errorMessages: string[] = []
+
+    if (typeof str !== "number") {
+        errorMessages.push(`${fieldName} is not a Number`)
+    }
 
     return errorMessages
 }
@@ -198,29 +208,6 @@ export const validateMongoDBObjectIdList = (list: any, fieldName: string = 'ID l
 }
 
 
-const validateRoomNumber = (number: any, allRooms: RoomInterfaceIdMongodb[], actualNumber?: string, fieldName: string = 'Room number'): string[] => {
-    const errorMessages: string[] = []
-    const regex = new RegExp(/^\d{3}$/)
-
-    if (!Array.isArray(allRooms)) {
-        errorMessages.push(`${fieldName}: invalid room list`)
-        return errorMessages
-    }
-    if (typeof number !== "string") {
-        errorMessages.push(`${fieldName} is not a string`)
-    }
-    const numStr = String(number)
-    if (!regex.test(numStr)) {
-        errorMessages.push(`${fieldName} must have 3 numeric digits between 000 and 999`)
-    }
-    if (allRooms.some(room => room.number === numStr && room.number !== actualNumber)) {
-        errorMessages.push('Number is already taken')
-    }
-
-    return errorMessages
-}
-
-
 /* OPERATION VALIDATORS */
 export const validateDateRelativeToAnother = (date1: Date, mustBeBeforeNow: boolean, date2: Date, fieldName: string = 'Date'): string[] => {
     const errorMessages: string[] = []
@@ -302,12 +289,66 @@ export const validateNumberBetween = (price: any, minor: number, mayor: number, 
     return errorMessages
 }
 
-export const validateNewRoomNumber = (number: string, allRooms: RoomInterfaceIdMongodb[], fieldName: string = 'Room number'): string[] => {
+const validateRoomNumber = (number: any, allRooms: RoomInterfaceDTO[], actualNumber?: string, fieldName: string = 'Room number'): string[] => {
+    const errorMessages: string[] = []
+    const regex = new RegExp(/^\d{3}$/)
+
+    if (!Array.isArray(allRooms)) {
+        errorMessages.push(`${fieldName}: invalid room list`)
+        return errorMessages
+    }
+    if (typeof number !== "string") {
+        errorMessages.push(`${fieldName} is not a string`)
+    }
+    const numStr = String(number)
+    if (!regex.test(numStr)) {
+        errorMessages.push(`${fieldName} must have 3 numeric digits between 000 and 999`)
+    }
+    if (allRooms.some(room => room.number === numStr && room.number !== actualNumber)) {
+        errorMessages.push('Number is already taken')
+    }
+
+    return errorMessages
+}
+
+export const validateNewRoomNumber = (number: string, allRooms: RoomInterfaceDTO[], fieldName: string = 'Room number'): string[] => {
     return validateRoomNumber(number, allRooms, undefined, fieldName)
 }
 
-export const validateExistingRoomNumber = (number: string, actualNumber: string, allRooms: RoomInterfaceIdMongodb[], fieldName: string = 'Room number'): string[] => {
+export const validateExistingRoomNumber = (number: string, actualNumber: string, allRooms: RoomInterfaceDTO[], fieldName: string = 'Room number'): string[] => {
     return validateRoomNumber(number, allRooms, actualNumber, fieldName)
+}
+
+export const validateRoomPrice = (price: number, fieldName: string = 'Room price'): string[] => {
+    const errorMessages: string[] = []
+
+    if (typeof price !== "number") {
+        errorMessages.push(`${fieldName} is not a number`)
+    }
+    if (price < 25) {
+        errorMessages.push(`${fieldName} must be 25$ or more`)
+    }
+    if (price > 100000) {
+        errorMessages.push(`${fieldName} must be 100 000$ or less`)
+    }
+
+    return errorMessages
+}
+
+export const validateRoomDiscount = (discount: number, fieldName: string = 'Room discount'): string[] => {
+    const errorMessages: string[] = []
+
+    if (typeof discount !== "number") {
+        errorMessages.push(`${fieldName} is not a number`)
+    }
+    if (discount < 0) {
+        errorMessages.push(`${fieldName} must be 0 or more`)
+    }
+    if (discount > 100) {
+        errorMessages.push(`${fieldName} must be 100 or less`)
+    }
+
+    return errorMessages
 }
 
 

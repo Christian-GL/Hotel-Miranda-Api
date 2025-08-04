@@ -204,7 +204,7 @@ roomRouterMongodb.post('/', async (req: Request, res: Response) => {
     const allRooms = await roomServiceMongodb.fetchAll()
     const roomValidator = new RoomValidator()
     const newRoom = { ...req.body, booking_list: [] }
-    const totalErrors = roomValidator.validateNewRoom(newRoom, allRooms)
+    const totalErrors = roomValidator.validateRoom(newRoom, allRooms)
 
     if (totalErrors.length === 0) {
         try {

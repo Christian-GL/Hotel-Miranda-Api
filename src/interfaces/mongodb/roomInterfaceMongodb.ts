@@ -6,8 +6,7 @@ import { BookingInterfaceIdMongodb } from "./bookingInterfaceMongodb"
 import { OptionYesNo } from "../../enums/optionYesNo"
 
 
-interface RoomInterfaceMongodb extends Document {
-    _id: string
+export interface RoomInterfaceDTO {
     photos: string[]
     number: string
     type: RoomType
@@ -18,10 +17,10 @@ interface RoomInterfaceMongodb extends Document {
     booking_id_list: string[]
 }
 
-export interface RoomInterfaceIdMongodb extends RoomInterfaceMongodb {
-    booking_id_list: string[]
+export interface RoomInterfaceIdMongodb extends RoomInterfaceDTO, Document {
+    _id: string
 }
 
-export interface RoomInterfaceFullDataMongodb extends RoomInterfaceMongodb {
+export interface RoomInterfaceFullDataMongodb extends Omit<RoomInterfaceDTO, 'booking_id_list'>, Document {
     booking_data_list: BookingInterfaceIdMongodb[]
 }

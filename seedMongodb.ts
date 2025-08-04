@@ -124,7 +124,7 @@ const createRoomsAndBookings = async (): Promise<void> => {
                 discount: faker.number.float({ min: 0, max: 100, fractionDigits: 2 }),
                 booking_id_list: []
             })
-            roomTotalErrors = roomValidator.validateNewRoom(
+            roomTotalErrors = roomValidator.validateRoom(
                 fakeRoom.toObject() as RoomInterfaceIdMongodb,
                 rooms as RoomInterfaceIdMongodb[]
             )
