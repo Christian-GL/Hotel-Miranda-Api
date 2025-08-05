@@ -1,9 +1,9 @@
 
 import {
     validateString, validateStringList, validateNumber,
-    validatePhotos, validateNewRoomNumber, validateRoomType,
-    validateAmenities, validateRoomPrice, validateRoomDiscount,
-    validateOptionYesNo, validateMongoDBObjectIdList
+    validatePhotos, validateNewRoomNumber, validateExistingRoomNumber,
+    validateRoomType, validateAmenities, validateRoomPrice,
+    validateRoomDiscount, validateOptionYesNo, validateMongoDBObjectIdList
 } from "./commonValidator"
 import { RoomInterfaceDTO } from "../interfaces/mongodb/roomInterfaceMongodb"
 import { RoomType } from "../enums/roomType"
@@ -46,7 +46,7 @@ export class RoomValidator {
         return errorMessages
     }
 
-    validateRoom(room: RoomInterfaceDTO, allRooms: RoomInterfaceDTO[]): string[] {
+    private validateRoom(room: RoomInterfaceDTO, allRooms: RoomInterfaceDTO[]): string[] {
         const allErrorMessages: string[] = []
 
         if (room === undefined || Object.keys(room).length === 0) {
@@ -59,9 +59,6 @@ export class RoomValidator {
         }
 
         validatePhotos(room.photos, 'Photos').map(
-            error => allErrorMessages.push(error)
-        )
-        validateNewRoomNumber(room.number, allRooms, 'Room number').map(
             error => allErrorMessages.push(error)
         )
         validateRoomType(room.type, 'Room type').map(
@@ -80,6 +77,50 @@ export class RoomValidator {
             error => allErrorMessages.push(error)
         )
         validateMongoDBObjectIdList(room.booking_id_list).map(
+            error => allErrorMessages.push(error)
+        )
+
+        return allErrorMessages
+    }
+
+    validateNewRoom(room: RoomInterfaceDTO, allRooms: RoomInterfaceDTO[]): string[] {
+        const allErrorMessages: string[] = []
+
+        if (room === undefined || Object.keys(room).length === 0) {
+            allErrorMessages.push('Room is undefined or empty')
+            return allErrorMessages
+        }
+        const errorsCheckingProperties = this.validatePropertyTypes(room)
+        if (errorsCheckingProperties.length > 0) {
+            return errorsCheckingProperties
+        }
+
+        this.validateRoom(room, allRooms).map(
+            error => allErrorMessages.push(error)
+        )
+        validateNewRoomNumber(room.number, allRooms, 'Room number').map(
+            error => allErrorMessages.push(error)
+        )
+
+        return allErrorMessages
+    }
+
+    validateExistingRoom(room: RoomInterfaceDTO, allRooms: RoomInterfaceDTO[]): string[] {
+        const allErrorMessages: string[] = []
+
+        if (room === undefined || Object.keys(room).length === 0) {
+            allErrorMessages.push('Room is undefined or empty')
+            return allErrorMessages
+        }
+        const errorsCheckingProperties = this.validatePropertyTypes(room)
+        if (errorsCheckingProperties.length > 0) {
+            return errorsCheckingProperties
+        }
+
+        this.validateRoom(room, allRooms).map(
+            error => allErrorMessages.push(error)
+        )
+        validateExistingRoomNumber(room.number, allRooms, 'Room number').map(
             error => allErrorMessages.push(error)
         )
 

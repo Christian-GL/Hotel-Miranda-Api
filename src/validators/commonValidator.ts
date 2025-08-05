@@ -289,7 +289,7 @@ export const validateNumberBetween = (price: any, minor: number, mayor: number, 
     return errorMessages
 }
 
-const validateRoomNumber = (number: any, allRooms: RoomInterfaceDTO[], actualNumber?: string, fieldName: string = 'Room number'): string[] => {
+const validateRoomNumber = (roomNumber: any, allRooms: RoomInterfaceDTO[], actualRoomNumber?: boolean, fieldName: string = 'Room number'): string[] => {
     const errorMessages: string[] = []
     const regex = new RegExp(/^\d{3}$/)
 
@@ -297,14 +297,15 @@ const validateRoomNumber = (number: any, allRooms: RoomInterfaceDTO[], actualNum
         errorMessages.push(`${fieldName}: invalid room list`)
         return errorMessages
     }
-    if (typeof number !== "string") {
+    if (typeof roomNumber !== "string") {
         errorMessages.push(`${fieldName} is not a string`)
     }
-    const numStr = String(number)
-    if (!regex.test(numStr)) {
+    const roomNumberString = String(roomNumber)
+    if (!regex.test(roomNumberString)) {
         errorMessages.push(`${fieldName} must have 3 numeric digits between 000 and 999`)
     }
-    if (allRooms.some(room => room.number === numStr && room.number !== actualNumber)) {
+    // Comprueba si el número de la habitación ha cambiado en caso de existir la habitación previamente
+    if (allRooms.some(room => room.number === roomNumberString && actualRoomNumber)) {
         errorMessages.push('Number is already taken')
     }
 
@@ -312,11 +313,11 @@ const validateRoomNumber = (number: any, allRooms: RoomInterfaceDTO[], actualNum
 }
 
 export const validateNewRoomNumber = (number: string, allRooms: RoomInterfaceDTO[], fieldName: string = 'Room number'): string[] => {
-    return validateRoomNumber(number, allRooms, undefined, fieldName)
+    return validateRoomNumber(number, allRooms, false, fieldName)
 }
 
-export const validateExistingRoomNumber = (number: string, actualNumber: string, allRooms: RoomInterfaceDTO[], fieldName: string = 'Room number'): string[] => {
-    return validateRoomNumber(number, allRooms, actualNumber, fieldName)
+export const validateExistingRoomNumber = (number: string, allRooms: RoomInterfaceDTO[], fieldName: string = 'Room number'): string[] => {
+    return validateRoomNumber(number, allRooms, true, fieldName)
 }
 
 export const validateRoomPrice = (price: number, fieldName: string = 'Room price'): string[] => {
