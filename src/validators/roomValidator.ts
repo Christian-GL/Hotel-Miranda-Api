@@ -6,11 +6,6 @@ import {
     validateRoomDiscount, validateOptionYesNo, validateMongoDBObjectIdList
 } from "./commonValidator"
 import { RoomInterfaceDTO } from "../interfaces/mongodb/roomInterfaceMongodb"
-import { RoomType } from "../enums/roomType"
-import { RoomAmenities } from "../enums/roomAmenities"
-import { BookingInterfaceIdMongodb } from "../interfaces/mongodb/bookingInterfaceMongodb"
-import { RoomInterfaceMysql } from "../interfaces/mysql/roomInterfaceMysql"
-import { BookingInterfaceMysql } from "../interfaces/mysql/bookingInterfaceMysql"
 
 
 export class RoomValidator {

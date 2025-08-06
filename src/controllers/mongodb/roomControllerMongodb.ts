@@ -5,8 +5,8 @@ import { authMiddleware } from '../../middleware/authMiddleware'
 import { RoomServiceMongodb } from '../../services/mongodb/roomServiceMongodb'
 import { BookingServiceMongodb } from '../../services/mongodb/bookingServiceMongodb'
 import { RoomValidator } from '../../validators/roomValidator'
-import { BookingInterfaceIdMongodb } from '../../interfaces/mongodb/bookingInterfaceMongodb'
-import { RoomInterfaceFullDataMongodb } from '../../interfaces/mongodb/roomInterfaceMongodb'
+import { BookingInterfaceDTO } from '../../interfaces/mongodb/bookingInterfaceMongodb'
+import { RoomInterfaceDTO } from '../../interfaces/mongodb/roomInterfaceMongodb'
 
 
 export const roomRouterMongodb = Router()
@@ -150,10 +150,10 @@ roomRouterMongodb.use(authMiddleware)
 roomRouterMongodb.get('/', async (req: Request, res: Response) => {
     try {
         const roomList = await roomServiceMongodb.fetchAll()
-        const roomListWithBookingsData: RoomInterfaceFullDataMongodb[] = []
+        const roomListWithBookingsData: RoomInterfaceDTO[] = []
 
         for (const room of roomList) {
-            const bookings: BookingInterfaceIdMongodb[] = []
+            const bookings: BookingInterfaceDTO[] = []
             for (const bookingID of room.booking_id_list) {
                 const booking = await bookingServiceMongodb.fetchById(bookingID)
                 if (booking === null) {
@@ -164,7 +164,6 @@ roomRouterMongodb.get('/', async (req: Request, res: Response) => {
             }
             roomListWithBookingsData.push({ ...room.toObject(), booking_data_list: bookings })
         }
-
         res.json(roomListWithBookingsData)
     }
     catch (error) {
@@ -181,7 +180,7 @@ roomRouterMongodb.get('/:id', async (req: Request, res: Response) => {
             return
         }
 
-        const bookings: BookingInterfaceIdMongodb[] = []
+        const bookings: BookingInterfaceDTO[] = []
         for (const bookingID of room.booking_id_list) {
             const booking = await bookingServiceMongodb.fetchById(bookingID)
             if (booking === null) {
@@ -191,7 +190,7 @@ roomRouterMongodb.get('/:id', async (req: Request, res: Response) => {
             bookings.push(booking)
         }
 
-        const roomWithBookingData: RoomInterfaceFullDataMongodb = { ...room.toObject(), booking_data_list: bookings }
+        const roomWithBookingData: RoomInterfaceDTO = { ...room.toObject(), booking_data_list: bookings }
         res.json(roomWithBookingData)
     }
     catch (error) {
@@ -247,7 +246,7 @@ roomRouterMongodb.put('/:id', async (req: Request, res: Response) => {
                 bookingDataList.push(bookingData)
             }
 
-            const roomToReturn: RoomInterfaceFullDataMongodb = { ...updatedRoom.toObject(), booking_data_list: bookingDataList }
+            const roomToReturn: RoomInterfaceDTO = { ...updatedRoom.toObject(), booking_data_list: bookingDataList }
             res.status(200).json(roomToReturn)
         }
         catch (error) {
@@ -269,7 +268,7 @@ roomRouterMongodb.delete('/:id', async (req: Request, res: Response) => {
             return
         }
 
-        const bookingsToDelete: BookingInterfaceIdMongodb[] = []
+        const bookingsToDelete: BookingInterfaceDTO[] = []
         for (const bookingId of roomToDelete.booking_id_list) {
             const booking = await bookingServiceMongodb.fetchById(bookingId)
             if (booking === null) {
