@@ -1,7 +1,7 @@
 
 import { ServiceInterfaceMongodb } from '../../interfaces/mongodb/serviceInterfaceMongodb'
 import { RoomModelMongodb } from '../../models/mongodb/roomModelMongodb'
-import { RoomInterfaceIdMongodb } from '../../interfaces/mongodb/roomInterfaceMongodb'
+import { RoomInterfaceDTO, RoomInterfaceIdMongodb } from '../../interfaces/mongodb/roomInterfaceMongodb'
 
 
 export class RoomServiceMongodb implements ServiceInterfaceMongodb<RoomInterfaceIdMongodb> {
@@ -29,7 +29,7 @@ export class RoomServiceMongodb implements ServiceInterfaceMongodb<RoomInterface
         }
     }
 
-    async create(room: RoomInterfaceIdMongodb): Promise<RoomInterfaceIdMongodb> {
+    async create(room: RoomInterfaceDTO): Promise<RoomInterfaceIdMongodb> {
         try {
             const newRoom: RoomInterfaceIdMongodb = new RoomModelMongodb(room)
             await newRoom.save()
@@ -41,7 +41,7 @@ export class RoomServiceMongodb implements ServiceInterfaceMongodb<RoomInterface
         }
     }
 
-    async update(id: string, room: RoomInterfaceIdMongodb): Promise<RoomInterfaceIdMongodb | null> {
+    async update(id: string, room: RoomInterfaceDTO): Promise<RoomInterfaceIdMongodb | null> {
         try {
             const existingRoom: RoomInterfaceIdMongodb | null = await this.fetchById(id)
             if (existingRoom == null) return null
