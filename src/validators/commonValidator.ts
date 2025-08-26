@@ -63,7 +63,7 @@ export const validateDate = (date: any, fieldName: string = 'Date field'): strin
 
 
 /* COMMON VALIDATORS */
-export const validatePhotos = (photos: any[], fieldName: string = 'Photo'): string[] => {
+export const validatePhotos = (photos: any[], fieldName: string = 'Photos'): string[] => {
     const errorMessages: string[] = []
     // const regex = /\.(png|jpe?g)$/i
 
@@ -79,8 +79,8 @@ export const validatePhotos = (photos: any[], fieldName: string = 'Photo'): stri
     if (photos[0] === undefined) {
         errorMessages.push(`Main ${fieldName} need to be set`)
     }
-    if (photos.length < 3) {
-        errorMessages.push(`${fieldName}s need to be at least 3`)
+    if (photos.length < 2) {
+        errorMessages.push(`${fieldName} need to be at least 3`)
     }
 
     return errorMessages
