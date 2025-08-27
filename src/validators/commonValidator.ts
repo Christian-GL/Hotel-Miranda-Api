@@ -1,5 +1,5 @@
 
-import { BookingInterfaceIdMongodb } from "../interfaces/mongodb/bookingInterfaceMongodb"
+import { BookingInterfaceDTO, BookingInterfaceIdMongodb } from "../interfaces/mongodb/bookingInterfaceMongodb"
 import { RoomInterfaceDTO } from "../interfaces/mongodb/roomInterfaceMongodb"
 import { RoomType } from "../enums/roomType"
 import { Role } from "../enums/role"
@@ -246,13 +246,13 @@ export const validateCheckInCheckOut = (checkIn: Date, checkOut: Date): string[]
     return errorMessages
 }
 
-export const validateDateIsOccupied = (booking: BookingInterfaceIdMongodb, bookings: BookingInterfaceIdMongodb[]): string[] => {
+export const validateDateIsOccupied = (booking: BookingInterfaceDTO, bookings: BookingInterfaceDTO[]): string[] => {
     const errorMessages: string[] = []
 
     for (let i = 0; i < bookings.length; i++) {
         if (new Date(booking.check_in_date) < new Date(bookings[i].check_out_date) &&
             new Date(booking.check_out_date) > new Date(bookings[i].check_in_date)) {
-            errorMessages.push(`This period is already occupied by booking #${bookings[i]._id}`)
+            errorMessages.push(`This period is already occupied`)
         }
     }
     return errorMessages

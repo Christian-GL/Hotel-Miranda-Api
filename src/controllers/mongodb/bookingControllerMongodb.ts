@@ -192,7 +192,7 @@ bookingRouterMongodb.post('/', async (req: Request, res: Response) => {
     const allBookings = await bookingServiceMongodb.fetchAll()
     const allRooms = await roomServiceMongodb.fetchAll()
     const bookingValidator = new BookingValidator()
-    const totalErrors = bookingValidator.validateBooking(req.body, allBookings, allRooms)
+    const totalErrors = bookingValidator.validateNewBooking(req.body, allBookings, allRooms)
 
     if (totalErrors.length === 0) {
         try {
@@ -231,7 +231,7 @@ bookingRouterMongodb.put('/:id', async (req: Request, res: Response) => {
     const bookingValidator = new BookingValidator()
     const allBookings = await bookingServiceMongodb.fetchAll()
     const allRooms = await roomServiceMongodb.fetchAll()
-    const totalErrors = bookingValidator.validateBooking(req.body, allBookings, allRooms)
+    const totalErrors = bookingValidator.validateExistingBooking(req.body, allBookings, allRooms)
 
     if (totalErrors.length === 0) {
         try {
