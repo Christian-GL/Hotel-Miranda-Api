@@ -18,6 +18,10 @@ const BookingSchemaMongodb = new Schema<BookingInterfaceIdMongodb>
             type: Date,
             required: true
         },
+        price: {
+            type: Number,
+            required: true
+        },
         special_request: {
             type: String,
             required: true

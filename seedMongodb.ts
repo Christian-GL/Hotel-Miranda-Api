@@ -4,7 +4,7 @@ import { connectMongodbDB } from './src/utils/databaseMongodb'
 import { hashPassword } from './src/utils/hashPassword'
 
 import { BookingInterfaceIdMongodb } from './src/interfaces/mongodb/bookingInterfaceMongodb'
-import { RoomInterfaceIdMongodb } from './src/interfaces/mongodb/roomInterfaceMongodb'
+import { RoomInterfaceDTO, RoomInterfaceIdMongodb } from './src/interfaces/mongodb/roomInterfaceMongodb'
 import { ClientInterfaceIdMongodb } from './src/interfaces/mongodb/clientInterfaceMongodb'
 import { UserInterfaceIdMongodb } from './src/interfaces/mongodb/userInterfaceMongodb'
 import { BookingModelMongodb } from './src/models/mongodb/bookingModelMongodb'
@@ -142,6 +142,48 @@ const createRoomsOnly = async (): Promise<void> => {
     }
 }
 
+const createBookingsOnly = async (): Promise<void> => {
+    await connectMongodbDB()
+    try {
+        const bookings = []
+        const bookingValidator = new BookingValidator()
+        let totalErrors
+        const allRooms: RoomInterfaceDTO[] = []    // temporal
+        for (let i = 0; i < 5; i++) {
+            const check_in_date = faker.date.future({ years: faker.number.float({ min: 0.2, max: 2 }) })
+            const fakeBooking = new BookingModelMongodb({
+                order_date: faker.date.recent({ days: 30 }).toISOString(),
+                check_in_date: check_in_date.toISOString(),
+                check_out_date: faker.date.future({ years: faker.number.float({ min: 0.1, max: 2 }), refDate: check_in_date }).toISOString(),
+                price: faker.number.float({ min: 25, max: 10000, fractionDigits: 2 }),
+                special_request: faker.lorem.sentence(faker.number.int({ min: 10, max: 40 })),
+                isArchived: faker.helpers.arrayElement(Object.values(OptionYesNo)) as OptionYesNo,
+                room_id_list: [],
+                client_id: 0
+            })
+            totalErrors = bookingValidator.validateNewBooking(
+                fakeBooking.toObject() as BookingInterfaceIdMongodb,
+                bookings as BookingInterfaceIdMongodb[],
+                allRooms
+            )
+            if (totalErrors.length === 0) {
+                bookings.push(fakeBooking)
+            }
+            else {
+                console.error(`Validación fallida en el fakeBooking #${i}: ${totalErrors.join(', ')}`)
+                continue
+            }
+        }
+        console.log(`Bookings válidas: ${bookings}`)
+        await BookingModelMongodb.insertMany(bookings)
+    }
+    catch (error) {
+        console.error('Error creating bookings with faker', error)
+        throw error
+    }
+}
+
+// ( Vieja versión V2 )
 const createRoomsAndBookings = async (): Promise<void> => {
     await connectMongodbDB()
     try {
@@ -222,7 +264,8 @@ const createRoomsAndBookings = async (): Promise<void> => {
 const main = async () => {
     // await createUsers()
     // await createClientsNoBookings()
-    await createRoomsOnly()
+    // await createRoomsOnly()
+    await createBookingsOnly()
     // await createRoomsAndBookings()
 }
 
