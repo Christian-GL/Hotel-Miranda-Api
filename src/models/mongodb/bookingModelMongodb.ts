@@ -27,8 +27,8 @@ const BookingSchemaMongodb = new Schema<BookingInterfaceIdMongodb>
             required: true,
             enum: Object.values(OptionYesNo)
         },
-        room_id: {
-            type: String,
+        room_id_list: {
+            type: [String],
             required: true
         },
         client_id: {

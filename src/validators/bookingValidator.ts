@@ -2,7 +2,9 @@
 import {
     validateDate, validateString, validateNumber,
     validateOptionYesNo, validateCheckInCheckOut, validateDateIsOccupied,
-    validateDateIsOccupiedIfBookingExists
+    validateDateIsOccupiedIfBookingExists,
+    validateRoomPrice,
+    validateTextArea
 } from "./commonValidator"
 import { BookingInterfaceDTO } from "../interfaces/mongodb/bookingInterfaceMongodb"
 import { RoomInterfaceDTO, RoomInterfaceIdMongodb } from "../interfaces/mongodb/roomInterfaceMongodb"
@@ -31,7 +33,7 @@ export class BookingValidator {
         validateOptionYesNo(booking.isArchived, 'isArchived').map(
             error => errorMessages.push(error)
         )
-        validateString(booking.room_id, 'room_id').map(
+        validateString(booking.room_id_list, 'room_id').map(
             error => errorMessages.push(error)
         )
         validateString(booking.client_id, 'client_id').map(
@@ -53,8 +55,12 @@ export class BookingValidator {
             return errorsCheckingProperties
         }
 
-        // Mas validaciones (...)
-        
+        validateTextArea(booking.special_request, 'Booking special request').map(
+            error => allErrorMessages.push(error)
+        )
+        validateOptionYesNo(booking.isArchived, 'Room isActive').map(
+            error => allErrorMessages.push(error)
+        )
         validateCheckInCheckOut(booking.check_in_date, booking.check_out_date).map(
             error => allErrorMessages.push(error)
         )

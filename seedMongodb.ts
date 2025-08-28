@@ -116,7 +116,7 @@ const createRoomsOnly = async (): Promise<void> => {
                 number: String(faker.number.int({ min: 0, max: 999 })).padStart(3, '0'),
                 type: faker.helpers.arrayElement(Object.values(RoomType)) as RoomType,
                 amenities: faker.helpers.arrayElements(Object.values(RoomAmenities), faker.number.int({ min: 1, max: Math.max(1, Object.values(RoomAmenities).length) })) as RoomAmenities[],
-                price: faker.number.float({ min: 25, max: 100000, fractionDigits: 2 }),
+                price: faker.number.float({ min: 25, max: 10000, fractionDigits: 2 }),
                 discount: faker.number.float({ min: 0, max: 100, fractionDigits: 2 }),
                 isActive: faker.helpers.arrayElement(Object.values(OptionYesNo)) as OptionYesNo,
                 booking_id_list: []
@@ -158,7 +158,7 @@ const createRoomsAndBookings = async (): Promise<void> => {
                 number: faker.number.int({ min: 0, max: 999 }).toString().padStart(3, "0"),
                 type: faker.helpers.arrayElement(Object.values(RoomType)),
                 amenities: faker.helpers.arrayElements(Object.values(RoomAmenities), faker.number.int({ min: 3, max: 10 })),
-                price: faker.number.float({ min: 25, max: 100000, fractionDigits: 2 }),
+                price: faker.number.float({ min: 25, max: 10000, fractionDigits: 2 }),
                 discount: faker.number.float({ min: 0, max: 100, fractionDigits: 2 }),
                 booking_id_list: []
             })
@@ -187,7 +187,7 @@ const createRoomsAndBookings = async (): Promise<void> => {
                 special_request: faker.lorem.sentence(faker.number.int({ min: 10, max: 40 })),
                 room_id: selectedRoom._id.toString()
             })
-            bookingTotalErrors = bookingValidator.validateBooking(
+            bookingTotalErrors = bookingValidator.validateNewBooking(
                 fakeBooking.toObject() as BookingInterfaceIdMongodb,
                 bookings as BookingInterfaceIdMongodb[],
                 rooms as RoomInterfaceIdMongodb[]

@@ -30,6 +30,19 @@ export const validateStringList = (list: any[], fieldName: string = 'String list
     return errorMessages
 }
 
+export const validateTextArea = (textArea: any, fieldName: string = 'Text area'): string[] => {
+    const errorMessages: string[] = []
+
+    if (typeof textArea !== "string") {
+        errorMessages.push(`${fieldName} is not a String`)
+    }
+    if (textArea.length < 10 || textArea.length > 500) {
+        errorMessages.push(`${fieldName} length must be between 10 and 500 characters`)
+    }
+
+    return errorMessages
+}
+
 export const validateNumber = (str: any, fieldName: string = 'Number field'): string[] => {
     const errorMessages: string[] = []
 
@@ -129,19 +142,6 @@ export const validateEmail = (email: any, fieldName: string = 'Email'): string[]
     }
     if (!regex.test(email)) {
         errorMessages.push(`${fieldName} format no valid`)
-    }
-
-    return errorMessages
-}
-
-export const validateTextArea = (textArea: any, fieldName: string = 'Text area'): string[] => {
-    const errorMessages: string[] = []
-
-    if (typeof textArea !== "string") {
-        errorMessages.push(`${fieldName} is not a String`)
-    }
-    if (textArea.length < 10 || textArea.length > 500) {
-        errorMessages.push(`${fieldName} length must be between 10 and 500 characters`)
     }
 
     return errorMessages
@@ -329,8 +329,8 @@ export const validateRoomPrice = (price: number, fieldName: string = 'Room price
     if (price < 25) {
         errorMessages.push(`${fieldName} must be 25$ or more`)
     }
-    if (price > 100000) {
-        errorMessages.push(`${fieldName} must be 100 000$ or less`)
+    if (price > 10000) {
+        errorMessages.push(`${fieldName} must be 10 000$ or less`)
     }
 
     return errorMessages

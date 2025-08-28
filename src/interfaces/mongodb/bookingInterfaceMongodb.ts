@@ -12,7 +12,7 @@ export interface BookingInterfaceDTO {
     price: number
     special_request: string
     isArchived: OptionYesNo
-    room_id: string
+    room_id_list: string[]
     client_id: string
 }
 
@@ -21,6 +21,6 @@ export interface BookingInterfaceIdMongodb extends BookingInterfaceDTO, Document
 }
 
 export interface BookingInterfaceIdFullDataMongodb extends Omit<BookingInterfaceIdMongodb, 'room_id' | 'client_id'> {
-    room_data: RoomInterfaceIdMongodb
+    room_data_list: RoomInterfaceIdMongodb[]
     client_data: ClientInterfaceIdMongodb
 }
