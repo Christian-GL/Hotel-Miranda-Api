@@ -1,7 +1,7 @@
 
 import { ServiceInterfaceMongodb } from '../../interfaces/mongodb/serviceInterfaceMongodb'
 import { BookingModelMongodb } from '../../models/mongodb/bookingModelMongodb'
-import { BookingInterfaceIdMongodb } from '../../interfaces/mongodb/bookingInterfaceMongodb'
+import { BookingInterfaceDTO, BookingInterfaceIdMongodb } from '../../interfaces/mongodb/bookingInterfaceMongodb'
 
 
 export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInterfaceIdMongodb> {
@@ -29,7 +29,7 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
         }
     }
 
-    async create(booking: BookingInterfaceIdMongodb): Promise<BookingInterfaceIdMongodb> {
+    async create(booking: BookingInterfaceDTO): Promise<BookingInterfaceIdMongodb> {
         try {
             const newBooking: BookingInterfaceIdMongodb = new BookingModelMongodb(booking)
             await newBooking.save()
@@ -41,7 +41,7 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
         }
     }
 
-    async update(id: string, booking: BookingInterfaceIdMongodb): Promise<BookingInterfaceIdMongodb | null> {
+    async update(id: string, booking: BookingInterfaceDTO): Promise<BookingInterfaceIdMongodb | null> {
         try {
             const existingBooking: BookingInterfaceIdMongodb | null = await this.fetchById(id)
             if (existingBooking == null) return null
