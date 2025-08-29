@@ -7,7 +7,7 @@ import {
     validateTextArea,
     validateStringList
 } from "./commonValidator"
-import { BookingInterfaceDTO } from "../interfaces/mongodb/bookingInterfaceMongodb"
+import { BookingInterfaceDTO, BookingInterfaceId, BookingInterfaceIdMongodb } from "../interfaces/mongodb/bookingInterfaceMongodb"
 import { RoomInterfaceDTO, RoomInterfaceIdMongodb } from "../interfaces/mongodb/roomInterfaceMongodb"
 
 
@@ -44,7 +44,7 @@ export class BookingValidator {
         return errorMessages
     }
 
-    private validateBooking(booking: BookingInterfaceDTO, allBookings: BookingInterfaceDTO[], allRooms: RoomInterfaceDTO[]): string[] {
+    private validateBooking(booking: BookingInterfaceDTO | BookingInterfaceId, allBookings: BookingInterfaceDTO[] | BookingInterfaceId[], allRooms: RoomInterfaceDTO[]): string[] {
         const allErrorMessages: string[] = []
 
         if (booking === undefined || Object.keys(booking).length === 0) {
@@ -91,7 +91,7 @@ export class BookingValidator {
         return allErrorMessages
     }
 
-    validateExistingBooking(booking: BookingInterfaceDTO, allBookings: BookingInterfaceDTO[], allRooms: RoomInterfaceDTO[]): string[] {
+    validateExistingBooking(booking: BookingInterfaceId, allBookings: BookingInterfaceIdMongodb[], allRooms: RoomInterfaceDTO[]): string[] {
         const allErrorMessages: string[] = []
 
         if (booking === undefined || Object.keys(booking).length === 0) {
@@ -106,9 +106,9 @@ export class BookingValidator {
         this.validateBooking(booking, allBookings, allRooms).map(
             error => allErrorMessages.push(error)
         )
-        // validateDateIsOccupiedIfBookingExists(booking, allBookings).map(
-        //     error => allErrorMessages.push(error)
-        // )
+        validateDateIsOccupiedIfBookingExists(booking, allBookings).map(
+            error => allErrorMessages.push(error)
+        )
 
         return allErrorMessages
     }

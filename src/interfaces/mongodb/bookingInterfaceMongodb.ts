@@ -16,6 +16,10 @@ export interface BookingInterfaceDTO {
     client_id: string
 }
 
+export interface BookingInterfaceId extends BookingInterfaceDTO {
+    _id: string
+}
+
 export interface BookingInterfaceIdMongodb extends BookingInterfaceDTO, Document {
     _id: string
 }

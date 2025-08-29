@@ -4,7 +4,7 @@ import Router from 'express'
 import { authMiddleware } from '../../middleware/authMiddleware'
 import { BookingServiceMongodb } from '../../services/mongodb/bookingServiceMongodb'
 import { BookingValidator } from '../../validators/bookingValidator'
-import { BookingInterfaceDTO } from '../../interfaces/mongodb/bookingInterfaceMongodb'
+import { BookingInterfaceDTO, BookingInterfaceId } from '../../interfaces/mongodb/bookingInterfaceMongodb'
 import { RoomInterfaceDTO } from '../../interfaces/mongodb/roomInterfaceMongodb'
 
 
@@ -170,9 +170,9 @@ bookingRouterMongodb.post('/', async (req: Request, res: Response) => {
 
     const allBookings = await bookingServiceMongodb.fetchAll()
     const bookingToValidate: BookingInterfaceDTO = {
-        order_date: req.body.order_date,
-        check_in_date: req.body.check_in_date,
-        check_out_date: req.body.check_out_date,
+        order_date: new Date(req.body.order_date),
+        check_in_date: new Date(req.body.check_in_date),
+        check_out_date: new Date(req.body.check_out_date),
         price: req.body.price,
         special_request: req.body.special_request,
         isArchived: req.body.isArchived,
@@ -202,10 +202,11 @@ bookingRouterMongodb.post('/', async (req: Request, res: Response) => {
 bookingRouterMongodb.put('/:id', async (req: Request, res: Response) => {
 
     const allBookings = await bookingServiceMongodb.fetchAll()
-    const bookingToValidate: BookingInterfaceDTO = {
-        order_date: req.body.order_date,
-        check_in_date: req.body.check_in_date,
-        check_out_date: req.body.check_out_date,
+    const bookingToValidate: BookingInterfaceId = {
+        _id: req.params.id,
+        order_date: new Date(req.body.order_date),
+        check_in_date: new Date(req.body.check_in_date),
+        check_out_date: new Date(req.body.check_out_date),
         price: req.body.price,
         special_request: req.body.special_request,
         isArchived: req.body.isArchived,
@@ -214,7 +215,7 @@ bookingRouterMongodb.put('/:id', async (req: Request, res: Response) => {
     }
     const bookingValidator = new BookingValidator()
     const allRooms: RoomInterfaceDTO[] = []     // temporal
-    const totalErrors = bookingValidator.validateNewBooking(bookingToValidate, allBookings, allRooms)
+    const totalErrors = bookingValidator.validateExistingBooking(bookingToValidate, allBookings, allRooms)
     if (totalErrors.length === 0) {
         try {
             const updatedBooking = await bookingServiceMongodb.update(req.params.id, bookingToValidate)
