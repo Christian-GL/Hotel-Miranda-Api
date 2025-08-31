@@ -2,7 +2,8 @@
 import {
     validateString, validateStringList,
     validateFullName, validateEmail, validatePhoneNumber,
-    validateOptionYesNo, validateMongoDBObjectIdList
+    validateOptionYesNo, validateMongoDBObjectIdList,
+    validateExistingListItemsInAnotherList
 } from "./commonValidator"
 import { ClientInterfaceDTO } from "../interfaces/mongodb/clientInterfaceMongodb"
 
@@ -31,7 +32,7 @@ export class ClientValidator {
         return errorMessages
     }
 
-    validateClient(client: ClientInterfaceDTO): string[] {
+    validateClient(client: ClientInterfaceDTO, bookingIdList: string[]): string[] {
         const allErrorMessages: string[] = []
 
         const errorsCheckingProperties = this.validatePropertyTypes(client)
@@ -48,10 +49,17 @@ export class ClientValidator {
         validatePhoneNumber(client.phone_number, 'Phone Number').map(
             error => allErrorMessages.push(error)
         )
-        validateOptionYesNo(client.isArchived).map(
+        validateOptionYesNo(client.isArchived, 'isArchived').map(
             error => allErrorMessages.push(error)
         )
-        validateMongoDBObjectIdList(client.booking_id_list).map(
+        validateMongoDBObjectIdList(client.booking_id_list, 'Client Booking ID List').map(
+            error => allErrorMessages.push(error)
+        )
+
+        validateMongoDBObjectIdList(bookingIdList, 'Storaged Booking ID List').map(
+            error => allErrorMessages.push(error)
+        )
+        validateExistingListItemsInAnotherList(client.booking_id_list, bookingIdList, 'Storaged Booking ID List').map(
             error => allErrorMessages.push(error)
         )
 

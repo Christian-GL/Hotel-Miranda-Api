@@ -352,6 +352,27 @@ export const validateRoomDiscount = (discount: number, fieldName: string = 'Room
     return errorMessages
 }
 
+export const validateExistingListItemsInAnotherList = (list1: string[], list2: string[] = [], fieldName: string = 'List 2'): string[] => {
+    const errorMessages: string[] = []
+
+    if (list1.length === 0) return errorMessages
+    const referenceSet = new Set(list2)
+    const seen = new Set<string>()
+
+    for (let i = 0; i < list1.length; i++) {
+        const item = list1[i]
+
+        if (seen.has(item)) continue
+        seen.add(item)
+
+        if (!referenceSet.has(item)) {
+            errorMessages.push(`${item} didnt exist in ${fieldName}`)
+        }
+    }
+
+    return errorMessages
+}
+
 
 /* ENUM VALIDATORS */
 export const validateRoomType = (type: any, fieldName: string = 'Room type'): string[] => {

@@ -5,10 +5,12 @@ import { authMiddleware } from '../../middleware/authMiddleware'
 import { ClientInterfaceDTO } from '../../interfaces/mongodb/clientInterfaceMongodb'
 import { ClientServiceMongodb } from '../../services/mongodb/clientServiceMongodb'
 import { ClientValidator } from '../../validators/clientValidator'
+import { BookingServiceMongodb } from '../../services/mongodb/bookingServiceMongodb'
 
 
 export const clientRouterMongodb = Router()
 const clientServiceMongodb = new ClientServiceMongodb()
+const bookingServiceMongodb = new BookingServiceMongodb()
 
 clientRouterMongodb.use(authMiddleware)
 
@@ -167,8 +169,10 @@ clientRouterMongodb.post('/', async (req: Request, res: Response) => {
         isArchived: req.body.isArchived,
         booking_id_list: req.body.booking_id_list
     }
+    const bookingList = await bookingServiceMongodb.fetchAll()
+    const bookingIdList = bookingList.map(booking => booking._id.toString())
     const clientValidator = new ClientValidator()
-    const totalErrors = clientValidator.validateClient(clientToValidate)
+    const totalErrors = clientValidator.validateClient(clientToValidate, bookingIdList)
     if (totalErrors.length === 0) {
         try {
             const newClient = await clientServiceMongodb.create(clientToValidate)
@@ -195,8 +199,10 @@ clientRouterMongodb.put('/:id', async (req: Request, res: Response) => {
         isArchived: req.body.isArchived,
         booking_id_list: req.body.booking_id_list
     }
+    const bookingList = await bookingServiceMongodb.fetchAll()
+    const bookingIdList = bookingList.map(booking => booking._id.toString())
     const clientValidator = new ClientValidator()
-    const totalErrors = clientValidator.validateClient(clientToValidate)
+    const totalErrors = clientValidator.validateClient(clientToValidate, bookingIdList)
     if (totalErrors.length === 0) {
         try {
             const updatedClient = await clientServiceMongodb.update(req.params.id, clientToValidate)
