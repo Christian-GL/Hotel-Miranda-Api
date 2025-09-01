@@ -76,10 +76,6 @@ export class BookingValidator {
             allErrorMessages.push('Booking is undefined or empty')
             return allErrorMessages
         }
-        const errorsCheckingProperties = this.validatePropertyTypes(booking)
-        if (errorsCheckingProperties.length > 0) {
-            return errorsCheckingProperties
-        }
 
         this.validateBooking(booking, allBookings, allRooms).map(
             error => allErrorMessages.push(error)
@@ -97,10 +93,6 @@ export class BookingValidator {
         if (booking === undefined || Object.keys(booking).length === 0) {
             allErrorMessages.push('Booking is undefined or empty')
             return allErrorMessages
-        }
-        const errorsCheckingProperties = this.validatePropertyTypes(booking)
-        if (errorsCheckingProperties.length > 0) {
-            return errorsCheckingProperties
         }
 
         this.validateBooking(booking, allBookings, allRooms).map(

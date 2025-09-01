@@ -85,10 +85,6 @@ export class RoomValidator {
             allErrorMessages.push('Room is undefined or empty')
             return allErrorMessages
         }
-        const errorsCheckingProperties = this.validatePropertyTypes(room)
-        if (errorsCheckingProperties.length > 0) {
-            return errorsCheckingProperties
-        }
 
         this.validateRoom(room, allRooms).map(
             error => allErrorMessages.push(error)
@@ -106,10 +102,6 @@ export class RoomValidator {
         if (room === undefined || Object.keys(room).length === 0) {
             allErrorMessages.push('Room is undefined or empty')
             return allErrorMessages
-        }
-        const errorsCheckingProperties = this.validatePropertyTypes(room)
-        if (errorsCheckingProperties.length > 0) {
-            return errorsCheckingProperties
         }
 
         this.validateRoom(room, allRooms).map(

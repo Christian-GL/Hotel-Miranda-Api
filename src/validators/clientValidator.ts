@@ -12,7 +12,7 @@ export class ClientValidator {
 
     validatePropertyTypes(client: ClientInterfaceDTO): string[] {
         const errorMessages: string[] = []
-        
+
         validateString(client.full_name, 'full_name').map(
             error => errorMessages.push(error)
         )
@@ -32,7 +32,7 @@ export class ClientValidator {
         return errorMessages
     }
 
-    validateClient(client: ClientInterfaceDTO, bookingIdList: string[]): string[] {
+    private validateClient(client: ClientInterfaceDTO): string[] {
         const allErrorMessages: string[] = []
 
         const errorsCheckingProperties = this.validatePropertyTypes(client)
@@ -56,9 +56,44 @@ export class ClientValidator {
             error => allErrorMessages.push(error)
         )
 
+        return allErrorMessages
+    }
+
+    validateNewClient(client: ClientInterfaceDTO): string[] {
+        const allErrorMessages: string[] = []
+
+        if (client === undefined || Object.keys(client).length === 0) {
+            allErrorMessages.push('Client is undefined or empty')
+            return allErrorMessages
+        }
+
+        this.validateClient(client).map(
+            error => allErrorMessages.push(error)
+        )
+
+        return allErrorMessages
+    }
+
+    validateExistingClient(client: ClientInterfaceDTO, bookingIdList: string[]): string[] {
+        const allErrorMessages: string[] = []
+
+        if (client === undefined || Object.keys(client).length === 0) {
+            allErrorMessages.push('Client is undefined or empty')
+            return allErrorMessages
+        }
+        const errorsCheckingProperties = this.validatePropertyTypes(client)
+        if (errorsCheckingProperties.length > 0) {
+            return errorsCheckingProperties
+        }
+
+
+        this.validateClient(client).map(
+            error => allErrorMessages.push(error)
+        )
         validateMongoDBObjectIdList(bookingIdList, 'Storaged Booking ID List').map(
             error => allErrorMessages.push(error)
         )
+        // Se valida que las reservas existan:
         validateExistingListItemsInAnotherList(client.booking_id_list, bookingIdList, 'Storaged Booking ID List').map(
             error => allErrorMessages.push(error)
         )

@@ -167,12 +167,10 @@ clientRouterMongodb.post('/', async (req: Request, res: Response) => {
         email: req.body.email,
         phone_number: req.body.phone_number,
         isArchived: req.body.isArchived,
-        booking_id_list: req.body.booking_id_list
+        booking_id_list: []
     }
-    const bookingList = await bookingServiceMongodb.fetchAll()
-    const bookingIdList = bookingList.map(booking => booking._id.toString())
     const clientValidator = new ClientValidator()
-    const totalErrors = clientValidator.validateClient(clientToValidate, bookingIdList)
+    const totalErrors = clientValidator.validateNewClient(clientToValidate)
     if (totalErrors.length === 0) {
         try {
             const newClient = await clientServiceMongodb.create(clientToValidate)
@@ -202,7 +200,7 @@ clientRouterMongodb.put('/:id', async (req: Request, res: Response) => {
     const bookingList = await bookingServiceMongodb.fetchAll()
     const bookingIdList = bookingList.map(booking => booking._id.toString())
     const clientValidator = new ClientValidator()
-    const totalErrors = clientValidator.validateClient(clientToValidate, bookingIdList)
+    const totalErrors = clientValidator.validateExistingClient(clientToValidate, bookingIdList)
     if (totalErrors.length === 0) {
         try {
             const updatedClient = await clientServiceMongodb.update(req.params.id, clientToValidate)
