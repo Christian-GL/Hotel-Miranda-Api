@@ -181,7 +181,7 @@ roomRouterMongodb.post('/', async (req: Request, res: Response) => {
         price: req.body.price,
         discount: req.body.discount,
         isActive: req.body.isActive,
-        booking_id_list: req.body.booking_id_list
+        booking_id_list: []
     }
     const roomValidator = new RoomValidator()
     const totalErrors = roomValidator.validateNewRoom(roomToValidate, allRooms)

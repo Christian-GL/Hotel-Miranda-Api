@@ -41,7 +41,7 @@ export class RoomValidator {
         return errorMessages
     }
 
-    private validateRoom(room: RoomInterfaceDTO, allRooms: RoomInterfaceDTO[]): string[] {
+    private validateRoom(room: RoomInterfaceDTO): string[] {
         const allErrorMessages: string[] = []
 
         if (room === undefined || Object.keys(room).length === 0) {
@@ -86,7 +86,7 @@ export class RoomValidator {
             return allErrorMessages
         }
 
-        this.validateRoom(room, allRooms).map(
+        this.validateRoom(room).map(
             error => allErrorMessages.push(error)
         )
         validateNewRoomNumber(room.number, allRooms, 'Room number').map(
@@ -104,7 +104,7 @@ export class RoomValidator {
             return allErrorMessages
         }
 
-        this.validateRoom(room, allRooms).map(
+        this.validateRoom(room).map(
             error => allErrorMessages.push(error)
         )
         validateExistingRoomNumber(room.number, allRooms, 'Room number').map(
