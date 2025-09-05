@@ -2,6 +2,7 @@
 import { Request, Response } from 'express'
 import Router from 'express'
 import { authMiddleware } from '../../middleware/authMiddleware'
+import { adminOnly } from '../../middleware/adminOnly'
 import { ClientInterfaceDTO } from '../../interfaces/mongodb/clientInterfaceMongodb'
 import { ClientServiceMongodb } from '../../services/mongodb/clientServiceMongodb'
 import { ClientValidator } from '../../validators/clientValidator'
@@ -221,12 +222,13 @@ clientRouterMongodb.put('/:id', async (req: Request, res: Response) => {
     }
 })
 
-clientRouterMongodb.delete('/:id', async (req: Request, res: Response) => {
+clientRouterMongodb.delete('/:id', adminOnly, async (req: Request, res: Response) => {
     try {
         const deletedClient = await clientServiceMongodb.delete(req.params.id)
         if (deletedClient) {
             res.status(204).json()
-        } else {
+        }
+        else {
             res.status(404).json({ message: `Client #${req.params.id} not found` })
         }
     }

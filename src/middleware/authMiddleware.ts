@@ -1,27 +1,24 @@
 
 import { Request, Response, NextFunction } from 'express'
-import jwt, { JwtPayload } from 'jsonwebtoken'
-
-interface DecodedUser extends JwtPayload {
-    id: string
-    role: string
-}
+import jwt from 'jsonwebtoken'
+import { DecodedUser } from '../interfaces/common/decodedUser'
 
 
 export const authMiddleware = (req: Request, res: Response, next: NextFunction): void => {
-    const token = req.headers['authorization']?.split(' ')[1]
+    const authHeader = req.headers['authorization']
+    const token = typeof authHeader === 'string' ? authHeader.split(' ')[1] : undefined
 
     if (!token) {
-        res.status(403).json({ message: 'Access denied. Token is required' })
+        res.status(401).json({ message: 'Access denied. Token is required' })
         return
     }
 
     try {
-        const decoded = jwt.verify(token, process.env.TOKEN_SECRET as string) as DecodedUser
-        (req as any).user = decoded
+        const decoded = jwt.verify(token, process.env.TOKEN_SECRET as string) as DecodedUser; (req as any).user = decoded
         next()
     }
-    catch (error) {
-        res.status(403).json({ message: 'Invalid token' })
+    catch (err) {
+        res.status(401).json({ message: 'Invalid or expired token' })
+        return
     }
 }
