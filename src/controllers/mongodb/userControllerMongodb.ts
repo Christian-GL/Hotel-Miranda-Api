@@ -2,6 +2,7 @@
 import { Request, Response } from 'express'
 import Router from 'express'
 import { authMiddleware } from '../../middleware/authMiddleware'
+import { adminOnly } from '../../middleware/adminOnly'
 import { UserInterfaceDTO } from '../../interfaces/mongodb/userInterfaceMongodb'
 import { UserModelMongodb } from '../../models/mongodb/userModelMongodb'
 import { UserServiceMongodb } from '../../services/mongodb/userServiceMongodb'
@@ -237,7 +238,7 @@ userRouterMongodb.put('/:id', async (req: Request, res: Response) => {
     }
 })
 
-userRouterMongodb.delete('/:id', async (req: Request, res: Response) => {
+userRouterMongodb.delete('/:id', adminOnly, async (req: Request, res: Response) => {
     try {
         const deletedUser = await userServiceMongodb.delete(req.params.id)
         if (deletedUser) {

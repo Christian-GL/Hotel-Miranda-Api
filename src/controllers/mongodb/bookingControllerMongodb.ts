@@ -2,6 +2,7 @@
 import { Request, Response } from 'express'
 import Router from 'express'
 import { authMiddleware } from '../../middleware/authMiddleware'
+import { adminOnly } from '../../middleware/adminOnly'
 import { BookingServiceMongodb } from '../../services/mongodb/bookingServiceMongodb'
 import { BookingValidator } from '../../validators/bookingValidator'
 import { BookingInterfaceDTO, BookingInterfaceId } from '../../interfaces/mongodb/bookingInterfaceMongodb'
@@ -236,7 +237,7 @@ bookingRouterMongodb.put('/:id', async (req: Request, res: Response) => {
     }
 })
 
-bookingRouterMongodb.delete('/:id', async (req: Request, res: Response) => {
+bookingRouterMongodb.delete('/:id', adminOnly, async (req: Request, res: Response) => {
     try {
         const deletedBooking = await bookingServiceMongodb.delete(req.params.id)
         if (deletedBooking) {

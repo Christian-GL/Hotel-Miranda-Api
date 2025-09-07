@@ -2,6 +2,7 @@
 import { Request, Response } from 'express'
 import Router from 'express'
 import { authMiddleware } from '../../middleware/authMiddleware'
+import { adminOnly } from '../../middleware/adminOnly'
 import { RoomServiceMongodb } from '../../services/mongodb/roomServiceMongodb'
 import { RoomValidator } from '../../validators/roomValidator'
 import { RoomInterfaceDTO } from '../../interfaces/mongodb/roomInterfaceMongodb'
@@ -237,7 +238,7 @@ roomRouterMongodb.put('/:id', async (req: Request, res: Response) => {
     }
 })
 
-roomRouterMongodb.delete('/:id', async (req: Request, res: Response) => {
+roomRouterMongodb.delete('/:id', adminOnly, async (req: Request, res: Response) => {
     try {
         const deletedRoom = await roomServiceMongodb.delete(req.params.id)
         if (deletedRoom) {
