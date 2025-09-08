@@ -1,9 +1,8 @@
 
 import {
-    validateString, validateDate,
-    validatePhoto, validateFullName, validateEmail,
-    validatePhoneNumber, validateDateRelativeToAnother,
-    validateTextArea, validateRole, validateNewPassword
+    validateString, validateDate, validatePhoto, validateFullName,
+    validateEmail, validatePhoneNumber, validateDateRelativeToAnother,
+    validateTextArea, validateRole, validateNewPassword, validateOptionYesNo
 } from './commonValidator'
 import { UserInterfaceDTO } from '../interfaces/mongodb/userInterfaceMongodb'
 
@@ -40,6 +39,9 @@ export class UserValidator {
             error => errorMessages.push(error)
         )
         validateString(user.password, 'password').map(
+            error => errorMessages.push(error)
+        )
+        validateString(user.isArchived, 'isArchived').map(
             error => errorMessages.push(error)
         )
 
@@ -80,6 +82,9 @@ export class UserValidator {
                 error => allErrorMessages.push(error)
             )
         }
+        validateOptionYesNo(user.isArchived, 'Room isArchived').map(
+            error => allErrorMessages.push(error)
+        )
 
         return allErrorMessages
     }

@@ -14,6 +14,7 @@ export interface RoomInterfaceDTO {
     price: number
     discount: number
     isActive: OptionYesNo
+    isArchived: OptionYesNo
     booking_id_list: string[]
 }
 

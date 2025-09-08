@@ -182,6 +182,7 @@ roomRouterMongodb.post('/', async (req: Request, res: Response) => {
         price: req.body.price,
         discount: req.body.discount,
         isActive: req.body.isActive,
+        isArchived: req.body.isArchived,
         booking_id_list: []
     }
     const roomValidator = new RoomValidator()
@@ -214,6 +215,7 @@ roomRouterMongodb.put('/:id', async (req: Request, res: Response) => {
         price: req.body.price,
         discount: req.body.discount,
         isActive: req.body.isActive,
+        isArchived: req.body.isArchived,
         booking_id_list: req.body.booking_id_list
     }
     const roomValidator = new RoomValidator()

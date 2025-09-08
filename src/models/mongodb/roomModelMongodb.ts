@@ -39,6 +39,11 @@ const RoomSchemaMongodb = new Schema<RoomInterfaceIdMongodb>
             required: true,
             enum: Object.values(OptionYesNo)
         },
+        isArchived: {
+            type: String,
+            required: true,
+            enum: Object.values(OptionYesNo)
+        },
         booking_id_list: {
             type: [String],
             required: true

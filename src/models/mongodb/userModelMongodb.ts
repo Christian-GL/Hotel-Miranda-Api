@@ -2,6 +2,7 @@
 import { Schema, model } from "mongoose"
 import { UserInterfaceIdMongodb } from "../../interfaces/mongodb/userInterfaceMongodb"
 import { Role } from "../../enums/role"
+import { OptionYesNo } from "../../enums/optionYesNo"
 
 
 const UserSchemaMongodb = new Schema<UserInterfaceIdMongodb>
@@ -43,6 +44,11 @@ const UserSchemaMongodb = new Schema<UserInterfaceIdMongodb>
         password: {
             type: String,
             required: true
+        },
+        isArchived: {
+            type: String,
+            required: true,
+            enum: Object.values(OptionYesNo)
         }
     })
 

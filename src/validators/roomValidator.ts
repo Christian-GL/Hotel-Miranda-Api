@@ -34,6 +34,9 @@ export class RoomValidator {
         validateString(room.isActive, 'isActive').map(
             error => errorMessages.push(error)
         )
+        validateString(room.isArchived, 'isArchived').map(
+            error => errorMessages.push(error)
+        )
         validateStringList(room.booking_id_list, 'booking_id_list').map(
             error => errorMessages.push(error)
         )
@@ -69,6 +72,9 @@ export class RoomValidator {
             error => allErrorMessages.push(error)
         )
         validateOptionYesNo(room.isActive, 'Room isActive').map(
+            error => allErrorMessages.push(error)
+        )
+        validateOptionYesNo(room.isArchived, 'Room isArchived').map(
             error => allErrorMessages.push(error)
         )
         validateMongoDBObjectIdList(room.booking_id_list).map(

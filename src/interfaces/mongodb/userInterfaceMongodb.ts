@@ -2,6 +2,7 @@
 import { Document } from "mongoose"
 import { JobPosition } from "../../enums/jobPosition"
 import { Role } from "../../enums/role"
+import { OptionYesNo } from "../../enums/optionYesNo"
 
 
 export interface UserInterfaceDTO {
@@ -13,7 +14,8 @@ export interface UserInterfaceDTO {
     end_date: Date
     job_position: JobPosition
     role: Role
-    password: string
+    password: string,
+    isArchived: OptionYesNo
 }
 
 export interface UserInterfaceIdMongodb extends UserInterfaceDTO, Document {

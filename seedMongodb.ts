@@ -3,10 +3,10 @@ import { faker } from '@faker-js/faker'
 import { connectMongodbDB } from './src/utils/databaseMongodb'
 import { hashPassword } from './src/utils/hashPassword'
 
-import { BookingInterfaceIdMongodb } from './src/interfaces/mongodb/bookingInterfaceMongodb'
+import { BookingInterfaceDTO, BookingInterfaceIdMongodb } from './src/interfaces/mongodb/bookingInterfaceMongodb'
 import { RoomInterfaceDTO, RoomInterfaceIdMongodb } from './src/interfaces/mongodb/roomInterfaceMongodb'
-import { ClientInterfaceIdMongodb } from './src/interfaces/mongodb/clientInterfaceMongodb'
-import { UserInterfaceIdMongodb } from './src/interfaces/mongodb/userInterfaceMongodb'
+import { ClientInterfaceDTO, ClientInterfaceIdMongodb } from './src/interfaces/mongodb/clientInterfaceMongodb'
+import { UserInterfaceDTO, UserInterfaceIdMongodb } from './src/interfaces/mongodb/userInterfaceMongodb'
 import { BookingModelMongodb } from './src/models/mongodb/bookingModelMongodb'
 import { RoomModelMongodb } from './src/models/mongodb/roomModelMongodb'
 import { ClientModelMongodb } from './src/models/mongodb/clientModelMongodb'
@@ -52,7 +52,8 @@ const createUsers = async (): Promise<void> => {
                 end_date: endDate,
                 job_position: faker.lorem.paragraph(),
                 role: faker.helpers.arrayElement(Object.values(Role)),
-                password: 'Abcd1234.'
+                password: 'Abcd1234.',
+                isArchived: faker.helpers.arrayElement(Object.values(OptionYesNo)) as OptionYesNo
             })
             totalErrors = userValidator.validateUser(fakeUser.toObject() as UserInterfaceIdMongodb, true)
             if (totalErrors.length === 0) {
@@ -86,7 +87,7 @@ const createClientsNoBookings = async (): Promise<void> => {
                 isArchived: faker.helpers.arrayElement(Object.values(OptionYesNo)),
                 booking_id_list: []
             })
-            totalErrors = clientValidator.validateClient(fakeClient.toObject() as ClientInterfaceIdMongodb)
+            totalErrors = clientValidator.validateNewClient(fakeClient.toObject() as ClientInterfaceIdMongodb)
             if (totalErrors.length === 0) {
                 clients.push(fakeClient)
             }
@@ -119,6 +120,7 @@ const createRoomsOnly = async (): Promise<void> => {
                 price: faker.number.float({ min: 25, max: 10000, fractionDigits: 2 }),
                 discount: faker.number.float({ min: 0, max: 100, fractionDigits: 2 }),
                 isActive: faker.helpers.arrayElement(Object.values(OptionYesNo)) as OptionYesNo,
+                isArchived: faker.helpers.arrayElement(Object.values(OptionYesNo)) as OptionYesNo,
                 booking_id_list: []
             })
             totalErrors = roomValidator.validateNewRoom(
@@ -265,7 +267,7 @@ const main = async () => {
     // await createUsers()
     // await createClientsNoBookings()
     // await createRoomsOnly()
-    await createBookingsOnly()
+    // await createBookingsOnly()
     // await createRoomsAndBookings()
 }
 
