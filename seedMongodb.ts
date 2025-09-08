@@ -3,10 +3,10 @@ import { faker } from '@faker-js/faker'
 import { connectMongodbDB } from './src/utils/databaseMongodb'
 import { hashPassword } from './src/utils/hashPassword'
 
-import { BookingInterfaceDTO, BookingInterfaceIdMongodb } from './src/interfaces/mongodb/bookingInterfaceMongodb'
+import { BookingInterfaceIdMongodb } from './src/interfaces/mongodb/bookingInterfaceMongodb'
 import { RoomInterfaceDTO, RoomInterfaceIdMongodb } from './src/interfaces/mongodb/roomInterfaceMongodb'
-import { ClientInterfaceDTO, ClientInterfaceIdMongodb } from './src/interfaces/mongodb/clientInterfaceMongodb'
-import { UserInterfaceDTO, UserInterfaceIdMongodb } from './src/interfaces/mongodb/userInterfaceMongodb'
+import { ClientInterfaceIdMongodb } from './src/interfaces/mongodb/clientInterfaceMongodb'
+import { UserInterfaceIdMongodb } from './src/interfaces/mongodb/userInterfaceMongodb'
 import { BookingModelMongodb } from './src/models/mongodb/bookingModelMongodb'
 import { RoomModelMongodb } from './src/models/mongodb/roomModelMongodb'
 import { ClientModelMongodb } from './src/models/mongodb/clientModelMongodb'
@@ -24,7 +24,7 @@ import { Role } from './src/enums/role'
 const createUsers = async (): Promise<void> => {
     await connectMongodbDB()
     try {
-        const users = []
+        const users: InstanceType<typeof UserModelMongodb>[] = []
         const userValidator = new UserValidator()
         let totalErrors
         for (let i = 0; i < 5; i++) {
@@ -76,7 +76,7 @@ const createUsers = async (): Promise<void> => {
 const createClientsNoBookings = async (): Promise<void> => {
     await connectMongodbDB()
     try {
-        const clients = []
+        const clients: InstanceType<typeof ClientModelMongodb>[] = []
         const clientValidator = new ClientValidator()
         let totalErrors
         for (let i = 0; i < 5; i++) {
@@ -108,7 +108,7 @@ const createClientsNoBookings = async (): Promise<void> => {
 const createRoomsOnly = async (): Promise<void> => {
     await connectMongodbDB()
     try {
-        const rooms = []
+        const rooms: InstanceType<typeof RoomModelMongodb>[] = []
         const roomValidator = new RoomValidator()
         let totalErrors
         for (let i = 0; i < 5; i++) {
@@ -147,7 +147,7 @@ const createRoomsOnly = async (): Promise<void> => {
 const createBookingsOnly = async (): Promise<void> => {
     await connectMongodbDB()
     try {
-        const bookings = []
+        const bookings: InstanceType<typeof BookingModelMongodb>[] = []
         const bookingValidator = new BookingValidator()
         let totalErrors
         const allRooms: RoomInterfaceDTO[] = []    // temporal
@@ -189,7 +189,7 @@ const createBookingsOnly = async (): Promise<void> => {
 const createRoomsAndBookings = async (): Promise<void> => {
     await connectMongodbDB()
     try {
-        const rooms: RoomInterfaceIdMongodb[] = []
+        const rooms: InstanceType<typeof RoomModelMongodb>[] = []
         const bookings: BookingInterfaceIdMongodb[] = []
         const roomValidator = new RoomValidator()
         const bookingValidator = new BookingValidator()
