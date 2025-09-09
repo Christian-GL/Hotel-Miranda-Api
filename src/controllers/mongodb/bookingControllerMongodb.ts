@@ -7,6 +7,7 @@ import { BookingServiceMongodb } from '../../services/mongodb/bookingServiceMong
 import { BookingValidator } from '../../validators/bookingValidator'
 import { BookingInterfaceDTO, BookingInterfaceId } from '../../interfaces/mongodb/bookingInterfaceMongodb'
 import { RoomInterfaceDTO } from '../../interfaces/mongodb/roomInterfaceMongodb'
+import { OptionYesNo } from '../../enums/optionYesNo'
 
 
 export const bookingRouterMongodb = Router()
@@ -176,7 +177,7 @@ bookingRouterMongodb.post('/', async (req: Request, res: Response) => {
         check_out_date: new Date(req.body.check_out_date),
         price: req.body.price,
         special_request: req.body.special_request,
-        isArchived: req.body.isArchived,
+        isArchived: OptionYesNo.no,
         room_id_list: req.body.room_id_list,
         client_id: req.body.client_id
     }

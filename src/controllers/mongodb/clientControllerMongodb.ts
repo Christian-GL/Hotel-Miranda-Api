@@ -7,6 +7,7 @@ import { ClientInterfaceDTO } from '../../interfaces/mongodb/clientInterfaceMong
 import { ClientServiceMongodb } from '../../services/mongodb/clientServiceMongodb'
 import { ClientValidator } from '../../validators/clientValidator'
 import { BookingServiceMongodb } from '../../services/mongodb/bookingServiceMongodb'
+import { OptionYesNo } from '../../enums/optionYesNo'
 
 
 export const clientRouterMongodb = Router()
@@ -169,7 +170,7 @@ clientRouterMongodb.post('/', async (req: Request, res: Response) => {
         full_name: req.body.full_name,
         email: req.body.email,
         phone_number: req.body.phone_number,
-        isArchived: req.body.isArchived,
+        isArchived: OptionYesNo.no,
         booking_id_list: []
     }
     const clientValidator = new ClientValidator()

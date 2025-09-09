@@ -7,6 +7,7 @@ import { UserInterfaceDTO } from '../../interfaces/mongodb/userInterfaceMongodb'
 import { UserModelMongodb } from '../../models/mongodb/userModelMongodb'
 import { UserServiceMongodb } from '../../services/mongodb/userServiceMongodb'
 import { UserValidator } from '../../validators/userValidator'
+import { OptionYesNo } from '../../enums/optionYesNo'
 
 
 export const userRouterMongodb = Router()
@@ -175,7 +176,8 @@ userRouterMongodb.post('/', async (req: Request, res: Response) => {
         end_date: new Date(req.body.end_date),
         job_position: req.body.job_position,
         role: req.body.role,
-        password: req.body.password
+        password: req.body.password,
+        isArchived: OptionYesNo.no
     }
     const userValidator = new UserValidator()
     const totalErrors = userValidator.validateUser(userToValidate)
@@ -213,7 +215,8 @@ userRouterMongodb.put('/:id', async (req: Request, res: Response) => {
         end_date: new Date(req.body.end_date),
         job_position: req.body.job_position,
         role: req.body.role,
-        password: req.body.password
+        password: req.body.password,
+        isArchived: req.body.isArchived
     }
     const userValidator = new UserValidator()
     const totalErrors = userValidator.validateUser(userToValidate, passwordHasChanged)

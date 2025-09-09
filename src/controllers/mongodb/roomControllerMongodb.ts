@@ -6,6 +6,7 @@ import { adminOnly } from '../../middleware/adminOnly'
 import { RoomServiceMongodb } from '../../services/mongodb/roomServiceMongodb'
 import { RoomValidator } from '../../validators/roomValidator'
 import { RoomInterfaceDTO } from '../../interfaces/mongodb/roomInterfaceMongodb'
+import { OptionYesNo } from '../../enums/optionYesNo'
 
 
 export const roomRouterMongodb = Router()
@@ -182,7 +183,7 @@ roomRouterMongodb.post('/', async (req: Request, res: Response) => {
         price: req.body.price,
         discount: req.body.discount,
         isActive: req.body.isActive,
-        isArchived: req.body.isArchived,
+        isArchived: OptionYesNo.no,
         booking_id_list: []
     }
     const roomValidator = new RoomValidator()
