@@ -373,6 +373,31 @@ export const validateExistingListItemsInAnotherList = (list1: string[], list2: s
     return errorMessages
 }
 
+export const validateIfRoomsExists = (roomToTest: string[], roomsInDB: string[], fieldName: string = 'room'): string[] => {
+    const errorMessages: string[] = []
+
+    if (!Array.isArray(roomToTest)) {
+        errorMessages.push(`${fieldName} list is not an array`)
+        return errorMessages
+    }
+
+    if (!Array.isArray(roomsInDB)) {
+        errorMessages.push(`Internal error: ${fieldName} reference list is not an array`)
+        return errorMessages
+    }
+
+    const existing = new Set(roomsInDB.map(String))
+
+    roomToTest.forEach((rid, idx) => {
+        const strId = String(rid)
+        if (!existing.has(strId)) {
+            errorMessages.push(`${fieldName} id ${strId} doesn't exist (index ${idx})`)
+        }
+    })
+
+    return errorMessages
+}
+
 
 /* ENUM VALIDATORS */
 export const validateRoomType = (type: any, fieldName: string = 'Room type'): string[] => {

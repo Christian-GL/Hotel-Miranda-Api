@@ -7,11 +7,13 @@ import { BookingServiceMongodb } from '../../services/mongodb/bookingServiceMong
 import { BookingValidator } from '../../validators/bookingValidator'
 import { BookingInterfaceDTO, BookingInterfaceId } from '../../interfaces/mongodb/bookingInterfaceMongodb'
 import { RoomInterfaceDTO } from '../../interfaces/mongodb/roomInterfaceMongodb'
+import { RoomServiceMongodb } from '../../services/mongodb/roomServiceMongodb'
 import { OptionYesNo } from '../../enums/optionYesNo'
 
 
 export const bookingRouterMongodb = Router()
 const bookingServiceMongodb = new BookingServiceMongodb()
+const roomService = new RoomServiceMongodb()
 
 bookingRouterMongodb.use(authMiddleware)
 
@@ -181,9 +183,16 @@ bookingRouterMongodb.post('/', async (req: Request, res: Response) => {
         room_id_list: req.body.room_id_list,
         client_id: req.body.client_id
     }
+
+    const requestedRoomIds = Array.isArray(bookingToValidate.room_id_list)
+        ? bookingToValidate.room_id_list.map(String)
+        : []
+    const roomsFromDb = await roomService.fetchByIds(requestedRoomIds, { _id: 1 })
+    const roomsIdsInDb = roomsFromDb.map(r => r._id.toString())
+
     const bookingValidator = new BookingValidator()
     const allRooms: RoomInterfaceDTO[] = []     // temporal
-    const totalErrors = bookingValidator.validateNewBooking(bookingToValidate, allBookings, allRooms)
+    const totalErrors = bookingValidator.validateNewBooking(bookingToValidate, allBookings, roomsIdsInDb)
     if (totalErrors.length === 0) {
         try {
             const newBooking = await bookingServiceMongodb.create(bookingToValidate)
@@ -215,9 +224,15 @@ bookingRouterMongodb.put('/:id', async (req: Request, res: Response) => {
         room_id_list: req.body.room_id_list,
         client_id: req.body.client_id
     }
+
+    const requestedRoomIds = Array.isArray(bookingToValidate.room_id_list)
+        ? bookingToValidate.room_id_list.map(String)
+        : []
+    const roomsFromDb = await roomService.fetchByIds(requestedRoomIds, { _id: 1 })
+    const roomsIdsInDb = roomsFromDb.map(r => r._id.toString())
+
     const bookingValidator = new BookingValidator()
-    const allRooms: RoomInterfaceDTO[] = []     // temporal
-    const totalErrors = bookingValidator.validateExistingBooking(bookingToValidate, allBookings, allRooms)
+    const totalErrors = bookingValidator.validateExistingBooking(bookingToValidate, allBookings, roomsIdsInDb)
     if (totalErrors.length === 0) {
         try {
             const updatedBooking = await bookingServiceMongodb.update(req.params.id, bookingToValidate)

@@ -75,4 +75,16 @@ export class RoomServiceMongodb implements ServiceInterfaceMongodb<RoomInterface
         }
     }
 
+    async fetchByIds(ids: string[], projection: any = { _id: 1 }): Promise<RoomInterfaceIdMongodb[]> {
+        try {
+            if (!ids || ids.length === 0) return []
+            const rooms = await RoomModelMongodb.find({ _id: { $in: ids } }, projection).lean()
+            return rooms as RoomInterfaceIdMongodb[]
+        }
+        catch (err) {
+            console.error('Error in fetchByIds of roomService', err)
+            throw err
+        }
+    }
+
 }
