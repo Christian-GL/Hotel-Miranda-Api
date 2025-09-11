@@ -189,6 +189,21 @@ export const validateNewPassword = (password: any, fieldName: string = 'Password
     return errorMessages
 }
 
+export const validateRoomNumber = (roomNumber: string, fieldName: string = 'Room number'): string[] => {
+    const errorMessages: string[] = []
+    const regex = new RegExp(/^\d{3}$/)
+
+    if (typeof roomNumber !== "string") {
+        errorMessages.push(`${fieldName} is not a string`)
+    }
+    const roomNumberString = String(roomNumber)
+    if (!regex.test(roomNumberString)) {
+        errorMessages.push(`${fieldName} must have 3 numeric digits between 000 and 999`)
+    }
+
+    return errorMessages
+}
+
 export const validateMongoDBObjectIdList = (list: any, fieldName: string = 'ID list'): string[] => {
     const errorMessages: string[] = []
     const objectIdRegex = /^[a-f\d]{24}$/i
@@ -289,37 +304,6 @@ export const validateNumberBetween = (price: any, minor: number, mayor: number, 
     return errorMessages
 }
 
-const validateRoomNumber = (roomNumber: any, allRooms: RoomInterfaceDTO[], actualRoomNumber?: boolean, fieldName: string = 'Room number'): string[] => {
-    const errorMessages: string[] = []
-    const regex = new RegExp(/^\d{3}$/)
-
-    if (!Array.isArray(allRooms)) {
-        errorMessages.push(`${fieldName}: invalid room list`)
-        return errorMessages
-    }
-    if (typeof roomNumber !== "string") {
-        errorMessages.push(`${fieldName} is not a string`)
-    }
-    const roomNumberString = String(roomNumber)
-    if (!regex.test(roomNumberString)) {
-        errorMessages.push(`${fieldName} must have 3 numeric digits between 000 and 999`)
-    }
-    // Comprueba si el número de la habitación ha cambiado en caso de existir la habitación previamente
-    if (allRooms.some(room => room.number === roomNumberString && actualRoomNumber)) {
-        errorMessages.push('Number is already taken')
-    }
-
-    return errorMessages
-}
-
-export const validateNewRoomNumber = (number: string, allRooms: RoomInterfaceDTO[], fieldName: string = 'Room number'): string[] => {
-    return validateRoomNumber(number, allRooms, false, fieldName)
-}
-
-export const validateExistingRoomNumber = (number: string, allRooms: RoomInterfaceDTO[], fieldName: string = 'Room number'): string[] => {
-    return validateRoomNumber(number, allRooms, true, fieldName)
-}
-
 export const validateRoomPrice = (price: number, fieldName: string = 'Room price'): string[] => {
     const errorMessages: string[] = []
 
@@ -373,27 +357,24 @@ export const validateExistingListItemsInAnotherList = (list1: string[], list2: s
     return errorMessages
 }
 
-export const validateIfRoomsExists = (roomToTest: string[], roomsInDB: string[], fieldName: string = 'room'): string[] => {
+export const validateRoomNumberInDB = (roomToTest: string, roomsInDB: string[], fieldName: string = 'room'): string[] => {
     const errorMessages: string[] = []
 
-    if (!Array.isArray(roomToTest)) {
-        errorMessages.push(`${fieldName} list is not an array`)
+    if (typeof roomToTest !== 'string') {
+        errorMessages.push(`${fieldName} id is not a string`)
         return errorMessages
     }
-
     if (!Array.isArray(roomsInDB)) {
         errorMessages.push(`Internal error: ${fieldName} reference list is not an array`)
         return errorMessages
     }
 
     const existing = new Set(roomsInDB.map(String))
+    const strId = String(roomToTest)
 
-    roomToTest.forEach((rid, idx) => {
-        const strId = String(rid)
-        if (!existing.has(strId)) {
-            errorMessages.push(`${fieldName} id ${strId} doesn't exist (index ${idx})`)
-        }
-    })
+    if (!existing.has(strId)) {
+        errorMessages.push(`${fieldName} id ${strId} doesn't exist`)
+    }
 
     return errorMessages
 }

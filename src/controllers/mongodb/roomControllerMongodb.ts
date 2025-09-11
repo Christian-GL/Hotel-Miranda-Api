@@ -174,7 +174,7 @@ roomRouterMongodb.get('/:id', async (req: Request, res: Response) => {
 
 roomRouterMongodb.post('/', async (req: Request, res: Response) => {
 
-    const allRooms = await roomServiceMongodb.fetchAll()
+    const allRoomNumbers = await roomServiceMongodb.fetchAllNumbers()
     const roomToValidate: RoomInterfaceDTO = {
         photos: req.body.photos,
         number: req.body.number,
@@ -187,7 +187,7 @@ roomRouterMongodb.post('/', async (req: Request, res: Response) => {
         booking_id_list: []
     }
     const roomValidator = new RoomValidator()
-    const totalErrors = roomValidator.validateNewRoom(roomToValidate, allRooms)
+    const totalErrors = roomValidator.validateNewRoom(roomToValidate, allRoomNumbers)
     if (totalErrors.length === 0) {
         try {
             const newRoom = await roomServiceMongodb.create(roomToValidate)
@@ -207,7 +207,9 @@ roomRouterMongodb.post('/', async (req: Request, res: Response) => {
 
 roomRouterMongodb.put('/:id', async (req: Request, res: Response) => {
 
-    const allRooms = await roomServiceMongodb.fetchAll()
+    const oldRoomDoc = await roomServiceMongodb.fetchById(req.params.id)
+    const oldRoomNumber: string = String(oldRoomDoc?.number ?? '000')
+    const allRoomNumbers = await roomServiceMongodb.fetchAllNumbers()
     const roomToValidate: RoomInterfaceDTO = {
         photos: req.body.photos,
         number: req.body.number,
@@ -220,7 +222,7 @@ roomRouterMongodb.put('/:id', async (req: Request, res: Response) => {
         booking_id_list: req.body.booking_id_list
     }
     const roomValidator = new RoomValidator()
-    const totalErrors = roomValidator.validateExistingRoom(roomToValidate, allRooms)
+    const totalErrors = roomValidator.validateExistingRoom(roomToValidate, oldRoomNumber, allRoomNumbers)
     if (totalErrors.length === 0) {
         try {
             const updatedRoom = await roomServiceMongodb.update(req.params.id, roomToValidate)

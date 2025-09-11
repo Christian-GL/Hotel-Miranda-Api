@@ -10,7 +10,7 @@ import { ClientInterfaceDTO } from "../interfaces/mongodb/clientInterfaceMongodb
 
 export class ClientValidator {
 
-    validatePropertyTypes(client: ClientInterfaceDTO): string[] {
+    private validatePropertyTypes(client: ClientInterfaceDTO): string[] {
         const errorMessages: string[] = []
 
         validateString(client.full_name, 'full_name').map(

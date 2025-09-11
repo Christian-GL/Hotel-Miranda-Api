@@ -184,15 +184,14 @@ bookingRouterMongodb.post('/', async (req: Request, res: Response) => {
         client_id: req.body.client_id
     }
 
-    const requestedRoomIds = Array.isArray(bookingToValidate.room_id_list)
-        ? bookingToValidate.room_id_list.map(String)
-        : []
-    const roomsFromDb = await roomService.fetchByIds(requestedRoomIds, { _id: 1 })
-    const roomsIdsInDb = roomsFromDb.map(r => r._id.toString())
+    // const requestedRoomIds = Array.isArray(bookingToValidate.room_id_list)
+    //     ? bookingToValidate.room_id_list.map(String)
+    //     : []
+    // const roomsFromDb = await roomService.fetchByIds(requestedRoomIds, { _id: 1 })
+    // const roomsIdsInDb = roomsFromDb.map(r => r._id.toString())
 
     const bookingValidator = new BookingValidator()
-    const allRooms: RoomInterfaceDTO[] = []     // temporal
-    const totalErrors = bookingValidator.validateNewBooking(bookingToValidate, allBookings, roomsIdsInDb)
+    const totalErrors = bookingValidator.validateNewBooking(bookingToValidate, allBookings)
     if (totalErrors.length === 0) {
         try {
             const newBooking = await bookingServiceMongodb.create(bookingToValidate)
@@ -225,14 +224,14 @@ bookingRouterMongodb.put('/:id', async (req: Request, res: Response) => {
         client_id: req.body.client_id
     }
 
-    const requestedRoomIds = Array.isArray(bookingToValidate.room_id_list)
-        ? bookingToValidate.room_id_list.map(String)
-        : []
-    const roomsFromDb = await roomService.fetchByIds(requestedRoomIds, { _id: 1 })
-    const roomsIdsInDb = roomsFromDb.map(r => r._id.toString())
+    // const requestedRoomIds = Array.isArray(bookingToValidate.room_id_list)
+    //     ? bookingToValidate.room_id_list.map(String)
+    //     : []
+    // const roomsFromDb = await roomService.fetchByIds(requestedRoomIds, { _id: 1 })
+    // const roomsIdsInDb = roomsFromDb.map(r => r._id.toString())
 
     const bookingValidator = new BookingValidator()
-    const totalErrors = bookingValidator.validateExistingBooking(bookingToValidate, allBookings, roomsIdsInDb)
+    const totalErrors = bookingValidator.validateExistingBooking(bookingToValidate, allBookings)
     if (totalErrors.length === 0) {
         try {
             const updatedBooking = await bookingServiceMongodb.update(req.params.id, bookingToValidate)

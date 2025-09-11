@@ -1,7 +1,7 @@
 
 import {
-    validateString, validateStringList, validateNumber,
-    validatePhotos, validateNewRoomNumber, validateExistingRoomNumber,
+    validateString, validateStringList, validateNumber, validatePhotos,
+    validateRoomNumber, validateRoomNumberInDB,
     validateRoomType, validateAmenities, validateRoomPrice,
     validateRoomDiscount, validateOptionYesNo, validateMongoDBObjectIdList
 } from "./commonValidator"
@@ -10,7 +10,7 @@ import { RoomInterfaceDTO } from "../interfaces/mongodb/roomInterfaceMongodb"
 
 export class RoomValidator {
 
-    validatePropertyTypes(room: RoomInterfaceDTO): string[] {
+    private validatePropertyTypes(room: RoomInterfaceDTO): string[] {
         const errorMessages: string[] = []
 
         validateStringList(room.photos, 'photos').map(
@@ -59,6 +59,9 @@ export class RoomValidator {
         validatePhotos(room.photos, 'Photos').map(
             error => allErrorMessages.push(error)
         )
+        validateRoomNumber(room.number, 'Room number').map(
+            error => allErrorMessages.push(error)
+        )
         validateRoomType(room.type, 'Room type').map(
             error => allErrorMessages.push(error)
         )
@@ -84,7 +87,7 @@ export class RoomValidator {
         return allErrorMessages
     }
 
-    validateNewRoom(room: RoomInterfaceDTO, allRooms: RoomInterfaceDTO[]): string[] {
+    validateNewRoom(room: RoomInterfaceDTO, allRoomNumbers: string[]): string[] {
         const allErrorMessages: string[] = []
 
         if (room === undefined || Object.keys(room).length === 0) {
@@ -95,14 +98,14 @@ export class RoomValidator {
         this.validateRoom(room).map(
             error => allErrorMessages.push(error)
         )
-        validateNewRoomNumber(room.number, allRooms, 'Room number').map(
+        validateRoomNumberInDB(room.number, allRoomNumbers, 'Room number').map(
             error => allErrorMessages.push(error)
         )
 
         return allErrorMessages
     }
 
-    validateExistingRoom(room: RoomInterfaceDTO, allRooms: RoomInterfaceDTO[]): string[] {
+    validateExistingRoom(room: RoomInterfaceDTO, oldRoomNumber: string, allRoomNumbers: string[]): string[] {
         const allErrorMessages: string[] = []
 
         if (room === undefined || Object.keys(room).length === 0) {
@@ -113,9 +116,12 @@ export class RoomValidator {
         this.validateRoom(room).map(
             error => allErrorMessages.push(error)
         )
-        validateExistingRoomNumber(room.number, allRooms, 'Room number').map(
-            error => allErrorMessages.push(error)
-        )
+        // Si el número de habitación es diferente, se debe comprobar que el nuevo valor no exista
+        if (room.number !== oldRoomNumber) {
+            validateRoomNumberInDB(room.number, allRoomNumbers, 'Room number').map(
+                error => allErrorMessages.push(error)
+            )
+        }
 
         return allErrorMessages
     }

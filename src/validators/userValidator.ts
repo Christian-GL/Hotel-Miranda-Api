@@ -9,7 +9,7 @@ import { UserInterfaceDTO } from '../interfaces/mongodb/userInterfaceMongodb'
 
 export class UserValidator {
 
-    validatePropertyTypes(user: UserInterfaceDTO): string[] {
+    private validatePropertyTypes(user: UserInterfaceDTO): string[] {
         const errorMessages: string[] = []
 
         if (user.photo !== null) {
