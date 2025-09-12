@@ -14,9 +14,7 @@ export const clientRouterMongodb = Router()
 const clientServiceMongodb = new ClientServiceMongodb()
 const bookingServiceMongodb = new BookingServiceMongodb()
 
-console.log('[clientRouter] module loaded')
 clientRouterMongodb.use(authMiddleware)
-console.log('[clientRouter] authMiddleware applied to clientRouterMongodb')
 
 
 /**
@@ -240,5 +238,3 @@ clientRouterMongodb.delete('/:id', adminOnly, async (req: Request, res: Response
         res.status(500).json({ message: "Internal server error" })
     }
 })
-
-console.log('[clientRouter] DELETE /:id route registered')

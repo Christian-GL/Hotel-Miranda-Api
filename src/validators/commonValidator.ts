@@ -357,11 +357,11 @@ export const validateExistingListItemsInAnotherList = (list1: string[], list2: s
     return errorMessages
 }
 
-export const validateRoomNumberInDB = (roomToTest: string, roomsInDB: string[], fieldName: string = 'room'): string[] => {
+export const validateRoomNumberIsNotArchived = (roomToTest: string, roomsInDB: string[], fieldName: string = 'Room number'): string[] => {
     const errorMessages: string[] = []
 
     if (typeof roomToTest !== 'string') {
-        errorMessages.push(`${fieldName} id is not a string`)
+        errorMessages.push(`${fieldName} is not a string`)
         return errorMessages
     }
     if (!Array.isArray(roomsInDB)) {
@@ -369,11 +369,12 @@ export const validateRoomNumberInDB = (roomToTest: string, roomsInDB: string[], 
         return errorMessages
     }
 
-    const existing = new Set(roomsInDB.map(String))
-    const strId = String(roomToTest)
+    const normalize = (s: string) => String(s ?? '').trim()
+    const target = normalize(roomToTest)
+    const existing = new Set(roomsInDB.map(normalize))
 
-    if (!existing.has(strId)) {
-        errorMessages.push(`${fieldName} id ${strId} doesn't exist`)
+    if (existing.has(target)) {
+        errorMessages.push(`${fieldName} ${target} already exists`)
     }
 
     return errorMessages
