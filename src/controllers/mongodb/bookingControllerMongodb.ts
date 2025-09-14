@@ -13,7 +13,7 @@ import { OptionYesNo } from '../../enums/optionYesNo'
 
 export const bookingRouterMongodb = Router()
 const bookingServiceMongodb = new BookingServiceMongodb()
-const roomService = new RoomServiceMongodb()
+const roomServiceMongodb = new RoomServiceMongodb()
 
 bookingRouterMongodb.use(authMiddleware)
 
@@ -173,6 +173,7 @@ bookingRouterMongodb.get('/:id', async (req: Request, res: Response) => {
 bookingRouterMongodb.post('/', async (req: Request, res: Response) => {
 
     const allBookings = await bookingServiceMongodb.fetchAll()
+    const allRoomNumbers = await roomServiceMongodb.fetchAllNumbers()
     const bookingToValidate: BookingInterfaceDTO = {
         order_date: new Date(req.body.order_date),
         check_in_date: new Date(req.body.check_in_date),
@@ -184,14 +185,8 @@ bookingRouterMongodb.post('/', async (req: Request, res: Response) => {
         client_id: req.body.client_id
     }
 
-    // const requestedRoomIds = Array.isArray(bookingToValidate.room_id_list)
-    //     ? bookingToValidate.room_id_list.map(String)
-    //     : []
-    // const roomsFromDb = await roomService.fetchByIds(requestedRoomIds, { _id: 1 })
-    // const roomsIdsInDb = roomsFromDb.map(r => r._id.toString())
-
     const bookingValidator = new BookingValidator()
-    const totalErrors = bookingValidator.validateNewBooking(bookingToValidate, allBookings)
+    const totalErrors = bookingValidator.validateNewBooking(bookingToValidate, allBookings, allRoomNumbers)
     if (totalErrors.length === 0) {
         try {
             const newBooking = await bookingServiceMongodb.create(bookingToValidate)
@@ -212,6 +207,7 @@ bookingRouterMongodb.post('/', async (req: Request, res: Response) => {
 bookingRouterMongodb.put('/:id', async (req: Request, res: Response) => {
 
     const allBookings = await bookingServiceMongodb.fetchAll()
+    const allRoomNumbers = await roomServiceMongodb.fetchAllNumbers()
     const bookingToValidate: BookingInterfaceId = {
         _id: req.params.id,
         order_date: new Date(req.body.order_date),
@@ -224,14 +220,8 @@ bookingRouterMongodb.put('/:id', async (req: Request, res: Response) => {
         client_id: req.body.client_id
     }
 
-    // const requestedRoomIds = Array.isArray(bookingToValidate.room_id_list)
-    //     ? bookingToValidate.room_id_list.map(String)
-    //     : []
-    // const roomsFromDb = await roomService.fetchByIds(requestedRoomIds, { _id: 1 })
-    // const roomsIdsInDb = roomsFromDb.map(r => r._id.toString())
-
     const bookingValidator = new BookingValidator()
-    const totalErrors = bookingValidator.validateExistingBooking(bookingToValidate, allBookings)
+    const totalErrors = bookingValidator.validateExistingBooking(bookingToValidate, allBookings, allRoomNumbers)
     if (totalErrors.length === 0) {
         try {
             const updatedBooking = await bookingServiceMongodb.update(req.params.id, bookingToValidate)

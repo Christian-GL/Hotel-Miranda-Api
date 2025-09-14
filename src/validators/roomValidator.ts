@@ -1,7 +1,7 @@
 
 import {
     validateString, validateStringList, validateNumber, validatePhotos,
-    validateRoomNumber, validateRoomNumberIsNotArchived,
+    validateRoomNumber, validateRoomNumberExistsInDB,
     validateRoomType, validateAmenities, validateRoomPrice,
     validateRoomDiscount, validateOptionYesNo, validateMongoDBObjectIdList
 } from "./commonValidator"
@@ -98,7 +98,7 @@ export class RoomValidator {
         this.validateRoom(room).map(
             error => allErrorMessages.push(error)
         )
-        validateRoomNumberIsNotArchived(room.number, allRoomNumbers, 'Room number').map(
+        validateRoomNumberExistsInDB(room.number, allRoomNumbers, 'Room number').map(
             error => allErrorMessages.push(error)
         )
 
@@ -118,7 +118,7 @@ export class RoomValidator {
         )
         // Si el número de habitación es diferente, se debe comprobar que el nuevo valor no exista
         if (room.number !== oldRoomNumber) {
-            validateRoomNumberIsNotArchived(room.number, allRoomNumbers, 'Room number').map(
+            validateRoomNumberExistsInDB(room.number, allRoomNumbers, 'Room number').map(
                 error => allErrorMessages.push(error)
             )
         }

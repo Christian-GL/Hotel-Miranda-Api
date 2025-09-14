@@ -357,7 +357,7 @@ export const validateExistingListItemsInAnotherList = (list1: string[], list2: s
     return errorMessages
 }
 
-export const validateRoomNumberIsNotArchived = (roomToTest: string, roomsInDB: string[], fieldName: string = 'Room number'): string[] => {
+export const validateRoomNumberExistsInDB = (roomToTest: string, roomsInDB: string[], fieldName: string = 'Room number'): string[] => {
     const errorMessages: string[] = []
 
     if (typeof roomToTest !== 'string') {

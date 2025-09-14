@@ -3,10 +3,9 @@ import {
     validateDate, validateString, validateNumber,
     validateOptionYesNo, validateCheckInCheckOut, validateDateIsOccupied,
     validateDateIsOccupiedIfBookingExists, validateRoomPrice,
-    validateTextArea, validateStringList
+    validateTextArea, validateStringList, validateRoomNumberExistsInDB
 } from "./commonValidator"
 import { BookingInterfaceDTO, BookingInterfaceId, BookingInterfaceIdMongodb } from "../interfaces/mongodb/bookingInterfaceMongodb"
-import { RoomInterfaceDTO, RoomInterfaceIdMongodb } from "../interfaces/mongodb/roomInterfaceMongodb"
 
 
 export class BookingValidator {
@@ -42,7 +41,7 @@ export class BookingValidator {
         return errorMessages
     }
 
-    private validateBooking(booking: BookingInterfaceDTO | BookingInterfaceId, allBookings: BookingInterfaceDTO[] | BookingInterfaceId[]): string[] {
+    private validateBooking(booking: BookingInterfaceDTO, allBookings: BookingInterfaceDTO[], allRoomNumbers: string[]): string[] {
         const allErrorMessages: string[] = []
 
         if (booking === undefined || Object.keys(booking).length === 0) {
@@ -67,10 +66,18 @@ export class BookingValidator {
             error => allErrorMessages.push(error)
         )
 
+        // !!! Se espera que se reciba una lista con los números de habitación en vez de los IDs !!!
+        for (const number of booking.room_id_list) {
+            const errors = validateRoomNumberExistsInDB(number, allRoomNumbers, 'Room number')
+            if (errors.length > 0) {
+                allErrorMessages.push(...errors)
+            }
+        }
+
         return allErrorMessages
     }
 
-    validateNewBooking(booking: BookingInterfaceDTO, allBookings: BookingInterfaceDTO[]): string[] {
+    validateNewBooking(booking: BookingInterfaceDTO, allBookings: BookingInterfaceDTO[], allRoomNumbers: string[]): string[] {
         const allErrorMessages: string[] = []
 
         if (booking === undefined || Object.keys(booking).length === 0) {
@@ -78,7 +85,7 @@ export class BookingValidator {
             return allErrorMessages
         }
 
-        this.validateBooking(booking, allBookings).map(
+        this.validateBooking(booking, allBookings, allRoomNumbers).map(
             error => allErrorMessages.push(error)
         )
         validateDateIsOccupied(booking, allBookings).map(
@@ -88,7 +95,7 @@ export class BookingValidator {
         return allErrorMessages
     }
 
-    validateExistingBooking(booking: BookingInterfaceId, allBookings: BookingInterfaceIdMongodb[]): string[] {
+    validateExistingBooking(booking: BookingInterfaceId, allBookings: BookingInterfaceIdMongodb[], allRoomNumbers: string[]): string[] {
         const allErrorMessages: string[] = []
 
         if (booking === undefined || Object.keys(booking).length === 0) {
@@ -96,7 +103,7 @@ export class BookingValidator {
             return allErrorMessages
         }
 
-        this.validateBooking(booking, allBookings).map(
+        this.validateBooking(booking, allBookings, allRoomNumbers).map(
             error => allErrorMessages.push(error)
         )
         validateDateIsOccupiedIfBookingExists(booking, allBookings).map(
