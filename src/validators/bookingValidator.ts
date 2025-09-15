@@ -3,7 +3,7 @@ import {
     validateDate, validateString, validateNumber,
     validateOptionYesNo, validateCheckInCheckOut, validateDateIsOccupied,
     validateDateIsOccupiedIfBookingExists, validateRoomPrice,
-    validateTextArea, validateStringList, validateRoomNumberExistsInDB
+    validateTextArea, validateStringList, validateRoomExistsInDB
 } from "./commonValidator"
 import { BookingInterfaceDTO, BookingInterfaceId, BookingInterfaceIdMongodb } from "../interfaces/mongodb/bookingInterfaceMongodb"
 
@@ -41,7 +41,7 @@ export class BookingValidator {
         return errorMessages
     }
 
-    private validateBooking(booking: BookingInterfaceDTO, allBookings: BookingInterfaceDTO[], allRoomNumbers: string[]): string[] {
+    private validateBooking(booking: BookingInterfaceDTO, allBookings: BookingInterfaceDTO[], allRoomIDs: string[]): string[] {
         const allErrorMessages: string[] = []
 
         if (booking === undefined || Object.keys(booking).length === 0) {
@@ -67,8 +67,8 @@ export class BookingValidator {
         )
 
         // !!! Se espera que se reciba una lista con los números de habitación en vez de los IDs !!!
-        for (const number of booking.room_id_list) {
-            const errors = validateRoomNumberExistsInDB(number, allRoomNumbers, 'Room number')
+        for (const id of booking.room_id_list) {
+            const errors = validateRoomExistsInDB(id, allRoomIDs, 'Room ID')
             if (errors.length > 0) {
                 allErrorMessages.push(...errors)
             }

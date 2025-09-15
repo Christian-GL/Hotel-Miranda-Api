@@ -7,8 +7,8 @@ import { OptionYesNo } from "../../enums/optionYesNo"
 
 
 export interface RoomInterfaceDTO {
-    photos: string[]
     number: string
+    photos: string[]
     type: RoomType
     amenities: RoomAmenities[]
     price: number

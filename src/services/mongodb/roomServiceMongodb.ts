@@ -75,6 +75,17 @@ export class RoomServiceMongodb implements ServiceInterfaceMongodb<RoomInterface
         }
     }
 
+    async fetchAllIds(): Promise<string[]> {
+        try {
+            const rooms = await RoomModelMongodb.find({}, { _id: 1 }).lean()
+            return rooms.map((r: any) => String(r._id))
+        }
+        catch (err) {
+            console.error('Error in fetchAllIds of roomService', err)
+            throw err
+        }
+    }
+
     async fetchAllNumbers(): Promise<string[]> {
         try {
             const rooms = await RoomModelMongodb.find({}, { number: 1, _id: 0 }).lean()
@@ -85,17 +96,5 @@ export class RoomServiceMongodb implements ServiceInterfaceMongodb<RoomInterface
             throw err
         }
     }
-
-    // async fetchByIds(ids: string[], projection: any = { _id: 1 }): Promise<RoomInterfaceIdMongodb[]> {
-    //     try {
-    //         if (!ids || ids.length === 0) return []
-    //         const rooms = await RoomModelMongodb.find({ _id: { $in: ids } }, projection).lean()
-    //         return rooms as RoomInterfaceIdMongodb[]
-    //     }
-    //     catch (err) {
-    //         console.error('Error in fetchByIds of roomService', err)
-    //         throw err
-    //     }
-    // } 
 
 }

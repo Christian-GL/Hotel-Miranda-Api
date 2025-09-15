@@ -173,7 +173,7 @@ bookingRouterMongodb.get('/:id', async (req: Request, res: Response) => {
 bookingRouterMongodb.post('/', async (req: Request, res: Response) => {
 
     const allBookings = await bookingServiceMongodb.fetchAll()
-    const allRoomNumbers = await roomServiceMongodb.fetchAllNumbers()
+    const allRoomIDs = await roomServiceMongodb.fetchAllIds()
     const bookingToValidate: BookingInterfaceDTO = {
         order_date: new Date(req.body.order_date),
         check_in_date: new Date(req.body.check_in_date),
@@ -186,7 +186,7 @@ bookingRouterMongodb.post('/', async (req: Request, res: Response) => {
     }
 
     const bookingValidator = new BookingValidator()
-    const totalErrors = bookingValidator.validateNewBooking(bookingToValidate, allBookings, allRoomNumbers)
+    const totalErrors = bookingValidator.validateNewBooking(bookingToValidate, allBookings, allRoomIDs)
     if (totalErrors.length === 0) {
         try {
             const newBooking = await bookingServiceMongodb.create(bookingToValidate)
@@ -207,7 +207,7 @@ bookingRouterMongodb.post('/', async (req: Request, res: Response) => {
 bookingRouterMongodb.put('/:id', async (req: Request, res: Response) => {
 
     const allBookings = await bookingServiceMongodb.fetchAll()
-    const allRoomNumbers = await roomServiceMongodb.fetchAllNumbers()
+    const allRoomIDs = await roomServiceMongodb.fetchAllIds()
     const bookingToValidate: BookingInterfaceId = {
         _id: req.params.id,
         order_date: new Date(req.body.order_date),
@@ -221,7 +221,7 @@ bookingRouterMongodb.put('/:id', async (req: Request, res: Response) => {
     }
 
     const bookingValidator = new BookingValidator()
-    const totalErrors = bookingValidator.validateExistingBooking(bookingToValidate, allBookings, allRoomNumbers)
+    const totalErrors = bookingValidator.validateExistingBooking(bookingToValidate, allBookings, allRoomIDs)
     if (totalErrors.length === 0) {
         try {
             const updatedBooking = await bookingServiceMongodb.update(req.params.id, bookingToValidate)

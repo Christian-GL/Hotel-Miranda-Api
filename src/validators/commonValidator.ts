@@ -357,7 +357,8 @@ export const validateExistingListItemsInAnotherList = (list1: string[], list2: s
     return errorMessages
 }
 
-export const validateRoomNumberExistsInDB = (roomToTest: string, roomsInDB: string[], fieldName: string = 'Room number'): string[] => {
+export const validateRoomExistsInDB = (roomToTest: string, roomsInDB: string[], fieldName: string = 'Room number'): string[] => {
+    // La función sirve tanto para comparar los números de habitación como los _id (pero no entre ellos)
     const errorMessages: string[] = []
 
     if (typeof roomToTest !== 'string') {

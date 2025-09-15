@@ -8,12 +8,13 @@ import { OptionYesNo } from "../../enums/optionYesNo"
 
 const RoomSchemaMongodb = new Schema<RoomInterfaceIdMongodb>
     ({
-        photos: {
-            type: [String],
-            required: true
-        },
         number: {
             type: String,
+            required: true,
+            unique: true
+        },
+        photos: {
+            type: [String],
             required: true
         },
         type: {
