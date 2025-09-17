@@ -8,6 +8,8 @@ import { UserModelMongodb } from '../../models/mongodb/userModelMongodb'
 import { UserServiceMongodb } from '../../services/mongodb/userServiceMongodb'
 import { UserValidator } from '../../validators/userValidator'
 import { OptionYesNo } from '../../enums/optionYesNo'
+import { JobPosition } from '../../enums/jobPosition'
+import { Role } from '../../enums/role'
 
 
 export const userRouterMongodb = Router()
@@ -168,15 +170,15 @@ userRouterMongodb.get('/:id', async (req: Request, res: Response) => {
 userRouterMongodb.post('/', async (req: Request, res: Response) => {
 
     const userToValidate: UserInterfaceDTO = {
-        photo: req.body.photo,
-        full_name: req.body.full_name,
-        email: req.body.email,
-        phone_number: req.body.phone_number,
-        start_date: new Date(req.body.start_date),
-        end_date: new Date(req.body.end_date),
-        job_position: req.body.job_position,
-        role: req.body.role,
-        password: req.body.password,
+        photo: req.body.photo ?? null,
+        full_name: String(req.body.full_name ?? '').trim(),
+        email: String(req.body.email ?? '').toLowerCase().trim(),
+        phone_number: String(req.body.phone_number ?? '').trim(),
+        start_date: (req.body.start_date ? new Date(req.body.start_date) : undefined) as Date,
+        end_date: (req.body.end_date ? new Date(req.body.end_date) : undefined) as Date,
+        job_position: String(req.body.job_position ?? '').trim() as unknown as JobPosition,
+        role: String(req.body.role ?? '').trim() as unknown as Role,
+        password: String(req.body.password ?? ''),
         isArchived: OptionYesNo.no
     }
     const userValidator = new UserValidator()
@@ -207,16 +209,16 @@ userRouterMongodb.put('/:id', async (req: Request, res: Response) => {
     }
 
     const userToValidate: UserInterfaceDTO = {
-        photo: req.body.photo,
-        full_name: req.body.full_name,
-        email: req.body.email,
-        phone_number: req.body.phone_number,
-        start_date: new Date(req.body.start_date),
-        end_date: new Date(req.body.end_date),
-        job_position: req.body.job_position,
-        role: req.body.role,
-        password: req.body.password,
-        isArchived: req.body.isArchived
+        photo: req.body.photo ?? null,
+        full_name: String(req.body.full_name ?? '').trim(),
+        email: String(req.body.email ?? '').toLowerCase().trim(),
+        phone_number: String(req.body.phone_number ?? '').trim(),
+        start_date: (req.body.start_date ? new Date(req.body.start_date) : undefined) as Date,
+        end_date: (req.body.end_date ? new Date(req.body.end_date) : undefined) as Date,
+        job_position: String(req.body.job_position ?? '').trim() as unknown as JobPosition,
+        role: String(req.body.role ?? '').trim() as unknown as Role,
+        password: String(req.body.password ?? ''),
+        isArchived: String(req.body.isArchived ?? '').trim() as unknown as OptionYesNo
     }
     const userValidator = new UserValidator()
     const totalErrors = userValidator.validateUser(userToValidate, passwordHasChanged)
