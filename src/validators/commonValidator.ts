@@ -357,22 +357,21 @@ export const validateExistingListItemsInAnotherList = (list1: string[], list2: s
     return errorMessages
 }
 
-export const validateRoomExistsInDB = (roomToTest: string, roomsInDB: string[], fieldName: string = 'Room number'): string[] => {
-    // La función sirve tanto para comparar los números de habitación como los _id (pero no entre ellos)
+export const validateStringExistsInList = (elementToTest: string, elementsInList: string[], fieldName: string = 'Element'): string[] => {
     const errorMessages: string[] = []
 
-    if (typeof roomToTest !== 'string') {
+    if (typeof elementToTest !== 'string') {
         errorMessages.push(`${fieldName} is not a string`)
         return errorMessages
     }
-    if (!Array.isArray(roomsInDB)) {
+    if (!Array.isArray(elementsInList)) {
         errorMessages.push(`Internal error: ${fieldName} reference list is not an array`)
         return errorMessages
     }
 
     const normalize = (s: string) => String(s ?? '').trim()
-    const target = normalize(roomToTest)
-    const existing = new Set(roomsInDB.map(normalize))
+    const target = normalize(elementToTest)
+    const existing = new Set(elementsInList.map(normalize))
 
     if (existing.has(target)) {
         errorMessages.push(`${fieldName} ${target} already exists`)
