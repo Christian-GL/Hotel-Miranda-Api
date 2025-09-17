@@ -1,6 +1,6 @@
 
 import {
-    validateString, validateStringList, validateNumber, validatePhotos,
+    validateString, validateStringList, validateNumber, validateRoomPhotoList,
     validateRoomNumber, validateStringExistsInList,
     validateRoomType, validateAmenities, validateRoomPrice,
     validateRoomDiscount, validateOptionYesNo, validateMongoDBObjectIdList
@@ -56,7 +56,7 @@ export class RoomValidator {
             return errorsCheckingProperties
         }
 
-        validatePhotos(room.photos, 'Photos').map(
+        validateRoomPhotoList(room.photos, 'Photos').map(
             error => allErrorMessages.push(error)
         )
         validateRoomNumber(room.number, 'Room number').map(

@@ -1,6 +1,5 @@
 
 import { BookingInterfaceDTO, BookingInterfaceId, BookingInterfaceIdMongodb } from "../interfaces/mongodb/bookingInterfaceMongodb"
-import { RoomInterfaceDTO } from "../interfaces/mongodb/roomInterfaceMongodb"
 import { RoomType } from "../enums/roomType"
 import { Role } from "../enums/role"
 import { RoomAmenities } from "../enums/roomAmenities"
@@ -76,21 +75,11 @@ export const validateDate = (date: any, fieldName: string = 'Date field'): strin
 
 
 /* COMMON VALIDATORS */
-export const validatePhotos = (photos: any[], fieldName: string = 'Photos'): string[] => {
+export const validateRoomPhotoList = (photos: string[], fieldName: string = 'Room photo list'): string[] => {
     const errorMessages: string[] = []
-    // const regex = /\.(png|jpe?g)$/i
 
-    photos.forEach((photo, index) => {
-        if (typeof photo !== "string") {
-            errorMessages.push(`${fieldName} ${index} url is not a String`)
-        }
-        // if (!regex.test(photo)) {
-        //     errorMessages.push(`${fieldName} ${index} is not .png .jpg .jpeg file`)
-        // }
-    })
-
-    if (photos[0] === undefined) {
-        errorMessages.push(`Main ${fieldName} need to be set`)
+    if (photos[0] === null || photos[0] === undefined) {
+        errorMessages.push(`First photo in ${fieldName} need to be set`)
     }
     if (photos.length < 2) {
         errorMessages.push(`${fieldName} need to be at least 3`)
@@ -101,28 +90,18 @@ export const validatePhotos = (photos: any[], fieldName: string = 'Photos'): str
 
 export const validatePhoto = (photo: any, fieldName: string = 'Photo'): string[] => {
     const errorMessages: string[] = []
-    // const regex = /\.(png|jpe?g)$/i
 
     if (photo === null || photo === undefined) {
         errorMessages.push(`${fieldName} is required`)
     }
-    if (typeof photo !== "string") {
-        errorMessages.push(`${fieldName} url is not a String`)
-    }
-    // if (!regex.test(photo)) {
-    //     errorMessages.push(`${fieldName} is not .png .jpg .jpeg file`)
-    // }
 
     return errorMessages
 }
 
-export const validateFullName = (fullName: any, fieldName: string = 'Full name'): string[] => {
+export const validateFullName = (fullName: string, fieldName: string = 'Full name'): string[] => {
     const errorMessages: string[] = []
     const regex = new RegExp(/^[^\d]*$/)
 
-    if (typeof fullName !== "string") {
-        errorMessages.push(`${fieldName} is not a String`)
-    }
     if (fullName.length < 3 || fullName.length > 50) {
         errorMessages.push(`${fieldName} length must be between 3 and 50 characters`)
     }
@@ -133,13 +112,10 @@ export const validateFullName = (fullName: any, fieldName: string = 'Full name')
     return errorMessages
 }
 
-export const validateEmail = (email: any, fieldName: string = 'Email'): string[] => {
+export const validateEmail = (email: string, fieldName: string = 'Email'): string[] => {
     const errorMessages: string[] = []
     const regex = new RegExp(/^(([^<>()\[\]\\.,:\s@"]+(\.[^<>()\[\]\\.,:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)
 
-    if (typeof email !== "string") {
-        errorMessages.push(`${fieldName} is not a String`)
-    }
     if (!regex.test(email)) {
         errorMessages.push(`${fieldName} format no valid`)
     }
@@ -147,13 +123,10 @@ export const validateEmail = (email: any, fieldName: string = 'Email'): string[]
     return errorMessages
 }
 
-export const validatePhoneNumber = (phoneNumber: any, fieldName: string = 'Phone number'): string[] => {
+export const validatePhoneNumber = (phoneNumber: string, fieldName: string = 'Phone number'): string[] => {
     const errorMessages: string[] = []
     const regex = /^\+?\d{1,4}([-\s]?\d{2,4})+$/
 
-    if (typeof phoneNumber !== "string") {
-        errorMessages.push(`${fieldName} is not a String`)
-    }
     if (phoneNumber.length < 9 || phoneNumber.length > 20) {
         errorMessages.push(`${fieldName} length must be between 9 and 20 characters`)
     }
@@ -164,15 +137,12 @@ export const validatePhoneNumber = (phoneNumber: any, fieldName: string = 'Phone
     return errorMessages
 }
 
-export const validateNewPassword = (password: any, fieldName: string = 'Password'): string[] => {
+export const validateNewPassword = (password: string, fieldName: string = 'Password'): string[] => {
     const errorMessages: string[] = []
     const regexUppercase = /[A-Z]/
     const regexNumber = /\d/
     const regexSymbols = /[*\-.,!@#$%^&*()_+={}|\[\]:;"'<>,.?/~`]/
 
-    if (typeof password !== "string") {
-        errorMessages.push(`${fieldName} is not a String`)
-    }
     if (password.length < 8 || password.length > 20) {
         errorMessages.push(`${fieldName} length must be between 8 and 20 characters`)
     }
@@ -192,11 +162,8 @@ export const validateNewPassword = (password: any, fieldName: string = 'Password
 export const validateRoomNumber = (roomNumber: string, fieldName: string = 'Room number'): string[] => {
     const errorMessages: string[] = []
     const regex = new RegExp(/^\d{3}$/)
-
-    if (typeof roomNumber !== "string") {
-        errorMessages.push(`${fieldName} is not a string`)
-    }
     const roomNumberString = String(roomNumber)
+
     if (!regex.test(roomNumberString)) {
         errorMessages.push(`${fieldName} must have 3 numeric digits between 000 and 999`)
     }
@@ -204,14 +171,9 @@ export const validateRoomNumber = (roomNumber: string, fieldName: string = 'Room
     return errorMessages
 }
 
-export const validateMongoDBObjectIdList = (list: any, fieldName: string = 'ID list'): string[] => {
+export const validateMongoDBObjectIdList = (list: string[], fieldName: string = 'ID list'): string[] => {
     const errorMessages: string[] = []
     const objectIdRegex = /^[a-f\d]{24}$/i
-
-    if (!Array.isArray(list)) {
-        errorMessages.push(`${fieldName} must be an array`)
-        return errorMessages
-    }
 
     list.forEach((id, index) => {
         if (typeof id !== 'string' || !objectIdRegex.test(id)) {
@@ -287,13 +249,9 @@ export const validateDateIsOccupiedIfBookingExists = (booking: BookingInterfaceI
     return errorMessages
 }
 
-export const validateNumberBetween = (price: any, minor: number, mayor: number, fieldName: string = 'Number'): string[] => {
+export const validateNumberBetween = (price: number, minor: number, mayor: number, fieldName: string = 'Number'): string[] => {
     const errorMessages: string[] = []
 
-    if (price === null || typeof price !== "number" || isNaN(price)) {
-        errorMessages.push(`${fieldName} is not a number`)
-        return errorMessages
-    }
     if (price < minor) {
         errorMessages.push(`${fieldName} must be ${minor} or more`)
     }
@@ -307,9 +265,6 @@ export const validateNumberBetween = (price: any, minor: number, mayor: number, 
 export const validateRoomPrice = (price: number, fieldName: string = 'Room price'): string[] => {
     const errorMessages: string[] = []
 
-    if (typeof price !== "number") {
-        errorMessages.push(`${fieldName} is not a number`)
-    }
     if (price < 25) {
         errorMessages.push(`${fieldName} must be 25$ or more`)
     }
@@ -323,9 +278,6 @@ export const validateRoomPrice = (price: number, fieldName: string = 'Room price
 export const validateRoomDiscount = (discount: number, fieldName: string = 'Room discount'): string[] => {
     const errorMessages: string[] = []
 
-    if (typeof discount !== "number") {
-        errorMessages.push(`${fieldName} is not a number`)
-    }
     if (discount < 0) {
         errorMessages.push(`${fieldName} must be 0 or more`)
     }
