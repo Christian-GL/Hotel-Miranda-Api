@@ -6,7 +6,6 @@ import { adminOnly } from '../../middleware/adminOnly'
 import { BookingServiceMongodb } from '../../services/mongodb/bookingServiceMongodb'
 import { BookingValidator } from '../../validators/bookingValidator'
 import { BookingInterfaceDTO, BookingInterfaceId } from '../../interfaces/mongodb/bookingInterfaceMongodb'
-import { RoomInterfaceDTO } from '../../interfaces/mongodb/roomInterfaceMongodb'
 import { RoomServiceMongodb } from '../../services/mongodb/roomServiceMongodb'
 import { OptionYesNo } from '../../enums/optionYesNo'
 

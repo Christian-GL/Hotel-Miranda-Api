@@ -1,6 +1,7 @@
 
 import { Request, Response } from 'express'
 import Router from 'express'
+import mongoose from 'mongoose'
 import { authMiddleware } from '../../middleware/authMiddleware'
 import { adminOnly } from '../../middleware/adminOnly'
 import { ClientInterfaceDTO } from '../../interfaces/mongodb/clientInterfaceMongodb'
@@ -165,9 +166,9 @@ clientRouterMongodb.get('/:id', async (req: Request, res: Response) => {
 clientRouterMongodb.post('/', async (req: Request, res: Response) => {
 
     const clientToValidate: ClientInterfaceDTO = {
-        full_name: req.body.full_name,
-        email: req.body.email,
-        phone_number: req.body.phone_number,
+        full_name: normalizeString(req.body.full_name),
+        email: normalizeString(req.body.email).toLowerCase(),
+        phone_number: normalizeString(req.body.phone_number),
         isArchived: OptionYesNo.no,
         booking_id_list: []
     }
@@ -193,11 +194,11 @@ clientRouterMongodb.post('/', async (req: Request, res: Response) => {
 clientRouterMongodb.put('/:id', async (req: Request, res: Response) => {
 
     const clientToValidate: ClientInterfaceDTO = {
-        full_name: req.body.full_name,
-        email: req.body.email,
-        phone_number: req.body.phone_number,
-        isArchived: req.body.isArchived,
-        booking_id_list: req.body.booking_id_list
+        full_name: normalizeString(req.body.full_name),
+        email: normalizeString(req.body.email).toLowerCase(),
+        phone_number: normalizeString(req.body.phone_number),
+        isArchived: String(req.body.isArchived ?? '').trim() as unknown as OptionYesNo,
+        booking_id_list: normalizeStringArray(req.body.booking_id_list)
     }
     const bookingList = await bookingServiceMongodb.fetchAll()
     const bookingIdList = bookingList.map(booking => booking._id.toString())

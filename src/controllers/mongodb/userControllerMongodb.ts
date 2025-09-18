@@ -170,14 +170,14 @@ userRouterMongodb.get('/:id', async (req: Request, res: Response) => {
 userRouterMongodb.post('/', async (req: Request, res: Response) => {
 
     const userToValidate: UserInterfaceDTO = {
-        photo: req.body.photo ?? null,
-        full_name: String(req.body.full_name ?? '').trim(),
-        email: String(req.body.email ?? '').toLowerCase().trim(),
-        phone_number: String(req.body.phone_number ?? '').trim(),
-        start_date: (req.body.start_date ? new Date(req.body.start_date) : undefined) as Date,
-        end_date: (req.body.end_date ? new Date(req.body.end_date) : undefined) as Date,
-        job_position: String(req.body.job_position ?? '').trim() as unknown as JobPosition,
-        role: String(req.body.role ?? '').trim() as unknown as Role,
+        photo: req.body.photo == null ? null : String(req.body.photo).trim(),
+        full_name: normalizeString(req.body.full_name),
+        email: normalizeString(req.body.email).toLowerCase(),
+        phone_number: normalizeString(req.body.phone_number),
+        start_date: parseDateSafe(req.body.start_date) as Date | undefined as Date,
+        end_date: parseDateSafe(req.body.end_date) as Date | undefined as Date,
+        job_position: normalizeString(req.body.job_position) as unknown as JobPosition,
+        role: normalizeString(req.body.role) as unknown as Role,
         password: String(req.body.password ?? ''),
         isArchived: OptionYesNo.no
     }
@@ -209,14 +209,14 @@ userRouterMongodb.put('/:id', async (req: Request, res: Response) => {
     }
 
     const userToValidate: UserInterfaceDTO = {
-        photo: req.body.photo ?? null,
-        full_name: String(req.body.full_name ?? '').trim(),
-        email: String(req.body.email ?? '').toLowerCase().trim(),
-        phone_number: String(req.body.phone_number ?? '').trim(),
-        start_date: (req.body.start_date ? new Date(req.body.start_date) : undefined) as Date,
-        end_date: (req.body.end_date ? new Date(req.body.end_date) : undefined) as Date,
-        job_position: String(req.body.job_position ?? '').trim() as unknown as JobPosition,
-        role: String(req.body.role ?? '').trim() as unknown as Role,
+        photo: req.body.photo == null ? null : String(req.body.photo).trim(),
+        full_name: normalizeString(req.body.full_name),
+        email: normalizeString(req.body.email).toLowerCase(),
+        phone_number: normalizeString(req.body.phone_number),
+        start_date: parseDateSafe(req.body.start_date) as Date | undefined as Date,
+        end_date: parseDateSafe(req.body.end_date) as Date | undefined as Date,
+        job_position: normalizeString(req.body.job_position) as unknown as JobPosition,
+        role: normalizeString(req.body.role) as unknown as Role,
         password: String(req.body.password ?? ''),
         isArchived: String(req.body.isArchived ?? '').trim() as unknown as OptionYesNo
     }

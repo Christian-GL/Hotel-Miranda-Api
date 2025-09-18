@@ -7,6 +7,7 @@ import { RoomServiceMongodb } from '../../services/mongodb/roomServiceMongodb'
 import { RoomValidator } from '../../validators/roomValidator'
 import { RoomInterfaceDTO } from '../../interfaces/mongodb/roomInterfaceMongodb'
 import { OptionYesNo } from '../../enums/optionYesNo'
+import { RoomType } from '../../enums/roomType'
 
 
 export const roomRouterMongodb = Router()
@@ -176,9 +177,14 @@ roomRouterMongodb.post('/', async (req: Request, res: Response) => {
 
     const allRoomNumbers = await roomServiceMongodb.fetchAllNumbers()
     const roomToValidate: RoomInterfaceDTO = {
-        photos: req.body.photos,
-        number: req.body.number,
-        type: req.body.type,
+        photos: (req.body.photos == null
+            ? []
+            : Array.isArray(req.body.photos)
+                ? req.body.photos.map((x: any) => String(x ?? '').trim()).filter((s: string) => s.length > 0)
+                : [String(req.body.photos).trim()].filter((s: string) => s.length > 0)
+        ) as string[],
+        number: String(req.body.number ?? '').trim(),
+        type: String(req.body.type ?? '').trim() as unknown as RoomType,
         amenities: req.body.amenities,
         price: req.body.price,
         discount: req.body.discount,
