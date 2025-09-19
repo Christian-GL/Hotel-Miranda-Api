@@ -7,7 +7,6 @@ import { RoomServiceMongodb } from '../../services/mongodb/roomServiceMongodb'
 import { RoomValidator } from '../../validators/roomValidator'
 import { RoomInterfaceDTO } from '../../interfaces/mongodb/roomInterfaceMongodb'
 import { OptionYesNo } from '../../enums/optionYesNo'
-import { RoomType } from '../../enums/roomType'
 
 
 export const roomRouterMongodb = Router()
@@ -177,18 +176,13 @@ roomRouterMongodb.post('/', async (req: Request, res: Response) => {
 
     const allRoomNumbers = await roomServiceMongodb.fetchAllNumbers()
     const roomToValidate: RoomInterfaceDTO = {
-        photos: (req.body.photos == null
-            ? []
-            : Array.isArray(req.body.photos)
-                ? req.body.photos.map((x: any) => String(x ?? '').trim()).filter((s: string) => s.length > 0)
-                : [String(req.body.photos).trim()].filter((s: string) => s.length > 0)
-        ) as string[],
-        number: String(req.body.number ?? '').trim(),
-        type: String(req.body.type ?? '').trim() as unknown as RoomType,
+        photos: req.body.photos,
+        number: req.body.number.trim().toLowerCase(),
+        type: req.body.type.trim(),
         amenities: req.body.amenities,
         price: req.body.price,
         discount: req.body.discount,
-        isActive: req.body.isActive,
+        isActive: req.body.isActive.trim(),
         isArchived: OptionYesNo.no,
         booking_id_list: []
     }
@@ -218,13 +212,13 @@ roomRouterMongodb.put('/:id', async (req: Request, res: Response) => {
     const allRoomNumbers = await roomServiceMongodb.fetchAllNumbers()
     const roomToValidate: RoomInterfaceDTO = {
         photos: req.body.photos,
-        number: req.body.number,
-        type: req.body.type,
+        number: req.body.number.trim().toLowerCase(),
+        type: req.body.type.trim(),
         amenities: req.body.amenities,
         price: req.body.price,
         discount: req.body.discount,
-        isActive: req.body.isActive,
-        isArchived: req.body.isArchived,
+        isActive: req.body.isActive.trim(),
+        isArchived: req.body.isArchived.trim(),
         booking_id_list: req.body.booking_id_list
     }
     const roomValidator = new RoomValidator()

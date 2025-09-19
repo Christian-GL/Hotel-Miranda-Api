@@ -8,8 +8,6 @@ import { UserModelMongodb } from '../../models/mongodb/userModelMongodb'
 import { UserServiceMongodb } from '../../services/mongodb/userServiceMongodb'
 import { UserValidator } from '../../validators/userValidator'
 import { OptionYesNo } from '../../enums/optionYesNo'
-import { JobPosition } from '../../enums/jobPosition'
-import { Role } from '../../enums/role'
 
 
 export const userRouterMongodb = Router()
@@ -171,14 +169,14 @@ userRouterMongodb.post('/', async (req: Request, res: Response) => {
 
     const userToValidate: UserInterfaceDTO = {
         photo: req.body.photo == null ? null : String(req.body.photo).trim(),
-        full_name: normalizeString(req.body.full_name),
-        email: normalizeString(req.body.email).toLowerCase(),
-        phone_number: normalizeString(req.body.phone_number),
-        start_date: parseDateSafe(req.body.start_date) as Date | undefined as Date,
-        end_date: parseDateSafe(req.body.end_date) as Date | undefined as Date,
-        job_position: normalizeString(req.body.job_position) as unknown as JobPosition,
-        role: normalizeString(req.body.role) as unknown as Role,
-        password: String(req.body.password ?? ''),
+        full_name: req.body.full_name.trim(),
+        email: req.body.email.trim().toLowerCase(),
+        phone_number: req.body.phone_number.trim(),
+        start_date: new Date(req.body.start_date),
+        end_date: new Date(req.body.end_date),
+        job_position: req.body.job_position.trim(),
+        role: req.body.role.trim(),
+        password: req.body.password,
         isArchived: OptionYesNo.no
     }
     const userValidator = new UserValidator()
@@ -210,15 +208,15 @@ userRouterMongodb.put('/:id', async (req: Request, res: Response) => {
 
     const userToValidate: UserInterfaceDTO = {
         photo: req.body.photo == null ? null : String(req.body.photo).trim(),
-        full_name: normalizeString(req.body.full_name),
-        email: normalizeString(req.body.email).toLowerCase(),
-        phone_number: normalizeString(req.body.phone_number),
-        start_date: parseDateSafe(req.body.start_date) as Date | undefined as Date,
-        end_date: parseDateSafe(req.body.end_date) as Date | undefined as Date,
-        job_position: normalizeString(req.body.job_position) as unknown as JobPosition,
-        role: normalizeString(req.body.role) as unknown as Role,
-        password: String(req.body.password ?? ''),
-        isArchived: String(req.body.isArchived ?? '').trim() as unknown as OptionYesNo
+        full_name: req.body.full_name.trim(),
+        email: req.body.email.trim().toLowerCase(),
+        phone_number: req.body.phone_number.trim(),
+        start_date: new Date(req.body.start_date),
+        end_date: new Date(req.body.end_date),
+        job_position: req.body.job_position.trim(),
+        role: req.body.role.trim(),
+        password: req.body.password,
+        isArchived: req.body.isArchived.trim()
     }
     const userValidator = new UserValidator()
     const totalErrors = userValidator.validateUser(userToValidate, passwordHasChanged)

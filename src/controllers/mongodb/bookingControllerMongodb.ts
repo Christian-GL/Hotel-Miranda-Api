@@ -178,10 +178,10 @@ bookingRouterMongodb.post('/', async (req: Request, res: Response) => {
         check_in_date: new Date(req.body.check_in_date),
         check_out_date: new Date(req.body.check_out_date),
         price: req.body.price,
-        special_request: req.body.special_request,
+        special_request: req.body.special_request.trim(),
         isArchived: OptionYesNo.no,
         room_id_list: req.body.room_id_list,
-        client_id: req.body.client_id
+        client_id: req.body.client_id.trim()
     }
 
     const bookingValidator = new BookingValidator()
@@ -213,10 +213,10 @@ bookingRouterMongodb.put('/:id', async (req: Request, res: Response) => {
         check_in_date: new Date(req.body.check_in_date),
         check_out_date: new Date(req.body.check_out_date),
         price: req.body.price,
-        special_request: req.body.special_request,
+        special_request: req.body.special_request.trim(),
         isArchived: req.body.isArchived,
         room_id_list: req.body.room_id_list,
-        client_id: req.body.client_id
+        client_id: req.body.client_id.trim()
     }
 
     const bookingValidator = new BookingValidator()
