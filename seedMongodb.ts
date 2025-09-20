@@ -53,7 +53,7 @@ const createUsers = async (): Promise<void> => {
                 job_position: faker.lorem.paragraph(),
                 role: faker.helpers.arrayElement(Object.values(Role)),
                 password: 'Abcd1234.',
-                isArchived: faker.helpers.arrayElement(Object.values(OptionYesNo)) as OptionYesNo
+                isArchived: faker.helpers.arrayElement(Object.values(OptionYesNo))
             })
             totalErrors = userValidator.validateUser(fakeUser.toObject() as UserInterfaceIdMongodb, true)
             if (totalErrors.length === 0) {
@@ -110,22 +110,27 @@ const createRoomsOnly = async (): Promise<void> => {
     try {
         const rooms: InstanceType<typeof RoomModelMongodb>[] = []
         const roomValidator = new RoomValidator()
+        let totalRoomNumbers = []
+        let actualNumber = ''
+
         let totalErrors
         for (let i = 0; i < 5; i++) {
+            actualNumber = String(faker.number.int({ min: 0, max: 999 })).padStart(3, '0')
             const fakeRoom = new RoomModelMongodb({
                 photos: Array.from({ length: faker.number.int({ min: 3, max: 5 }) }, () => faker.image.urlPicsumPhotos()),
-                number: String(faker.number.int({ min: 0, max: 999 })).padStart(3, '0'),
-                type: faker.helpers.arrayElement(Object.values(RoomType)) as RoomType,
+                number: actualNumber,
+                type: faker.helpers.arrayElement(Object.values(RoomType)),
                 amenities: faker.helpers.arrayElements(Object.values(RoomAmenities), faker.number.int({ min: 1, max: Math.max(1, Object.values(RoomAmenities).length) })) as RoomAmenities[],
                 price: faker.number.float({ min: 25, max: 10000, fractionDigits: 2 }),
                 discount: faker.number.float({ min: 0, max: 100, fractionDigits: 2 }),
-                isActive: faker.helpers.arrayElement(Object.values(OptionYesNo)) as OptionYesNo,
-                isArchived: faker.helpers.arrayElement(Object.values(OptionYesNo)) as OptionYesNo,
+                isActive: faker.helpers.arrayElement(Object.values(OptionYesNo)),
+                isArchived: faker.helpers.arrayElement(Object.values(OptionYesNo)),
                 booking_id_list: []
             })
+            totalRoomNumbers.push(actualNumber)
             totalErrors = roomValidator.validateNewRoom(
                 fakeRoom.toObject() as RoomInterfaceIdMongodb,
-                rooms as RoomInterfaceIdMongodb[]
+                totalRoomNumbers
             )
             if (totalErrors.length === 0) {
                 rooms.push(fakeRoom)
@@ -149,24 +154,29 @@ const createBookingsOnly = async (): Promise<void> => {
     try {
         const bookings: InstanceType<typeof BookingModelMongodb>[] = []
         const bookingValidator = new BookingValidator()
+        let totalRoomNumbers = []
+        let actualNumber = ''
+        
         let totalErrors
         const allRooms: RoomInterfaceDTO[] = []    // temporal
         for (let i = 0; i < 5; i++) {
             const check_in_date = faker.date.future({ years: faker.number.float({ min: 0.2, max: 2 }) })
+            actualNumber = String(faker.number.int({ min: 0, max: 999 })).padStart(3, '0')
             const fakeBooking = new BookingModelMongodb({
                 order_date: faker.date.recent({ days: 30 }).toISOString(),
                 check_in_date: check_in_date.toISOString(),
                 check_out_date: faker.date.future({ years: faker.number.float({ min: 0.1, max: 2 }), refDate: check_in_date }).toISOString(),
                 price: faker.number.float({ min: 25, max: 10000, fractionDigits: 2 }),
                 special_request: faker.lorem.sentence(faker.number.int({ min: 10, max: 40 })),
-                isArchived: faker.helpers.arrayElement(Object.values(OptionYesNo)) as OptionYesNo,
+                isArchived: faker.helpers.arrayElement(Object.values(OptionYesNo)),
                 room_id_list: [],
                 client_id: 0
             })
+            totalRoomNumbers.push(actualNumber)
             totalErrors = bookingValidator.validateNewBooking(
                 fakeBooking.toObject() as BookingInterfaceIdMongodb,
                 bookings as BookingInterfaceIdMongodb[],
-                allRooms
+                totalRoomNumbers
             )
             if (totalErrors.length === 0) {
                 bookings.push(fakeBooking)
@@ -186,81 +196,81 @@ const createBookingsOnly = async (): Promise<void> => {
 }
 
 // ( Vieja versión V2 )
-const createRoomsAndBookings = async (): Promise<void> => {
-    await connectMongodbDB()
-    try {
-        const rooms: InstanceType<typeof RoomModelMongodb>[] = []
-        const bookings: BookingInterfaceIdMongodb[] = []
-        const roomValidator = new RoomValidator()
-        const bookingValidator = new BookingValidator()
-        let roomTotalErrors: string[] = []
-        let bookingTotalErrors: string[] = []
+// const createRoomsAndBookings = async (): Promise<void> => {
+//     await connectMongodbDB()
+//     try {
+//         const rooms: InstanceType<typeof RoomModelMongodb>[] = []
+//         const bookings: BookingInterfaceIdMongodb[] = []
+//         const roomValidator = new RoomValidator()
+//         const bookingValidator = new BookingValidator()
+//         let roomTotalErrors: string[] = []
+//         let bookingTotalErrors: string[] = []
 
-        for (let i = 0; i < 5; i++) {
-            const fakeRoom = new RoomModelMongodb({
-                photos: Array.from({ length: 3 }, () => faker.image.urlPicsumPhotos()),
-                number: faker.number.int({ min: 0, max: 999 }).toString().padStart(3, "0"),
-                type: faker.helpers.arrayElement(Object.values(RoomType)),
-                amenities: faker.helpers.arrayElements(Object.values(RoomAmenities), faker.number.int({ min: 3, max: 10 })),
-                price: faker.number.float({ min: 25, max: 10000, fractionDigits: 2 }),
-                discount: faker.number.float({ min: 0, max: 100, fractionDigits: 2 }),
-                booking_id_list: []
-            })
-            roomTotalErrors = roomValidator.validateNewRoom(
-                fakeRoom.toObject() as RoomInterfaceIdMongodb,
-                rooms as RoomInterfaceIdMongodb[]
-            )
-            if (roomTotalErrors.length === 0) {
-                rooms.push(fakeRoom)
-            } else {
-                console.error(`Validación fallida en el fakeRoom #${i}: ${roomTotalErrors.join(', ')}`)
-                continue
-            }
-        }
+//         for (let i = 0; i < 5; i++) {
+//             const fakeRoom = new RoomModelMongodb({
+//                 photos: Array.from({ length: 3 }, () => faker.image.urlPicsumPhotos()),
+//                 number: faker.number.int({ min: 0, max: 999 }).toString().padStart(3, "0"),
+//                 type: faker.helpers.arrayElement(Object.values(RoomType)),
+//                 amenities: faker.helpers.arrayElements(Object.values(RoomAmenities), faker.number.int({ min: 3, max: 10 })),
+//                 price: faker.number.float({ min: 25, max: 10000, fractionDigits: 2 }),
+//                 discount: faker.number.float({ min: 0, max: 100, fractionDigits: 2 }),
+//                 booking_id_list: []
+//             })
+//             roomTotalErrors = roomValidator.validateNewRoom(
+//                 fakeRoom.toObject() as RoomInterfaceIdMongodb,
+//                 rooms as RoomInterfaceIdMongodb[]
+//             )
+//             if (roomTotalErrors.length === 0) {
+//                 rooms.push(fakeRoom)
+//             } else {
+//                 console.error(`Validación fallida en el fakeRoom #${i}: ${roomTotalErrors.join(', ')}`)
+//                 continue
+//             }
+//         }
 
-        for (let i = 0; i < 75; i++) {
-            if (rooms.length === 0) break
-            const selectedRoom = faker.helpers.arrayElement(rooms)
-            const check_in_date = faker.date.future({ years: faker.number.float({ min: 0.2, max: 2 }) })
-            const fakeBooking = new BookingModelMongodb({
-                photo: faker.image.avatar(),
-                full_name_guest: faker.person.fullName(),
-                order_date: faker.date.recent({ days: 30 }).toISOString(),
-                check_in_date: check_in_date.toISOString(),
-                check_out_date: faker.date.future({ years: faker.number.float({ min: 0.1, max: 2 }), refDate: check_in_date }).toISOString(),
-                special_request: faker.lorem.sentence(faker.number.int({ min: 10, max: 40 })),
-                room_id: selectedRoom._id.toString()
-            })
-            bookingTotalErrors = bookingValidator.validateNewBooking(
-                fakeBooking.toObject() as BookingInterfaceIdMongodb,
-                bookings as BookingInterfaceIdMongodb[],
-                rooms as RoomInterfaceIdMongodb[]
-            )
-            if (bookingTotalErrors.length === 0) {
-                bookings.push(fakeBooking)
-                selectedRoom.booking_id_list.push(fakeBooking._id.toString())
-            }
-            else {
-                console.error(`Validación fallida en el fakeBooking #${i}: ${bookingTotalErrors.join(', ')}`)
-                continue
-            }
-        }
+//         for (let i = 0; i < 75; i++) {
+//             if (rooms.length === 0) break
+//             const selectedRoom = faker.helpers.arrayElement(rooms)
+//             const check_in_date = faker.date.future({ years: faker.number.float({ min: 0.2, max: 2 }) })
+//             const fakeBooking = new BookingModelMongodb({
+//                 photo: faker.image.avatar(),
+//                 full_name_guest: faker.person.fullName(),
+//                 order_date: faker.date.recent({ days: 30 }).toISOString(),
+//                 check_in_date: check_in_date.toISOString(),
+//                 check_out_date: faker.date.future({ years: faker.number.float({ min: 0.1, max: 2 }), refDate: check_in_date }).toISOString(),
+//                 special_request: faker.lorem.sentence(faker.number.int({ min: 10, max: 40 })),
+//                 room_id: selectedRoom._id.toString()
+//             })
+//             bookingTotalErrors = bookingValidator.validateNewBooking(
+//                 fakeBooking.toObject() as BookingInterfaceIdMongodb,
+//                 bookings as BookingInterfaceIdMongodb[],
+//                 rooms as RoomInterfaceIdMongodb[]
+//             )
+//             if (bookingTotalErrors.length === 0) {
+//                 bookings.push(fakeBooking)
+//                 selectedRoom.booking_id_list.push(fakeBooking._id.toString())
+//             }
+//             else {
+//                 console.error(`Validación fallida en el fakeBooking #${i}: ${bookingTotalErrors.join(', ')}`)
+//                 continue
+//             }
+//         }
 
-        // rooms.map(room => {
-        //     console.log(room._id, room.number, room.booking_list)
-        // })
-        // console.log('=============')
-        // bookings.map(booking => {
-        //     console.log(booking._id, booking.room_id)
-        // })
-        await RoomModelMongodb.insertMany(rooms)
-        await BookingModelMongodb.insertMany(bookings)
-    }
-    catch (error) {
-        console.error('Error creating bookings and rooms with faker', error)
-        throw error
-    }
-}
+//         // rooms.map(room => {
+//         //     console.log(room._id, room.number, room.booking_list)
+//         // })
+//         // console.log('=============')
+//         // bookings.map(booking => {
+//         //     console.log(booking._id, booking.room_id)
+//         // })
+//         await RoomModelMongodb.insertMany(rooms)
+//         await BookingModelMongodb.insertMany(bookings)
+//     }
+//     catch (error) {
+//         console.error('Error creating bookings and rooms with faker', error)
+//         throw error
+//     }
+// }
 
 
 const main = async () => {
