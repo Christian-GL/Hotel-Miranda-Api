@@ -2,6 +2,7 @@
 import { ServiceInterfaceMongodb } from '../../interfaces/mongodb/serviceInterfaceMongodb'
 import { RoomModelMongodb } from '../../models/mongodb/roomModelMongodb'
 import { RoomInterfaceDTO, RoomInterfaceIdMongodb } from '../../interfaces/mongodb/roomInterfaceMongodb'
+import { OptionYesNo } from '../../enums/optionYesNo'
 
 
 export class RoomServiceMongodb implements ServiceInterfaceMongodb<RoomInterfaceIdMongodb> {
@@ -77,7 +78,10 @@ export class RoomServiceMongodb implements ServiceInterfaceMongodb<RoomInterface
 
     async fetchAllIds(): Promise<string[]> {
         try {
-            const rooms = await RoomModelMongodb.find({}, { _id: 1 }).lean()
+            const rooms = await RoomModelMongodb.find(
+                { isArchived: OptionYesNo.no },
+                { _id: 1 }
+            ).lean()
             return rooms.map((r: any) => String(r._id))
         }
         catch (err) {
