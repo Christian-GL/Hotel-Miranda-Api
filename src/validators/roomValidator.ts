@@ -1,8 +1,7 @@
 
 import {
     validateString, validateStringList, validateNumber, validateRoomPhotoList,
-    validateRoomNumber, validateStringExistsInList,
-    validateRoomType, validateAmenities, validateRoomPrice,
+    validateRoomNumber, validateRoomType, validateAmenities, validateRoomPrice,
     validateRoomDiscount, validateOptionYesNo, validateMongoDBObjectIdList
 } from "./commonValidator"
 import { RoomInterfaceDTO } from "../interfaces/mongodb/roomInterfaceMongodb"
@@ -98,9 +97,9 @@ export class RoomValidator {
         this.validateRoom(room).map(
             error => allErrorMessages.push(error)
         )
-        validateStringExistsInList(room.number, allRoomNumbers, 'Room number').map(
-            error => allErrorMessages.push(error)
-        )
+        if (allRoomNumbers.includes(room.number)) {
+            allErrorMessages.push(`${room.number} already exists as room number`)
+        }
 
         return allErrorMessages
     }
@@ -118,9 +117,9 @@ export class RoomValidator {
         )
         // Si el número de habitación es diferente, se debe comprobar que el nuevo valor no exista
         if (room.number !== oldRoomNumber) {
-            validateStringExistsInList(room.number, allRoomNumbers, 'Room number').map(
-                error => allErrorMessages.push(error)
-            )
+            if (allRoomNumbers.includes(room.number)) {
+                allErrorMessages.push(`${room.number} already exists as room number`)
+            }
         }
 
         return allErrorMessages
