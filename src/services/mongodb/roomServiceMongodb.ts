@@ -92,7 +92,10 @@ export class RoomServiceMongodb implements ServiceInterfaceMongodb<RoomInterface
 
     async fetchAllNumbers(): Promise<string[]> {
         try {
-            const rooms = await RoomModelMongodb.find({}, { number: 1, _id: 0 }).lean()
+            const rooms = await RoomModelMongodb.find(
+                { isArchived: OptionYesNo.no },
+                { number: 1, _id: 0 }
+            ).lean()
             return rooms.map((r: any) => String(r.number))
         }
         catch (err) {
