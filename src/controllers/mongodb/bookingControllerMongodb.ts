@@ -159,7 +159,8 @@ bookingRouterMongodb.get('/:id', async (req: Request, res: Response) => {
         const booking = await bookingServiceMongodb.fetchById(req.params.id)
         if (booking !== null) {
             res.json(booking)
-        } else {
+        }
+        else {
             res.status(404).json({ message: `Booking #${req.params.id} not found` })
         }
     }
@@ -172,7 +173,7 @@ bookingRouterMongodb.get('/:id', async (req: Request, res: Response) => {
 bookingRouterMongodb.post('/', async (req: Request, res: Response) => {
 
     const allBookings = await bookingServiceMongodb.fetchAll()
-    const allRoomIDs = await roomServiceMongodb.fetchAllIds()
+    const allRoomIDs = await roomServiceMongodb.fetchAllIDsNotArchived()
     const bookingToValidate: BookingInterfaceDTO = {
         order_date: new Date(req.body.order_date),
         check_in_date: new Date(req.body.check_in_date),
@@ -206,7 +207,7 @@ bookingRouterMongodb.post('/', async (req: Request, res: Response) => {
 bookingRouterMongodb.put('/:id', async (req: Request, res: Response) => {
 
     const allBookings = await bookingServiceMongodb.fetchAll()
-    const allRoomIDs = await roomServiceMongodb.fetchAllIds()
+    const allRoomIDs = await roomServiceMongodb.fetchAllIDsNotArchived()
     const bookingToValidate: BookingInterfaceId = {
         _id: req.params.id,
         order_date: new Date(req.body.order_date),
@@ -246,7 +247,8 @@ bookingRouterMongodb.delete('/:id', adminOnly, async (req: Request, res: Respons
         const deletedBooking = await bookingServiceMongodb.delete(req.params.id)
         if (deletedBooking) {
             res.status(204).json()
-        } else {
+        }
+        else {
             res.status(404).json({ message: `Booking #${req.params.id} not found` })
         }
     }

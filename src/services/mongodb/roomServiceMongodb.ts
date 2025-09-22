@@ -76,7 +76,7 @@ export class RoomServiceMongodb implements ServiceInterfaceMongodb<RoomInterface
         }
     }
 
-    async fetchAllIds(): Promise<string[]> {
+    async fetchAllIDsNotArchived(): Promise<string[]> {
         try {
             const rooms = await RoomModelMongodb.find(
                 { isArchived: OptionYesNo.no },
@@ -90,7 +90,7 @@ export class RoomServiceMongodb implements ServiceInterfaceMongodb<RoomInterface
         }
     }
 
-    async fetchAllNumbers(): Promise<string[]> {
+    async fetchAllNumbersNotArchived(): Promise<string[]> {
         try {
             const rooms = await RoomModelMongodb.find(
                 { isArchived: OptionYesNo.no },
