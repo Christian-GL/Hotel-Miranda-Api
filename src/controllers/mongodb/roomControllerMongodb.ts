@@ -207,61 +207,6 @@ roomRouterMongodb.post('/', async (req: Request, res: Response) => {
     }
 })
 
-// roomRouterMongodb.put('/:id', async (req: Request, res: Response) => {
-
-//     const oldRoomDoc = await roomServiceMongodb.fetchById(req.params.id)
-//     const oldRoomNumber: string = String(oldRoomDoc?.number ?? '000')
-//     const allRoomNumbers = await roomServiceMongodb.fetchAllNumbersNotArchived()
-//     const roomToValidate: RoomInterfaceDTO = {
-//         photos: req.body.photos,
-//         number: req.body.number.trim().toLowerCase(),
-//         type: req.body.type.trim(),
-//         amenities: req.body.amenities,
-//         price: req.body.price,
-//         discount: req.body.discount,
-//         isActive: req.body.isActive.trim(),
-//         isArchived: req.body.isArchived.trim(),
-//         booking_id_list: req.body.booking_id_list
-//     }
-//     const roomValidator = new RoomValidator()
-//     const totalErrors = roomValidator.validateExistingRoom(roomToValidate, oldRoomNumber, allRoomNumbers)
-//     if (totalErrors.length === 0) {
-//         try {
-//             const updatedRoom = await roomServiceMongodb.update(req.params.id, roomToValidate)
-//             if (updatedRoom !== null) {
-//                 if (roomToValidate.isActive === OptionYesNo.no || roomToValidate.isArchived === OptionYesNo.yes) {
-//                     roomToValidate.booking_id_list.map(async idBooking => {
-//                         const booking = await bookingServiceMongodb.fetchById(idBooking)
-//                         if (booking !== null && booking.isArchived === OptionYesNo.no) {
-//                             booking.isArchived = OptionYesNo.yes
-//                             const updatedBooking = await bookingServiceMongodb.update(idBooking, booking)
-//                             if (updatedBooking == null) {
-//                                 res.status(404).json({ message: `Booking #${req.params.id} not found` })
-//                             }
-//                         }
-//                         else {
-//                             res.status(404).json({ message: `Booking #${req.params.id} not found` })
-//                         }
-//                     })
-//                 }
-//                 res.status(200).json(updatedRoom)
-//             }
-//             else {
-//                 res.status(404).json({ message: `Room #${req.params.id} not found` })
-//             }
-//         }
-//         catch (error) {
-//             console.error("Error in put of roomController:", error)
-//             res.status(500).json({ message: "Internal server error" })
-//         }
-//     }
-//     else {
-//         res.status(400).json({ message: totalErrors.join(', ') })
-//     }
-// })
-
-// define la función por separado
-
 roomRouterMongodb.put('/:id', async (req: Request, res: Response) => {
     try {
         // --- obtener datos previos y listas de referencia --------------------
