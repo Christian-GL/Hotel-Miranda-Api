@@ -209,18 +209,9 @@ roomRouterMongodb.post('/', async (req: Request, res: Response) => {
 
 roomRouterMongodb.put('/:id', async (req: Request, res: Response) => {
     try {
-        // --- obtener datos previos y listas de referencia --------------------
-        // Traemos el doc antiguo para coger su número (por si estamos actualizando
-        // sin cambiar número, lo comparamos en el validador).
         const oldRoomDoc = await roomServiceMongodb.fetchById(req.params.id)
         const oldRoomNumber = String(oldRoomDoc?.number ?? '000')
-
-        // Lista de números existentes (no archivados) para validar unicidad
         const allRoomNumbers = await roomServiceMongodb.fetchAllNumbersNotArchived()
-
-        // --- normalizaciones/defensivas ------------------------------------
-        // Hacemos sólo ajustes mínimos aquí (trim / lowercase) y dejamos la
-        // validación fuerte al validador.
         const roomToValidate: RoomInterfaceDTO = {
             photos: req.body.photos,
             number: typeof req.body.number === 'string' ? req.body.number.trim().toLowerCase() : req.body.number,
@@ -230,64 +221,45 @@ roomRouterMongodb.put('/:id', async (req: Request, res: Response) => {
             discount: req.body.discount,
             isActive: typeof req.body.isActive === 'string' ? req.body.isActive.trim() : req.body.isActive,
             isArchived: typeof req.body.isArchived === 'string' ? req.body.isArchived.trim() : req.body.isArchived,
-            // Si no viene array, lo convertimos a array vacío para evitar errores al iterar
-            booking_id_list: Array.isArray(req.body.booking_id_list) ? req.body.booking_id_list : []
+            booking_id_list: Array.isArray(req.body.booking_id_list) ? req.body.booking_id_list : [] // <--
         }
 
-        // --- validación -----------------------------------------------------
         const roomValidator = new RoomValidator()
         const totalErrors = roomValidator.validateExistingRoom(roomToValidate, oldRoomNumber, allRoomNumbers)
         if (totalErrors.length > 0) {
-            // Devolvemos todos los errores recogidos por el validador
             res.status(400).json({ message: totalErrors.join(', ') })
             return
         }
 
-        // --- update de la room ----------------------------------------------
         const updatedRoom = await roomServiceMongodb.update(req.params.id, roomToValidate)
         if (!updatedRoom) {
-            // Si no existe la room devolvemos 404
             res.status(404).json({ message: `Room #${req.params.id} not found` })
             return
         }
 
-        // --- si la habitación queda inactiva/archivada -> archivar bookings ---
-        // Si la habitación deja de estar disponible, archivamos sus bookings activas.
+        // Si la habitación queda inactiva/archivada archivamos sus bookings activas.
         if (roomToValidate.isActive === OptionYesNo.no || roomToValidate.isArchived === OptionYesNo.yes) {
-            // Normalizamos lista de IDs (si viniera duplicada o vacía)
             const bookingIds: string[] = Array.from(new Set(roomToValidate.booking_id_list ?? []))
-
-            /* 
-             * IMPORTANTE: usamos Promise.all sobre map para esperar a que terminen
-             * todas las operaciones asíncronas. NO usar map + async sin await,
-             * porque entonces el handler terminaría antes de completar las updates.
-             *
-             * Además, NO enviamos respuestas (res.*) desde dentro de cada iteración;
-             * acumulamos resultados y enviamos una sola respuesta al cliente.
-             */
             const results = await Promise.all(bookingIds.map(async (idBooking) => {
                 try {
-                    // buscar booking
                     const booking = await bookingServiceMongodb.fetchById(idBooking)
-                    if (!booking) return { id: idBooking, status: 'not_found' }
+                    if (!booking) return { id: idBooking, status: 'not found' }
 
-                    // si la booking está activa, la archivamos
                     if (booking.isArchived === OptionYesNo.no) {
                         booking.isArchived = OptionYesNo.yes
                         const updatedBooking = await bookingServiceMongodb.update(idBooking, booking)
-                        return updatedBooking ? { id: idBooking, status: 'archived' } : { id: idBooking, status: 'update_failed' }
-                    } else {
-                        // ya estaba archivada
-                        return { id: idBooking, status: 'already_archived' }
+                        return updatedBooking ? { id: idBooking, status: 'archived' } : { id: idBooking, status: 'update failed' }
                     }
-                } catch (err) {
+                    else {
+                        return { id: idBooking, status: 'already archived' }
+                    }
+                }
+                catch (err) {
                     console.error(`Error archiving booking ${idBooking}:`, err)
                     return { id: idBooking, status: 'error', error: String(err) }
                 }
             }))
-
-            // Filtramos problemas para registrarlos o devolverlos
-            const problems = results.filter(r => r.status !== 'archived' && r.status !== 'already_archived')
+            const problems = results.filter(r => r.status !== 'archived' && r.status !== 'already archived')
             if (problems.length > 0) {
                 // Aquí optamos por devolver 200 con el detalle de qué pasó.
                 // Alternativa: devolver 207 (Multi-Status) o 500 si quieres hacer la operación estricta.
@@ -296,12 +268,11 @@ roomRouterMongodb.put('/:id', async (req: Request, res: Response) => {
             }
         }
 
-        // --- respuesta final exitosa ---------------------------------------
         res.status(200).json(updatedRoom)
         return
-    } catch (error) {
-        console.error("Error in put of roomController:", error)
-        // Responder un único 500 en caso de excepción inesperada
+    }
+    catch (error) {
+        console.error("Error in put of roomController: ", error)
         res.status(500).json({ message: "Internal server error" })
         return
     }
