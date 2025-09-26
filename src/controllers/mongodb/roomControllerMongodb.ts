@@ -210,174 +210,45 @@ roomRouterMongodb.post('/', async (req: Request, res: Response) => {
     }
 })
 
-// roomRouterMongodb.put('/:id', async (req: Request, res: Response) => {
-//   try {
-//     // === 1) datos previos y referencias (no escribimos aún) ===
-//     const roomId = req.params.id
-
-//     // traemos la room antigua (si no existe devolvemos 404 ya)
-//     const oldRoomDoc = await roomServiceMongodb.fetchById(roomId)
-//     if (!oldRoomDoc) {
-//       res.status(404).json({ message: `Room #${roomId} not found` })
-//       return
-//     }
-//     const oldRoomNumber = String(oldRoomDoc.number ?? '000')
-
-//     // lista de números existentes (no archivados) para validar unicidad
-//     const allRoomNumbers = await roomServiceMongodb.fetchAllNumbersNotArchived()
-
-//     // === 2) construir DTO con normalizaciones ligeras ===
-//     const roomToValidate: RoomInterfaceDTO = {
-//       photos: req.body.photos,
-//       number: typeof req.body.number === 'string' ? req.body.number.trim().toLowerCase() : req.body.number,
-//       type: typeof req.body.type === 'string' ? req.body.type.trim() : req.body.type,
-//       amenities: req.body.amenities,
-//       price: req.body.price,
-//       discount: req.body.discount,
-//       isActive: typeof req.body.isActive === 'string' ? req.body.isActive.trim() : req.body.isActive,
-//       isArchived: typeof req.body.isArchived === 'string' ? req.body.isArchived.trim() : req.body.isArchived,
-//       booking_id_list: Array.isArray(req.body.booking_id_list) ? req.body.booking_id_list : []
-//     }
-
-//     // === 3) validación de la room (formato y reglas de negocio) ===
-//     const roomValidator = new RoomValidator()
-//     const totalErrors = roomValidator.validateExistingRoom(roomToValidate, oldRoomNumber, allRoomNumbers)
-//     if (totalErrors.length > 0) {
-//       res.status(400).json({ message: totalErrors.join(', ') })
-//       return
-//     }
-
-//     // === 4) PRE-CHECK bookings: existen y tienen formato válido? ===
-//     const bookingIDs: string[] = Array.from(new Set(roomToValidate.booking_id_list ?? []))
-
-//     // validar formato ObjectId y recolectar invalid ids
-//     const invalidFormatIds = bookingIDs.filter(id => !mongoose.Types.ObjectId.isValid(String(id)))
-//     if (invalidFormatIds.length > 0) {
-//       res.status(400).json({ message: `Invalid booking ID format: ${invalidFormatIds.join(', ')}` })
-//       return
-//     }
-
-//     // comprobar existencia en BD (pre-check) — IMPORTANTE: antes de abrir sesión
-//     if (bookingIDs.length > 0) {
-//       const foundBookings = await BookingModelMongodb.find({ _id: { $in: bookingIDs } }, { _id: 1 }).lean()
-//       const foundSet = new Set(foundBookings.map((b: any) => String(b._id)))
-//       const missing = bookingIDs.filter(id => !foundSet.has(id))
-//       if (missing.length > 0) {
-//         res.status(400).json({ message: `Some booking IDs do not exist: ${missing.join(', ')}` })
-//         return
-//       }
-//     }
-
-//     // === 5) TODO OK: abrir sesión y ejecutar la TRANSACCIÓN ===
-//     const session = await mongoose.startSession()
-//     try {
-//       await session.withTransaction(async () => {
-//         // 5.a) actualizar la room dentro de la sesión
-//         const updatedRoom = await RoomModelMongodb.findOneAndUpdate(
-//           { _id: roomId },
-//           roomToValidate,
-//           { new: true, session }
-//         )
-
-//         // Si por alguna razón la room desapareció entre checks -> lanzar para rollback
-//         if (!updatedRoom) {
-//           throw new Error(`Room #${roomId} not found`)
-//         }
-
-//         // 5.b) si procede, archivar bookings (bulk) dentro de la sesión
-//         if (roomToValidate.isActive === OptionYesNo.no || roomToValidate.isArchived === OptionYesNo.yes) {
-//           if (bookingIDs.length > 0) {
-//             await BookingModelMongodb.updateMany(
-//               { _id: { $in: bookingIDs }, isArchived: OptionYesNo.no },
-//               { $set: { isArchived: OptionYesNo.yes } },
-//               { session }
-//             )
-//           }
-//         }
-
-//         // si llegamos aquí sin lanzar, la transacción hará commit automáticamente
-//       }) // end withTransaction
-
-//       // 6) después del commit: devolver la room final (lectura fuera de session)
-//       const finalRoom = await RoomModelMongodb.findById(roomId).lean()
-//       res.status(200).json(finalRoom)
-//       return
-//     } catch (txErr: any) {
-//       // errores dentro de la transacción -> rollback automático
-//       const msg = txErr?.message ?? 'Transaction failed'
-//       // Mapear a códigos: si mensaje contiene "not found" -> 404, si transacciones no soportadas -> 500 con hint
-//       if (String(msg).toLowerCase().includes('not found')) {
-//         res.status(404).json({ message: msg })
-//         return
-//       }
-//       if (String(msg).toLowerCase().includes('replica set') || String(msg).toLowerCase().includes('transactions')) {
-//         res.status(500).json({ message: `Transaction error: ${msg}. Ensure MongoDB supports transactions (replica set / Atlas).` })
-//         return
-//       }
-//       // por defecto 500
-//       res.status(500).json({ message: msg })
-//       return
-//     } finally {
-//       session.endSession()
-//     }
-//   } catch (error: any) {
-//     console.error('Error in put of roomController:', error)
-//     res.status(500).json({ message: (error && error.message) ? error.message : 'Internal server error' })
-//     return
-//   }
-// })
-
 roomRouterMongodb.put('/:id', async (req: Request, res: Response) => {
     try {
-        // === 1) datos previos y referencias (no escribimos aún) ===
-        const roomId = req.params.id
-
-        // traemos la room antigua (si no existe devolvemos 404 ya)
-        const oldRoomDoc = await roomServiceMongodb.fetchById(roomId)
-        if (!oldRoomDoc) {
-            res.status(404).json({ message: `Room #${roomId} not found` })
+        // ROOM validaciones
+        const roomID = req.params.id
+        const actualRoom = await roomServiceMongodb.fetchById(roomID)
+        if (!actualRoom) {
+            res.status(404).json({ message: `Room #${roomID} not found` })
             return
         }
-        const oldRoomNumber = String(oldRoomDoc.number ?? '000')
-
-        // lista de números existentes (no archivados) para validar unicidad
         const allRoomNumbers = await roomServiceMongodb.fetchAllNumbersNotArchived()
-
-        // === 2) construir DTO con normalizaciones ligeras ===
+        const actualRoomNumber = req.body.number.trim().toLowerCase()
         const roomToValidate: RoomInterfaceDTO = {
             photos: req.body.photos,
-            number: typeof req.body.number === 'string' ? req.body.number.trim().toLowerCase() : req.body.number,
-            type: typeof req.body.type === 'string' ? req.body.type.trim() : req.body.type,
+            number: actualRoomNumber,
+            type: req.body.type.trim(),
             amenities: req.body.amenities,
             price: req.body.price,
             discount: req.body.discount,
-            isActive: typeof req.body.isActive === 'string' ? req.body.isActive.trim() : req.body.isActive,
-            isArchived: typeof req.body.isArchived === 'string' ? req.body.isArchived.trim() : req.body.isArchived,
-            booking_id_list: Array.isArray(req.body.booking_id_list) ? req.body.booking_id_list : []
+            isActive: req.body.isActive.trim(),
+            isArchived: req.body.isArchived.trim(),
+            booking_id_list: req.body.booking_id_list
         }
-
-        // === 3) validación de la room (formato y reglas de negocio) ===
         const roomValidator = new RoomValidator()
-        const totalErrors = roomValidator.validateExistingRoom(roomToValidate, oldRoomNumber, allRoomNumbers)
+        const totalErrors = roomValidator.validateExistingRoom(roomToValidate, actualRoomNumber, allRoomNumbers)
         if (totalErrors.length > 0) {
             res.status(400).json({ message: totalErrors.join(', ') })
             return
         }
 
-        // === 4) PRE-CHECK bookings: existen y tienen formato válido? ===
+        // BOOKING asociadas a la room validaciones
         const bookingIDs: string[] = Array.from(new Set(roomToValidate.booking_id_list ?? []))
-
-        // validar formato ObjectId y recolectar invalid ids
-        const invalidFormatIds = bookingIDs.filter(id => !mongoose.Types.ObjectId.isValid(String(id)))
-        if (invalidFormatIds.length > 0) {
-            res.status(400).json({ message: `Invalid booking ID format: ${invalidFormatIds.join(', ')}` })
+        const invalidFormatIDs = bookingIDs.filter(id => !mongoose.Types.ObjectId.isValid(String(id)))
+        if (invalidFormatIDs.length > 0) {
+            res.status(400).json({ message: `Invalid booking ID format: ${invalidFormatIDs.join(', ')}` })
             return
         }
-
-        // comprobar existencia en BD (pre-check) — IMPORTANTE: antes de abrir sesión
         if (bookingIDs.length > 0) {
             const foundBookings = await BookingModelMongodb.find({ _id: { $in: bookingIDs } }, { _id: 1 }).lean()
-            const foundSet = new Set(foundBookings.map((b: any) => String(b._id)))
+            const foundSet = new Set(foundBookings.map((booking: any) => String(booking._id)))
             const missing = bookingIDs.filter(id => !foundSet.has(id))
             if (missing.length > 0) {
                 res.status(400).json({ message: `Some booking IDs do not exist: ${missing.join(', ')}` })
@@ -385,59 +256,31 @@ roomRouterMongodb.put('/:id', async (req: Request, res: Response) => {
             }
         }
 
-        // === 5) TODO OK: abrir sesión y ejecutar la TRANSACCIÓN ===
-        const session = await mongoose.startSession()
+        // Si tanto la ROOM como sus BOOKINGS existen y pasan validaciones hacemos las actualizaciones correspondientes en BD
         try {
-            await session.withTransaction(async () => {
-                // 5.a) actualizar la room dentro de la sesión
-                const updatedRoom = await RoomModelMongodb.findOneAndUpdate(
-                    { _id: roomId },
-                    roomToValidate,
-                    { new: true, session }
-                )
-
-                // Si por alguna razón la room desapareció entre checks -> lanzar para rollback
-                if (!updatedRoom) {
-                    throw new Error(`Room #${roomId} not found`)
-                }
-
-                // 5.b) si procede, archivar bookings (bulk) dentro de la sesión
-                if (roomToValidate.isActive === OptionYesNo.no || roomToValidate.isArchived === OptionYesNo.yes) {
-                    if (bookingIDs.length > 0) {
-                        await BookingModelMongodb.updateMany(
-                            { _id: { $in: bookingIDs }, isArchived: OptionYesNo.no },
-                            { $set: { isArchived: OptionYesNo.yes } },
-                            { session }
-                        )
-                    }
-                }
-
-                // si llegamos aquí sin lanzar, la transacción hará commit automáticamente
-            }) // end withTransaction
-
-            // 6) después del commit: devolver la room final (lectura fuera de session)
-            const finalRoom = await RoomModelMongodb.findById(roomId).lean()
+            const finalRoom = await roomServiceMongodb.updateRoomAndArchiveBookings(roomID, roomToValidate, bookingIDs)
+            if (!finalRoom) {
+                res.status(404).json({ message: `Room #${roomID} not found` })
+                return
+            }
             res.status(200).json(finalRoom)
             return
-        } catch (txErr: any) {
-            // errores dentro de la transacción -> rollback automático
-            const msg = txErr?.message ?? 'Transaction failed'
-            // Mapear a códigos: si mensaje contiene "not found" -> 404, si transacciones no soportadas -> 500 con hint
-            if (String(msg).toLowerCase().includes('not found')) {
-                res.status(404).json({ message: msg })
-                return
-            }
-            if (String(msg).toLowerCase().includes('replica set') || String(msg).toLowerCase().includes('transactions')) {
-                res.status(500).json({ message: `Transaction error: ${msg}. Ensure MongoDB supports transactions (replica set / Atlas).` })
-                return
-            }
-            // por defecto 500
-            res.status(500).json({ message: msg })
-            return
-        } finally {
-            session.endSession()
         }
-    } catch (error: any) {
+        catch (error: any) {
+            const message = error?.message ?? 'Transaction failed'
+            if (String(message).toLowerCase().includes('not found')) {
+                res.status(404).json({ message })
+                return
+            }
+            if (String(message).toLowerCase().includes('replica set') || String(message).toLowerCase().includes('transactions')) {
+                res.status(500).json({ message: `Transaction error: ${message}. Ensure MongoDB supports transactions (replica set / Atlas).` })
+                return
+            }
+            res.status(500).json({ message })
+            return
+        }
+    }
+    catch (error: any) {
         console.error('Error in put of roomController:', error)
         res.status(500).json({ message: (error && error.message) ? error.message : 'Internal server error' })
         return

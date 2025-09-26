@@ -3,6 +3,8 @@ import { ServiceInterfaceMongodb } from '../../interfaces/mongodb/serviceInterfa
 import { RoomModelMongodb } from '../../models/mongodb/roomModelMongodb'
 import { RoomInterfaceDTO, RoomInterfaceIdMongodb } from '../../interfaces/mongodb/roomInterfaceMongodb'
 import { OptionYesNo } from '../../enums/optionYesNo'
+import mongoose, { ClientSession } from 'mongoose'
+import { BookingModelMongodb } from '../../models/mongodb/bookingModelMongodb'
 
 
 export class RoomServiceMongodb implements ServiceInterfaceMongodb<RoomInterfaceIdMongodb> {
@@ -42,23 +44,110 @@ export class RoomServiceMongodb implements ServiceInterfaceMongodb<RoomInterface
         }
     }
 
-    async update(id: string, room: RoomInterfaceDTO): Promise<RoomInterfaceIdMongodb | null> {
+    // async update(id: string, room: RoomInterfaceDTO): Promise<RoomInterfaceIdMongodb | null> {
+    //     try {
+    //         const existingRoom: RoomInterfaceIdMongodb | null = await this.fetchById(id)
+    //         if (existingRoom == null) return null
+
+    //         const updatedRoom: RoomInterfaceIdMongodb | null = await RoomModelMongodb.findOneAndUpdate(
+    //             { _id: id },
+    //             room,
+    //             { new: true }
+    //         )
+    //         if (updatedRoom === null) return null
+
+    //         return updatedRoom
+    //     }
+    //     catch (error) {
+    //         console.error('Error in update of roomService', error)
+    //         throw error
+    //     }
+    // }
+    // // updateRoomWithSession
+
+    async update(id: string, roomDTO: RoomInterfaceDTO, session?: ClientSession): Promise<RoomInterfaceIdMongodb | null> {
         try {
-            const existingRoom: RoomInterfaceIdMongodb | null = await this.fetchById(id)
-            if (existingRoom == null) return null
-
-            const updatedRoom: RoomInterfaceIdMongodb | null = await RoomModelMongodb.findOneAndUpdate(
+            const updated = await RoomModelMongodb.findOneAndUpdate(
                 { _id: id },
-                room,
-                { new: true }
-            )
-            if (updatedRoom === null) return null
+                roomDTO,
+                { new: true, session }
+            ).exec()
 
-            return updatedRoom
+            return updated as RoomInterfaceIdMongodb | null
+        }
+        catch (err) {
+            console.error('Error in update of roomService', err)
+            throw err
+        }
+    }
+
+    async archiveBookingsByIds(bookingIDs: string[], session?: ClientSession): Promise<{ matchedCount: number, modifiedCount: number } | null> {
+        /**
+     * Archiva (isArchived = yes) bookings por lista de ids dentro de session opcional.
+     * Devuelve el resultado de la operación (matchedCount/modifiedCount) o null si IDs vacíos.
+     */
+        try {
+            if (!bookingIDs || bookingIDs.length === 0) return { matchedCount: 0, modifiedCount: 0 }
+
+            const res = await BookingModelMongodb.updateMany(
+                { _id: { $in: bookingIDs }, isArchived: OptionYesNo.no },
+                { $set: { isArchived: OptionYesNo.yes } },
+                { session }
+            ).exec()
+
+            // res puede ser un UpdateWriteResult / UpdateResult según driver, estandarizamos
+            return {
+                matchedCount: (res as any).matchedCount ?? (res as any).n ?? 0,
+                modifiedCount: (res as any).modifiedCount ?? (res as any).nModified ?? 0
+            }
+        }
+        catch (err) {
+            console.error('Error in archiveBookingsByIds of roomService', err)
+            throw err
+        }
+    }
+
+    async updateRoomAndArchiveBookings(roomId: string, roomDto: RoomInterfaceDTO, bookingIds: string[]): Promise<RoomInterfaceIdMongodb | null> {
+        /**
+     * Método compuesto: hace la actualización de la room y (si procede)
+     * archiva las bookings en una única transacción. Devuelve la room final.
+     * - Realiza su propia session/withTransaction.
+     * - Lanza errores para que el controller los traduzca a 400/404/500.
+     */
+        const session = await mongoose.startSession()
+        try {
+            let finalRoom: RoomInterfaceIdMongodb | null = null
+
+            await session.withTransaction(async () => {
+                const updatedRoom = await RoomModelMongodb.findOneAndUpdate(
+                    { _id: roomId },
+                    roomDto,
+                    { new: true, session }
+                ).exec()
+
+                if (!updatedRoom) {
+                    throw new Error(`Room #${roomId} not found`)
+                }
+
+                if ((roomDto.isActive === OptionYesNo.no || roomDto.isArchived === OptionYesNo.yes) && bookingIds && bookingIds.length > 0) {
+                    await BookingModelMongodb.updateMany(
+                        { _id: { $in: bookingIds }, isArchived: OptionYesNo.no },
+                        { $set: { isArchived: OptionYesNo.yes } },
+                        { session }
+                    ).exec()
+                }
+
+                finalRoom = updatedRoom as RoomInterfaceIdMongodb
+            })
+
+            const finalRoomFresh = await RoomModelMongodb.findById(roomId).lean()
+            return finalRoomFresh as RoomInterfaceIdMongodb | null
         }
         catch (error) {
-            console.error('Error in update of roomService', error)
             throw error
+        }
+        finally {
+            session.endSession()
         }
     }
 
