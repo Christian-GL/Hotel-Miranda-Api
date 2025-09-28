@@ -210,7 +210,6 @@ roomRouterMongodb.post('/', async (req: Request, res: Response) => {
     }
 })
 
-
 roomRouterMongodb.put('/:id', async (req: Request, res: Response) => {
     try {
         // ROOM validaciones
