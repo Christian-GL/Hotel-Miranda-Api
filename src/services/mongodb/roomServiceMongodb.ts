@@ -44,6 +44,7 @@ export class RoomServiceMongodb implements ServiceInterfaceMongodb<RoomInterface
         }
     }
 
+    // Viejo Update
     // async update(id: string, room: RoomInterfaceDTO): Promise<RoomInterfaceIdMongodb | null> {
     //     try {
     //         const existingRoom: RoomInterfaceIdMongodb | null = await this.fetchById(id)
@@ -67,17 +68,61 @@ export class RoomServiceMongodb implements ServiceInterfaceMongodb<RoomInterface
 
     async update(id: string, roomDTO: RoomInterfaceDTO, session?: ClientSession): Promise<RoomInterfaceIdMongodb | null> {
         try {
-            const updated = await RoomModelMongodb.findOneAndUpdate(
+            const updatedRoom = await RoomModelMongodb.findOneAndUpdate(
                 { _id: id },
                 roomDTO,
                 { new: true, session }
             ).exec()
 
-            return updated as RoomInterfaceIdMongodb | null
+            return updatedRoom as RoomInterfaceIdMongodb | null
         }
-        catch (err) {
-            console.error('Error in update of roomService', err)
-            throw err
+        catch (error) {
+            console.error('Error in update of roomService', error)
+            throw error
+        }
+    }
+
+    async updateRoomAndArchiveBookings(roomId: string, roomDTO: RoomInterfaceDTO, bookingIDs: string[]): Promise<RoomInterfaceIdMongodb | null> {
+        /**
+     * Método compuesto: hace la actualización de la room y (si procede)
+     * archiva las bookings en una única transacción. Devuelve la room final.
+     * - Realiza su propia session/withTransaction.
+     * - Lanza errores para que el controller los traduzca a 400/404/500.
+     */
+        const session = await mongoose.startSession()
+        try {
+            let finalRoom: RoomInterfaceIdMongodb | null = null
+
+            await session.withTransaction(async () => {
+                const updatedRoom = await RoomModelMongodb.findOneAndUpdate(
+                    { _id: roomId },
+                    roomDTO,
+                    { new: true, session }
+                ).exec()
+
+                if (!updatedRoom) {
+                    throw new Error(`Room #${roomId} not found`)
+                }
+
+                if ((roomDTO.isActive === OptionYesNo.no || roomDTO.isArchived === OptionYesNo.yes) && bookingIDs && bookingIDs.length > 0) {
+                    await BookingModelMongodb.updateMany(
+                        { _id: { $in: bookingIDs }, isArchived: OptionYesNo.no },
+                        { $set: { isArchived: OptionYesNo.yes } },
+                        { session }
+                    ).exec()
+                }
+
+                finalRoom = updatedRoom as RoomInterfaceIdMongodb
+            })
+
+            const finalRoomFresh = await RoomModelMongodb.findById(roomId).lean()
+            return finalRoomFresh as RoomInterfaceIdMongodb | null
+        }
+        catch (error) {
+            throw error
+        }
+        finally {
+            session.endSession()
         }
     }
 
@@ -104,50 +149,6 @@ export class RoomServiceMongodb implements ServiceInterfaceMongodb<RoomInterface
         catch (err) {
             console.error('Error in archiveBookingsByIds of roomService', err)
             throw err
-        }
-    }
-
-    async updateRoomAndArchiveBookings(roomId: string, roomDto: RoomInterfaceDTO, bookingIds: string[]): Promise<RoomInterfaceIdMongodb | null> {
-        /**
-     * Método compuesto: hace la actualización de la room y (si procede)
-     * archiva las bookings en una única transacción. Devuelve la room final.
-     * - Realiza su propia session/withTransaction.
-     * - Lanza errores para que el controller los traduzca a 400/404/500.
-     */
-        const session = await mongoose.startSession()
-        try {
-            let finalRoom: RoomInterfaceIdMongodb | null = null
-
-            await session.withTransaction(async () => {
-                const updatedRoom = await RoomModelMongodb.findOneAndUpdate(
-                    { _id: roomId },
-                    roomDto,
-                    { new: true, session }
-                ).exec()
-
-                if (!updatedRoom) {
-                    throw new Error(`Room #${roomId} not found`)
-                }
-
-                if ((roomDto.isActive === OptionYesNo.no || roomDto.isArchived === OptionYesNo.yes) && bookingIds && bookingIds.length > 0) {
-                    await BookingModelMongodb.updateMany(
-                        { _id: { $in: bookingIds }, isArchived: OptionYesNo.no },
-                        { $set: { isArchived: OptionYesNo.yes } },
-                        { session }
-                    ).exec()
-                }
-
-                finalRoom = updatedRoom as RoomInterfaceIdMongodb
-            })
-
-            const finalRoomFresh = await RoomModelMongodb.findById(roomId).lean()
-            return finalRoomFresh as RoomInterfaceIdMongodb | null
-        }
-        catch (error) {
-            throw error
-        }
-        finally {
-            session.endSession()
         }
     }
 
