@@ -256,6 +256,7 @@ roomRouterMongodb.put('/:id', async (req: Request, res: Response) => {
             }
         }
 
+        
         // Si tanto la ROOM como sus BOOKINGS existen y pasan validaciones hacemos las actualizaciones correspondientes en BD
         try {
             const finalRoom = await roomServiceMongodb.updateRoomAndArchiveBookings(roomID, roomToValidate, bookingIDs)
