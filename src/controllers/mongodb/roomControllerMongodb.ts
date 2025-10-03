@@ -2,7 +2,6 @@
 import { Request, Response } from 'express'
 import Router from 'express'
 import mongoose from 'mongoose'
-import { RoomModelMongodb } from '../../models/mongodb/roomModelMongodb'
 import { BookingModelMongodb } from '../../models/mongodb/bookingModelMongodb'
 import { authMiddleware } from '../../middleware/authMiddleware'
 import { adminOnly } from '../../middleware/adminOnly'
