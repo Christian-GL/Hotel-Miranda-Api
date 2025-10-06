@@ -255,7 +255,7 @@ roomRouterMongodb.put('/:id', async (req: Request, res: Response) => {
             }
         }
 
-        
+
         // Si tanto la ROOM como sus BOOKINGS existen y pasan validaciones hacemos las actualizaciones correspondientes en BD
         try {
             const finalRoom = await roomServiceMongodb.updateRoomAndArchiveBookings(roomID, roomToValidate, bookingIDs)
@@ -287,19 +287,48 @@ roomRouterMongodb.put('/:id', async (req: Request, res: Response) => {
     }
 })
 
-roomRouterMongodb.delete('/:id', adminOnly, async (req: Request, res: Response) => {
+// roomRouterMongodb.delete('/:id', adminOnly, async (req: Request, res: Response) => {
+//     try {
+//         const deletedRoom = await roomServiceMongodb.delete(req.params.id)
+//         if (deletedRoom) {
+//             const actualRoom = await roomServiceMongodb.fetchById(req.params.id)
+//             const bookingIDs: string[] = Array.from(new Set(actualRoom.booking_id_list ?? []))
+//             await BookingModelMongodb.updateMany(
+//                 { _id: { $in: bookingIDs }, isArchived: OptionYesNo.no },
+//                 { $set: { isArchived: OptionYesNo.yes } }
+//             ).exec()
+//             res.status(204).json()
+//         }
+//         else {
+//             res.status(404).json({ message: `Room #${req.params.id} not found` })
+//         }
+//     }
+//     catch (error) {
+//         console.error("Error in delete of roomController:", error)
+//         res.status(500).json({ message: "Internal server error" })
+//     }
+// })
+
+roomRouterMongodb.delete('/:id', adminOnly, async (req: Request, res: Response): Promise<void> => {
     try {
-        const deletedRoom = await roomServiceMongodb.delete(req.params.id)
-        if (deletedRoom) {
-            res.status(204).json()
-            // --> 
+        const ok = await roomServiceMongodb.delete(req.params.id)
+        if (ok) {
+            res.status(204).send()
+            return
         }
-        else {
-            res.status(404).json({ message: `Room #${req.params.id} not found` })
-        }
+
+        res.status(404).json({ message: `Room #${req.params.id} not found` })
+        return
     }
-    catch (error) {
-        console.error("Error in delete of roomController:", error)
-        res.status(500).json({ message: "Internal server error" })
+    catch (err: any) {
+        const msg = String(err?.message ?? '')
+        if (msg.toLowerCase().includes('replica set') || msg.toLowerCase().includes('transactions')) {
+            res.status(500).json({ message: `Transaction error: ${msg}. Ensure MongoDB supports transactions (replica set / Atlas).` })
+            return
+        }
+        console.error('Error in delete of roomController:', err)
+        res.status(500).json({ message: msg || 'Internal server error' })
+        return
     }
 })
+
