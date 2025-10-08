@@ -287,6 +287,7 @@ roomRouterMongodb.put('/:id', async (req: Request, res: Response) => {
     }
 })
 
+
 // roomRouterMongodb.delete('/:id', adminOnly, async (req: Request, res: Response) => {
 //     try {
 //         const deletedRoom = await roomServiceMongodb.delete(req.params.id)
