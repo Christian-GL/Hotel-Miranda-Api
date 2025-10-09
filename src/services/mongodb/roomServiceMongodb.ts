@@ -64,7 +64,7 @@ export class RoomServiceMongodb implements ServiceInterfaceMongodb<RoomInterface
         }
     }
 
-    async updateRoomAndArchiveBookings(roomId: string, roomDTO: RoomInterfaceDTO, bookingIDs: string[]): Promise<RoomInterfaceIdMongodb | null> {
+    async updateRoomAndHisBookings(roomId: string, roomDTO: RoomInterfaceDTO, bookingIDs: string[]): Promise<RoomInterfaceIdMongodb | null> {
         //Actualiza la room y (si procede) archiva las bookings en una única transacción. Devuelve la room final.
         const session = await mongoose.startSession()
         try {

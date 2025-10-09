@@ -172,7 +172,7 @@ bookingRouterMongodb.get('/:id', async (req: Request, res: Response) => {
 
 bookingRouterMongodb.post('/', async (req: Request, res: Response) => {
 
-    const allBookings = await bookingServiceMongodb.fetchAll()
+    const allBookingsNotArchived = await bookingServiceMongodb.fetchAllIDsNotArchived()
     const allRoomIDs = await roomServiceMongodb.fetchAllIDsNotArchived()
     const bookingToValidate: BookingInterfaceDTO = {
         order_date: new Date(req.body.order_date),
@@ -186,7 +186,7 @@ bookingRouterMongodb.post('/', async (req: Request, res: Response) => {
     }
 
     const bookingValidator = new BookingValidator()
-    const totalErrors = bookingValidator.validateNewBooking(bookingToValidate, allBookings, allRoomIDs)
+    const totalErrors = bookingValidator.validateNewBooking(bookingToValidate, allBookingsNotArchived, allRoomIDs)
     if (totalErrors.length === 0) {
         try {
             const newBooking = await bookingServiceMongodb.create(bookingToValidate)

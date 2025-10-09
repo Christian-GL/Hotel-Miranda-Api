@@ -2,6 +2,7 @@
 import { ServiceInterfaceMongodb } from '../../interfaces/mongodb/serviceInterfaceMongodb'
 import { BookingModelMongodb } from '../../models/mongodb/bookingModelMongodb'
 import { BookingInterfaceDTO, BookingInterfaceIdMongodb } from '../../interfaces/mongodb/bookingInterfaceMongodb'
+import { OptionYesNo } from '../../enums/optionYesNo'
 
 
 export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInterfaceIdMongodb> {
@@ -13,6 +14,20 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
         }
         catch (error) {
             console.error('Error in fetchAll of bookingService', error)
+            throw error
+        }
+    }
+
+    async fetchAllIDsNotArchived(): Promise<BookingInterfaceIdMongodb[]> {
+        try {
+            const bookings = await BookingModelMongodb.find(
+                { isArchived: OptionYesNo.no },
+                { _id: 1 }
+            ).lean()
+            return bookings
+        }
+        catch (error) {
+            console.error('Error in fetchAllIds of bookingService', error)
             throw error
         }
     }
