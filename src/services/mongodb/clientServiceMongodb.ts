@@ -2,6 +2,7 @@
 import { ServiceInterfaceMongodb } from '../../interfaces/mongodb/serviceInterfaceMongodb'
 import { ClientModelMongodb } from '../../models/mongodb/clientModelMongodb'
 import { ClientInterfaceDTO, ClientInterfaceIdMongodb } from '../../interfaces/mongodb/clientInterfaceMongodb'
+import { OptionYesNo } from '../../enums/optionYesNo'
 
 
 export class ClientServiceMongodb implements ServiceInterfaceMongodb<ClientInterfaceIdMongodb> {
@@ -13,6 +14,34 @@ export class ClientServiceMongodb implements ServiceInterfaceMongodb<ClientInter
         }
         catch (error) {
             console.error('Error in fetchAll of clientService', error)
+            throw error
+        }
+    }
+
+    async fetchAllNotArchived(): Promise<ClientInterfaceIdMongodb[]> {
+        try {
+            const clients = await ClientModelMongodb.find(
+                { isArchived: OptionYesNo.no },
+                { _id: 1 }
+            ).lean()
+            return clients
+        }
+        catch (error) {
+            console.error('Error in fetchAllNotArchived of clientService', error)
+            throw error
+        }
+    }
+
+    async fetchAllIDsNotArchived(): Promise<string[]> {
+        try {
+            const clientIDs = await ClientModelMongodb.find(
+                { isArchived: OptionYesNo.no },
+                { _id: 1 }
+            ).lean()
+            return clientIDs.map((client: any) => String(client._id))
+        }
+        catch (error) {
+            console.error('Error in fetchAllIDsNotArchived of roomService', error)
             throw error
         }
     }
