@@ -192,20 +192,28 @@ bookingRouterMongodb.post('/', async (req: Request, res: Response) => {
 
     const bookingValidator = new BookingValidator()
     const totalErrors = bookingValidator.validateNewBooking(bookingToValidate, allBookingsNotArchived, allRoomIDsNotArchived, clientID, allClientIDsNotArchived)
-    if (totalErrors.length === 0) {
-        try {
-            const newBooking = await bookingServiceMongodb.create(bookingToValidate)
-            res.status(201).json(newBooking)
-        }
-        catch (error) {
-            console.error("Error in post of bookingController:", error)
-            res.status(500).json({ message: "Internal server error" })
-        }
+    if (totalErrors.length > 0) {
+        res.status(400).json({ message: totalErrors.join(', ') })
+        return
     }
-    else {
-        res.status(400).json({
-            message: totalErrors.join(', ')
-        })
+    try {
+        const createdBooking = await bookingServiceMongodb.createAndLinkRooms(bookingToValidate)
+        res.status(201).json(createdBooking)
+        return
+    }
+    catch (error: any) {
+        const msg = String(error?.message ?? '')
+        if (msg.toLowerCase().includes('some room ids do not exist')) {
+            res.status(400).json({ message: msg })
+            return
+        }
+        if (msg.toLowerCase().includes('replica set') || msg.toLowerCase().includes('transactions')) {
+            res.status(500).json({ message: `Transaction error: ${msg}. Ensure MongoDB supports transactions (replica set / Atlas).` })
+            return
+        }
+        console.error('Error creating booking:', error)
+        res.status(500).json({ message: (error && error.message) ? error.message : 'Internal server error' })
+        return
     }
 })
 

@@ -238,7 +238,7 @@ roomRouterMongodb.put('/:id', async (req: Request, res: Response) => {
             return
         }
 
-        // BOOKING asociadas a la room validaciones
+        // ROOM, BOOKINGS asociadas validaciones
         const bookingIDs: string[] = Array.from(new Set(roomToValidate.booking_id_list ?? []))
         const invalidFormatIDs = bookingIDs.filter(id => !mongoose.Types.ObjectId.isValid(String(id)))
         if (invalidFormatIDs.length > 0) {
