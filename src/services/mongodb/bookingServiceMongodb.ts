@@ -59,19 +59,20 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
     }
 
     async createAndLinkRooms(bookingDTO: BookingInterfaceDTO): Promise<BookingInterfaceIdMongodb> {
-        /**
-* Crea una booking y añade su _id al `booking_id_list` de todas las rooms indicadas.
-* Todo se hace en una transacción (MongoDB Atlas / replica set necesario).
-* - Lanza error si alguna room indicada no existe -> transacción rollback.
-* - Devuelve la booking recién creada (documento).
-*/
+        // Crea una booking y añade su _id al "booking_id_list" de todas las rooms indicadas.
         const session = await mongoose.startSession()
         try {
             let createdBookingId: string | null = null
 
             await session.withTransaction(async () => {
-                const roomIds: string[] = Array.isArray(bookingDTO.room_id_list) ? bookingDTO.room_id_list.map(String) : []
 
+                // Creamos la booking
+                const createdArr = await BookingModelMongodb.create([bookingDTO], { session })
+                const bookingDoc = createdArr[0] as any
+                createdBookingId = String(bookingDoc._id)
+
+                // Actualizamos las rooms asociadas añadiendo el id de la booking a su "booking_id_list"
+                const roomIds: string[] = Array.isArray(bookingDTO.room_id_list) ? bookingDTO.room_id_list.map(String) : []
                 if (roomIds.length > 0) {
                     const foundRooms = await RoomModelMongodb.find({ _id: { $in: roomIds } })
                         .select('_id')
@@ -79,26 +80,21 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
                         .lean()
                     const foundSet = new Set(foundRooms.map((room: any) => String(room._id)))
                     const missing = roomIds.filter(id => !foundSet.has(id))
+
                     if (missing.length > 0) {
                         throw new Error(`Some room IDs do not exist: ${missing.join(', ')}`)
                     }
-                }
-
-                // Crear la booking dentro de la sesión
-                const createdArr = await BookingModelMongodb.create([bookingDTO], { session })
-                const bookingDoc = createdArr[0] as any // aquí puedes castear al tipo que uses
-                createdBookingId = String(bookingDoc._id)
-
-                // Añadir booking_id en las rooms (usa $addToSet para evitar duplicados)
-                if (roomIds.length > 0) {
-                    await RoomModelMongodb.updateMany(
-                        { _id: { $in: roomIds } },
-                        { $addToSet: { booking_id_list: bookingDoc._id } },
-                        { session }
-                    )
+                    else {
+                        await RoomModelMongodb.updateMany(
+                            { _id: { $in: roomIds } },
+                            { $addToSet: { booking_id_list: bookingDoc._id } },
+                            { session }
+                        )
+                    }
                 }
             })
-            // fuera de la tx: comprobar que tenemos id
+
+            // Condición rara: comprobamos que "createdBookingId" fue asignado (si algo raro ocurriese y no se creó la booking, lanzamos error.
             if (!createdBookingId) {
                 throw new Error('Booking creation failed (no id returned)')
             }

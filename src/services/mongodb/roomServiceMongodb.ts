@@ -104,23 +104,25 @@ export class RoomServiceMongodb implements ServiceInterfaceMongodb<RoomInterface
         }
     }
 
-    async updateRoomAndHisBookings(roomId: string, roomDTO: RoomInterfaceDTO, bookingIDs: string[]): Promise<RoomInterfaceIdMongodb | null> {
-        //Actualiza la room y (si procede) archiva las bookings en una única transacción. Devuelve la room final.
+    async updateAndArchiveBookingsIfNeeded(roomId: string, roomDTO: RoomInterfaceDTO, bookingIDs: string[]): Promise<RoomInterfaceIdMongodb | null> {
+        // Actualiza la room y (si procede) archiva las bookings en una única transacción.
         const session = await mongoose.startSession()
         try {
             let finalRoom: RoomInterfaceIdMongodb | null = null
 
             await session.withTransaction(async () => {
+
+                // Actualiza la room
                 const updatedRoom = await RoomModelMongodb.findOneAndUpdate(
                     { _id: roomId },
                     roomDTO,
                     { new: true, session }
                 ).exec()
-
                 if (!updatedRoom) {
                     throw new Error(`Room #${roomId} not found`)
                 }
 
+                // Archiba las bookings asociadas en caso de que la room ya no esté disponible
                 if ((roomDTO.isActive === OptionYesNo.no || roomDTO.isArchived === OptionYesNo.yes) && bookingIDs && bookingIDs.length > 0) {
                     await BookingModelMongodb.updateMany(
                         { _id: { $in: bookingIDs }, isArchived: OptionYesNo.no },
@@ -164,7 +166,7 @@ export class RoomServiceMongodb implements ServiceInterfaceMongodb<RoomInterface
 
                 const deletedRoom = await RoomModelMongodb.findOneAndDelete({ _id: id }, { session }).exec()
                 if (!deletedRoom) {
-                    // condición muy rara (race): lanzar error para provocar rollback
+                    // Condición muy rara (race): lanzar error para provocar rollback
                     throw new Error(`Room #${id} not found during delete`)
                 }
             })
