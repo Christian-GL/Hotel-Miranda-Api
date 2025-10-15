@@ -126,6 +126,77 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
         }
     }
 
+    async updateAndLinkRooms(id: string, bookingDTO: BookingInterfaceDTO): Promise<BookingInterfaceIdMongodb | null> {
+        const session = await mongoose.startSession()
+        try {
+            let finalBooking: BookingInterfaceIdMongodb | null = null
+
+            await session.withTransaction(async () => {
+                const bookingToUpdate = await BookingModelMongodb.findOne({ _id: id }).session(session).lean()
+                if (!bookingToUpdate) {
+                    throw new Error(`Booking #${id} not found`)
+                }
+
+                const oldRoomIds: string[] = Array.isArray(bookingToUpdate.room_id_list)
+                    ? Array.from(new Set(bookingToUpdate.room_id_list.map(String)))
+                    : []
+                const newRoomIds: string[] = Array.isArray(bookingDTO.room_id_list)
+                    ? Array.from(new Set(bookingDTO.room_id_list.map(String)))
+                    : []
+                const IdsToAdd = newRoomIds.filter(rid => !(new Set(oldRoomIds)).has(rid))
+                const IdsToRemove = oldRoomIds.filter(rid => !(new Set(newRoomIds)).has(rid))
+
+                // ROOM validación de su existencia
+                if (IdsToAdd.length > 0) {
+                    const found = await RoomModelMongodb.find({ _id: { $in: IdsToAdd } }).select('_id').session(session).lean()
+                    const foundSet = new Set(found.map((room: any) => String(room._id)))
+                    const missing = IdsToAdd.filter(id => !foundSet.has(id))
+                    if (missing.length > 0) {
+                        throw new Error(`Some room IDs do not exist: ${missing.join(', ')}`)
+                    }
+                }
+
+                // BOOKING actualización
+                const updatedBookingDoc = await BookingModelMongodb.findOneAndUpdate(
+                    { _id: id },
+                    bookingDTO,
+                    { new: true, session }
+                ).exec()
+
+                // Condición de error rara pero realizada por seguridad:
+                if (!updatedBookingDoc) {
+                    throw new Error(`Booking #${id} not found`)
+                }
+
+                // ROOMS actualizaión de su propiedad "booking_id_list"
+                if (IdsToAdd.length > 0) {
+                    await RoomModelMongodb.updateMany(
+                        { _id: { $in: IdsToAdd } },
+                        { $addToSet: { booking_id_list: updatedBookingDoc._id } },
+                        { session }
+                    ).exec()
+                }
+                if (IdsToRemove.length > 0) {
+                    await RoomModelMongodb.updateMany(
+                        { _id: { $in: IdsToRemove } },
+                        { $pull: { booking_id_list: updatedBookingDoc._id } },
+                        { session }
+                    ).exec()
+                }
+
+                finalBooking = (updatedBookingDoc.toObject ? updatedBookingDoc.toObject() : updatedBookingDoc) as BookingInterfaceIdMongodb
+            })
+
+            return finalBooking
+        }
+        catch (error) {
+            throw error
+        }
+        finally {
+            session.endSession()
+        }
+    }
+
     async delete(id: string): Promise<boolean> {
         try {
             const deletedBooking = await BookingModelMongodb.findByIdAndDelete(id)
@@ -139,5 +210,5 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
             throw error
         }
     }
-
 }
+

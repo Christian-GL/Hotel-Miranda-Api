@@ -104,7 +104,7 @@ export class RoomServiceMongodb implements ServiceInterfaceMongodb<RoomInterface
         }
     }
 
-    async updateAndArchiveBookingsIfNeeded(roomId: string, roomDTO: RoomInterfaceDTO, bookingIDs: string[]): Promise<RoomInterfaceIdMongodb | null> {
+    async updateAndArchiveBookingsIfNeeded(roomId: string, roomToUpdate: RoomInterfaceDTO): Promise<RoomInterfaceIdMongodb | null> {
         // Actualiza la room y (si procede) archiva las bookings en una única transacción.
         const session = await mongoose.startSession()
         try {
@@ -115,7 +115,7 @@ export class RoomServiceMongodb implements ServiceInterfaceMongodb<RoomInterface
                 // Actualiza la room
                 const updatedRoom = await RoomModelMongodb.findOneAndUpdate(
                     { _id: roomId },
-                    roomDTO,
+                    roomToUpdate,
                     { new: true, session }
                 ).exec()
                 if (!updatedRoom) {
@@ -123,9 +123,9 @@ export class RoomServiceMongodb implements ServiceInterfaceMongodb<RoomInterface
                 }
 
                 // Archiba las bookings asociadas en caso de que la room ya no esté disponible
-                if ((roomDTO.isActive === OptionYesNo.no || roomDTO.isArchived === OptionYesNo.yes) && bookingIDs && bookingIDs.length > 0) {
+                if ((roomToUpdate.isActive === OptionYesNo.no || roomToUpdate.isArchived === OptionYesNo.yes) && roomToUpdate.booking_id_list && roomToUpdate.booking_id_list.length > 0) {
                     await BookingModelMongodb.updateMany(
-                        { _id: { $in: bookingIDs }, isArchived: OptionYesNo.no },
+                        { _id: { $in: roomToUpdate.booking_id_list }, isArchived: OptionYesNo.no },
                         { $set: { isArchived: OptionYesNo.yes } },
                         { session }
                     ).exec()

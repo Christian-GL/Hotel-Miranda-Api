@@ -14,7 +14,6 @@ import { BookingServiceMongodb } from '../../services/mongodb/bookingServiceMong
 
 export const roomRouterMongodb = Router()
 const roomServiceMongodb = new RoomServiceMongodb()
-const bookingServiceMongodb = new BookingServiceMongodb()
 
 roomRouterMongodb.use(authMiddleware)
 
@@ -220,7 +219,7 @@ roomRouterMongodb.put('/:id', async (req: Request, res: Response) => {
         }
         const allRoomNumbers = await roomServiceMongodb.fetchAllNumbersNotArchived()
         const actualRoomNumber = req.body.number.trim().toLowerCase()
-        const roomToValidate: RoomInterfaceDTO = {
+        const roomToUpdate: RoomInterfaceDTO = {
             photos: req.body.photos,
             number: actualRoomNumber,
             type: req.body.type.trim(),
@@ -232,23 +231,23 @@ roomRouterMongodb.put('/:id', async (req: Request, res: Response) => {
             booking_id_list: req.body.booking_id_list
         }
         const roomValidator = new RoomValidator()
-        const totalErrors = roomValidator.validateExistingRoom(roomToValidate, actualRoomNumber, allRoomNumbers)
+        const totalErrors = roomValidator.validateExistingRoom(roomToUpdate, actualRoomNumber, allRoomNumbers)
         if (totalErrors.length > 0) {
             res.status(400).json({ message: totalErrors.join(', ') })
             return
         }
 
-        // ROOM, BOOKINGS asociadas validaciones
-        const bookingIDs: string[] = Array.from(new Set(roomToValidate.booking_id_list ?? []))
-        const invalidFormatIDs = bookingIDs.filter(id => !mongoose.Types.ObjectId.isValid(String(id)))
+        // BOOKINGS asociadas validación de su existencia en BD
+        const bookingIds: string[] = Array.from(new Set(roomToUpdate.booking_id_list ?? []))
+        const invalidFormatIDs = bookingIds.filter(id => !mongoose.Types.ObjectId.isValid(String(id)))
         if (invalidFormatIDs.length > 0) {
             res.status(400).json({ message: `Invalid booking ID format: ${invalidFormatIDs.join(', ')}` })
             return
         }
-        if (bookingIDs.length > 0) {
-            const foundBookings = await BookingModelMongodb.find({ _id: { $in: bookingIDs } }, { _id: 1 }).lean()
+        if (bookingIds.length > 0) {
+            const foundBookings = await BookingModelMongodb.find({ _id: { $in: bookingIds } }, { _id: 1 }).lean()
             const foundSet = new Set(foundBookings.map((booking: any) => String(booking._id)))
-            const missing = bookingIDs.filter(id => !foundSet.has(id))
+            const missing = bookingIds.filter(id => !foundSet.has(id))
             if (missing.length > 0) {
                 res.status(400).json({ message: `Some booking IDs do not exist: ${missing.join(', ')}` })
                 return
@@ -257,7 +256,7 @@ roomRouterMongodb.put('/:id', async (req: Request, res: Response) => {
 
         // Si tanto la ROOM como sus BOOKINGS existen y pasan validaciones hacemos las actualizaciones correspondientes en BD
         try {
-            const finalRoom = await roomServiceMongodb.updateAndArchiveBookingsIfNeeded(roomID, roomToValidate, bookingIDs)
+            const finalRoom = await roomServiceMongodb.updateAndArchiveBookingsIfNeeded(roomID, roomToUpdate)
             if (!finalRoom) {
                 res.status(404).json({ message: `Room #${roomID} not found` })
                 return
@@ -289,6 +288,7 @@ roomRouterMongodb.put('/:id', async (req: Request, res: Response) => {
 roomRouterMongodb.delete('/:id', adminOnly, async (req: Request, res: Response): Promise<void> => {
     const roomId = req.params.id
     try {
+        // También archiva las bookings asociadas
         const deleteRoom = await roomServiceMongodb.delete(roomId)
         if (deleteRoom) {
             res.status(204).send()
