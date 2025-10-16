@@ -184,9 +184,9 @@ bookingRouterMongodb.post('/', async (req: Request, res: Response) => {
         room_id_list: req.body.room_id_list,
         client_id: req.body.client_id.trim()
     }
-    const allBookingsNotArchived = await bookingServiceMongodb.fetchAllIDsNotArchived()
-    const allRoomIDsNotArchived = await roomServiceMongodb.fetchAllIDsNotArchived()
-    const allClientIDsNotArchived = await clientServiceMongodb.fetchAllIDsNotArchived()
+    const allBookingsNotArchived = await bookingServiceMongodb.fetchAllIdsNotArchived()
+    const allRoomIdsNotArchived = await roomServiceMongodb.fetchAllIdsNotArchived()
+    const allClientIdsNotArchived = await clientServiceMongodb.fetchAllIdsNotArchived()
     const client = await clientServiceMongodb.fetchById(bookingToValidate.client_id)
     const clientID: string = client ? String(client._id) : ''
 
@@ -194,9 +194,9 @@ bookingRouterMongodb.post('/', async (req: Request, res: Response) => {
     const totalErrors = bookingValidator.validateNewBooking(
         bookingToValidate,
         allBookingsNotArchived,
-        allRoomIDsNotArchived,
+        allRoomIdsNotArchived,
         clientID,
-        allClientIDsNotArchived)
+        allClientIdsNotArchived)
     if (totalErrors.length > 0) {
         res.status(400).json({ message: totalErrors.join(', ') })
         return
@@ -222,47 +222,6 @@ bookingRouterMongodb.post('/', async (req: Request, res: Response) => {
     }
 })
 
-// bookingRouterMongodb.put('/:id', async (req: Request, res: Response) => {
-
-//     const bookingToValidate: BookingInterfaceId = {
-//         _id: req.params.id,
-//         order_date: new Date(req.body.order_date),
-//         check_in_date: new Date(req.body.check_in_date),
-//         check_out_date: new Date(req.body.check_out_date),
-//         price: req.body.price,
-//         special_request: req.body.special_request.trim(),
-//         isArchived: req.body.isArchived,
-//         room_id_list: req.body.room_id_list,
-//         client_id: req.body.client_id.trim()
-//     }
-//     const allBookingsNotArchived = await bookingServiceMongodb.fetchAll()
-//     const allRoomIDsNotArchived = await roomServiceMongodb.fetchAllIDsNotArchived()
-//     const allClientIDsNotArchived = await clientServiceMongodb.fetchAllIDsNotArchived()
-//     const client = await clientServiceMongodb.fetchById(bookingToValidate.client_id)
-//     const clientID: string = client ? String(client._id) : ''
-
-//     const bookingValidator = new BookingValidator()
-//     const totalErrors = bookingValidator.validateExistingBooking(bookingToValidate, allBookingsNotArchived, allRoomIDsNotArchived, clientID, allClientIDsNotArchived)
-//     if (totalErrors.length === 0) {
-//         try {
-//             const updatedBooking = await bookingServiceMongodb.update(req.params.id, bookingToValidate)
-//             if (updatedBooking !== null) {
-//                 res.status(200).json(updatedBooking)
-//             }
-//             else {
-//                 res.status(404).json({ message: `Booking #${req.params.id} not found` })
-//             }
-//         }
-//         catch (error) {
-//             console.error("Error in put of bookingController:", error)
-//             res.status(500).json({ message: "Internal server error" })
-//         }
-//     }
-//     else {
-//         res.status(400).json({ message: totalErrors.join(', ') })
-//     }
-// })
-
 bookingRouterMongodb.put('/:id', async (req: Request, res: Response) => {
 
     const bookingId = req.params.id
@@ -278,9 +237,9 @@ bookingRouterMongodb.put('/:id', async (req: Request, res: Response) => {
     }
 
     // BOOKING validaciones
-    const allBookingsNotArchived = await bookingServiceMongodb.fetchAllIDsNotArchived()
-    const allRoomIDsNotArchived = await roomServiceMongodb.fetchAllIDsNotArchived()
-    const allClientIDsNotArchived = await clientServiceMongodb.fetchAllIDsNotArchived()
+    const allBookingsNotArchived = await bookingServiceMongodb.fetchAllIdsNotArchived()
+    const allRoomIdsNotArchived = await roomServiceMongodb.fetchAllIdsNotArchived()
+    const allClientIdsNotArchived = await clientServiceMongodb.fetchAllIdsNotArchived()
     const client = await clientServiceMongodb.fetchById(bookingToValidate.client_id)
     const clientID: string = client ? String(client._id) : ''
 
@@ -288,9 +247,9 @@ bookingRouterMongodb.put('/:id', async (req: Request, res: Response) => {
     const totalErrors = bookingValidator.validateExistingBooking(
         { _id: bookingId, ...bookingToValidate } as any,
         allBookingsNotArchived,
-        allRoomIDsNotArchived,
+        allRoomIdsNotArchived,
         clientID,
-        allClientIDsNotArchived
+        allClientIdsNotArchived
     )
     if (totalErrors.length > 0) {
         res.status(400).json({ message: totalErrors.join(', ') })

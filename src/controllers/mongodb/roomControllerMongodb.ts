@@ -239,9 +239,9 @@ roomRouterMongodb.put('/:id', async (req: Request, res: Response) => {
 
         // BOOKINGS asociadas validación de su existencia en BD
         const bookingIds: string[] = Array.from(new Set(roomToUpdate.booking_id_list ?? []))
-        const invalidFormatIDs = bookingIds.filter(id => !mongoose.Types.ObjectId.isValid(String(id)))
-        if (invalidFormatIDs.length > 0) {
-            res.status(400).json({ message: `Invalid booking ID format: ${invalidFormatIDs.join(', ')}` })
+        const invalidFormatIds = bookingIds.filter(id => !mongoose.Types.ObjectId.isValid(String(id)))
+        if (invalidFormatIds.length > 0) {
+            res.status(400).json({ message: `Invalid booking ID format: ${invalidFormatIds.join(', ')}` })
             return
         }
         if (bookingIds.length > 0) {

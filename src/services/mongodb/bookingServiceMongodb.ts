@@ -20,7 +20,7 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
         }
     }
 
-    async fetchAllIDsNotArchived(): Promise<BookingInterfaceIdMongodb[]> {
+    async fetchAllIdsNotArchived(): Promise<BookingInterfaceIdMongodb[]> {
         try {
             const bookings = await BookingModelMongodb.find(
                 { isArchived: OptionYesNo.no },

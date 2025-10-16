@@ -20,7 +20,7 @@ export class RoomServiceMongodb implements ServiceInterfaceMongodb<RoomInterface
         }
     }
 
-    async fetchAllIDsNotArchived(): Promise<string[]> {
+    async fetchAllIdsNotArchived(): Promise<string[]> {
         try {
             const rooms = await RoomModelMongodb.find(
                 { isArchived: OptionYesNo.no },

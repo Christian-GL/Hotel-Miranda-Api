@@ -32,16 +32,16 @@ export class ClientServiceMongodb implements ServiceInterfaceMongodb<ClientInter
         }
     }
 
-    async fetchAllIDsNotArchived(): Promise<string[]> {
+    async fetchAllIdsNotArchived(): Promise<string[]> {
         try {
-            const clientIDs = await ClientModelMongodb.find(
+            const clientIds = await ClientModelMongodb.find(
                 { isArchived: OptionYesNo.no },
                 { _id: 1 }
             ).lean()
-            return clientIDs.map((client: any) => String(client._id))
+            return clientIds.map((client: any) => String(client._id))
         }
         catch (error) {
-            console.error('Error in fetchAllIDsNotArchived of roomService', error)
+            console.error('Error in fetchAllIdsNotArchived of roomService', error)
             throw error
         }
     }
