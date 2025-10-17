@@ -198,17 +198,46 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
     }
 
     async delete(id: string): Promise<boolean> {
+        // Borra la booking y elimina su id de referencia en las rooms asociadas
+        const session = await mongoose.startSession()
         try {
-            const deletedBooking = await BookingModelMongodb.findByIdAndDelete(id)
-            if (deletedBooking) {
-                return true
-            }
-            else return false
+            let deleted = false
+
+            await session.withTransaction(async () => {
+                const booking = await BookingModelMongodb.findById(id).session(session).lean() as (BookingInterfaceIdMongodb | null)
+                if (!booking) {
+                    deleted = false
+                    return
+                }
+
+                const roomIds: string[] = Array.isArray(booking.room_id_list)
+                    ? Array.from(new Set(booking.room_id_list.map((x: any) => String(x).trim())))
+                    : []
+                if (roomIds.length > 0) {
+                    await RoomModelMongodb.updateMany(
+                        { _id: { $in: roomIds } },
+                        { $pull: { booking_id_list: id } },
+                        { session }
+                    ).exec()
+                }
+
+                const deletedDoc = await BookingModelMongodb.findOneAndDelete({ _id: id }, { session }).exec()
+                if (!deletedDoc) {
+                    // condición rara: hubo booking al inicio, pero aquí no se encuentra: provocar rollback
+                    throw new Error(`Booking #${id} not found during delete`)
+                }
+
+                deleted = true
+            })
+            return deleted
         }
         catch (error) {
-            console.error('Error in delete of bookingService', error)
             throw error
         }
+        finally {
+            session.endSession()
+        }
     }
+
 }
 

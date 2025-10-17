@@ -283,17 +283,24 @@ bookingRouterMongodb.put('/:id', async (req: Request, res: Response) => {
 })
 
 bookingRouterMongodb.delete('/:id', adminOnly, async (req: Request, res: Response) => {
+    const id = req.params.id
     try {
-        const deletedBooking = await bookingServiceMongodb.delete(req.params.id)
-        if (deletedBooking) {
-            res.status(204).json()
+        const deleted = await bookingServiceMongodb.delete(id)
+        if (deleted) {
+            res.status(204).send()
+            return
         }
-        else {
-            res.status(404).json({ message: `Booking #${req.params.id} not found` })
-        }
+        res.status(404).json({ message: `Booking #${id} not found` })
+        return
     }
-    catch (error) {
-        console.error("Error in delete of bookingController:", error)
-        res.status(500).json({ message: "Internal server error" })
+    catch (error: any) {
+        const msg = String(error?.message ?? '')
+        if (msg.toLowerCase().includes('replica set') || msg.toLowerCase().includes('transactions') || msg.toLowerCase().includes('withtransaction')) {
+            res.status(500).json({ message: `Transaction error: ${msg}. Ensure MongoDB supports transactions (replica set / Atlas).` })
+            return
+        }
+        console.error('Error in delete of bookingController:', error)
+        res.status(500).json({ message: (error && error.message) ? error.message : 'Internal server error' })
+        return
     }
 })
