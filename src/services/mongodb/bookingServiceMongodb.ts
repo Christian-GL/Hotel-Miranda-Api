@@ -129,8 +129,6 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
     async updateAndLinkRooms(id: string, bookingDTO: BookingInterfaceDTO): Promise<BookingInterfaceIdMongodb | null> {
         const session = await mongoose.startSession()
         try {
-            let finalBooking: BookingInterfaceIdMongodb | null = null
-
             await session.withTransaction(async () => {
                 const bookingToUpdate = await BookingModelMongodb.findOne({ _id: id }).session(session).lean()
                 if (!bookingToUpdate) {
@@ -143,20 +141,21 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
                 const newRoomIds: string[] = Array.isArray(bookingDTO.room_id_list)
                     ? Array.from(new Set(bookingDTO.room_id_list.map(String)))
                     : []
+
                 const IdsToAdd = newRoomIds.filter(rid => !(new Set(oldRoomIds)).has(rid))
                 const IdsToRemove = oldRoomIds.filter(rid => !(new Set(newRoomIds)).has(rid))
 
-                // ROOM validación de su existencia
+                // Validar existencia de rooms que vamos a AÑADIR (IdsToAdd)
                 if (IdsToAdd.length > 0) {
                     const found = await RoomModelMongodb.find({ _id: { $in: IdsToAdd } }).select('_id').session(session).lean()
-                    const foundSet = new Set(found.map((room: any) => String(room._id)))
+                    const foundSet = new Set(found.map((r: any) => String(r._id)))
                     const missing = IdsToAdd.filter(id => !foundSet.has(id))
                     if (missing.length > 0) {
                         throw new Error(`Some room IDs do not exist: ${missing.join(', ')}`)
                     }
                 }
 
-                // BOOKING actualización
+                // Actualizar la booking dentro de la sesión
                 const updatedBookingDoc = await BookingModelMongodb.findOneAndUpdate(
                     { _id: id },
                     bookingDTO,
@@ -168,26 +167,58 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
                     throw new Error(`Booking #${id} not found`)
                 }
 
-                // ROOMS actualizaión de su propiedad "booking_id_list"
-                if (IdsToAdd.length > 0) {
-                    await RoomModelMongodb.updateMany(
-                        { _id: { $in: IdsToAdd } },
-                        { $addToSet: { booking_id_list: updatedBookingDoc._id } },
-                        { session }
-                    ).exec()
-                }
-                if (IdsToRemove.length > 0) {
-                    await RoomModelMongodb.updateMany(
-                        { _id: { $in: IdsToRemove } },
-                        { $pull: { booking_id_list: updatedBookingDoc._id } },
-                        { session }
-                    ).exec()
-                }
+                // Lógica sobre isArchived
+                const oldArchived = String(bookingToUpdate.isArchived ?? '').toLowerCase()
+                const newArchived = String(bookingDTO.isArchived ?? '').toLowerCase()
 
-                finalBooking = (updatedBookingDoc.toObject ? updatedBookingDoc.toObject() : updatedBookingDoc) as BookingInterfaceIdMongodb
+                if (oldArchived !== newArchived) {
+                    if (newArchived === String(OptionYesNo.yes)) {
+                        if (oldRoomIds.length > 0) {
+                            await RoomModelMongodb.updateMany(
+                                { _id: { $in: oldRoomIds }, booking_id_list: updatedBookingDoc._id },
+                                { $pull: { booking_id_list: updatedBookingDoc._id } },
+                                { session }
+                            ).exec()
+                        }
+                    }
+                    else {
+                        if (newRoomIds.length > 0) {
+                            // validación ya hecha para IdsToAdd, pero aquí añadimos a todas las newRoomIds (asegúrate que existen)
+                            // Para seguridad validamos existencia de newRoomIds (si no lo validaste antes):
+                            const found = await RoomModelMongodb.find({ _id: { $in: newRoomIds } }).select('_id').session(session).lean()
+                            const foundSet = new Set(found.map((r: any) => String(r._id)))
+                            const missing = newRoomIds.filter(id => !foundSet.has(id))
+                            if (missing.length > 0) {
+                                throw new Error(`Some room IDs do not exist: ${missing.join(', ')}`)
+                            }
+                            await RoomModelMongodb.updateMany(
+                                { _id: { $in: newRoomIds } },
+                                { $addToSet: { booking_id_list: updatedBookingDoc._id } },
+                                { session }
+                            ).exec()
+                        }
+                    }
+                }
+                else {
+                    // Si no hubo cambio en isArchived: aplicar diferencias normales entre listas
+                    if (IdsToAdd.length > 0) {
+                        await RoomModelMongodb.updateMany(
+                            { _id: { $in: IdsToAdd } },
+                            { $addToSet: { booking_id_list: updatedBookingDoc._id } },
+                            { session }
+                        ).exec()
+                    }
+                    if (IdsToRemove.length > 0) {
+                        await RoomModelMongodb.updateMany(
+                            { _id: { $in: IdsToRemove } },
+                            { $pull: { booking_id_list: updatedBookingDoc._id } },
+                            { session }
+                        ).exec()
+                    }
+                }
             })
-
-            return finalBooking
+            const finalFresh = await BookingModelMongodb.findById(id).lean()
+            return finalFresh as BookingInterfaceIdMongodb | null
         }
         catch (error) {
             throw error
@@ -196,6 +227,7 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
             session.endSession()
         }
     }
+
 
     async delete(id: string): Promise<boolean> {
         // Borra la booking y elimina su id de referencia en las rooms asociadas

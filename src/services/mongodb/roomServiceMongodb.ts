@@ -108,8 +108,6 @@ export class RoomServiceMongodb implements ServiceInterfaceMongodb<RoomInterface
         // Actualiza la room y (si procede) archiva las bookings en una única transacción.
         const session = await mongoose.startSession()
         try {
-            let finalRoom: RoomInterfaceIdMongodb | null = null
-
             await session.withTransaction(async () => {
 
                 // Actualiza la room
@@ -130,7 +128,6 @@ export class RoomServiceMongodb implements ServiceInterfaceMongodb<RoomInterface
                         { session }
                     ).exec()
                 }
-                finalRoom = updatedRoom as RoomInterfaceIdMongodb
             })
 
             const finalRoomFresh = await RoomModelMongodb.findById(roomId).lean()
