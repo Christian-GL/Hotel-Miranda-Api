@@ -5,7 +5,7 @@ import {
     validateDateIsOccupiedIfBookingExists, validateRoomPrice,
     validateTextArea, validateStringList
 } from "./commonValidator"
-import { BookingInterfaceDTO, BookingInterfaceId, BookingInterfaceIdMongodb } from "../interfaces/mongodb/bookingInterfaceMongodb"
+import { BookingInterfaceDatesAndIdNotArchived, BookingInterfaceDatesNotArchived, BookingInterfaceDTO, BookingInterfaceId, BookingInterfaceIdMongodb } from "../interfaces/mongodb/bookingInterfaceMongodb"
 
 
 export class BookingValidator {
@@ -69,17 +69,17 @@ export class BookingValidator {
         // Comprobamos que los IDs de las rooms y el cliente asociados a la booking existan en BD
         for (const roomID of booking.room_id_list) {
             if (!allRoomIdsNotArchived.includes(roomID)) {
-                allErrorMessages.push(`Room ID: ${roomID} didn't exist in DB`)
+                allErrorMessages.push(`Room ID: ${roomID} didn't exist in DB or is archived`)
             }
         }
         if (!clientIdsNotArchived.includes(clientId)) {
-            allErrorMessages.push(`Client ID: ${clientId} didn't exist in DB`)
+            allErrorMessages.push(`Client ID: ${clientId} didn't exist in DB or is archived`)
         }
 
         return allErrorMessages
     }
 
-    validateNewBooking(booking: BookingInterfaceDTO, allBookingsNotArchived: BookingInterfaceDTO[], allRoomIdsNotArchived: string[], clientID: string, clientIdsNotArchived: string[]): string[] {
+    validateNewBooking(booking: BookingInterfaceDTO, allBookingDatesNotArchived: BookingInterfaceDatesNotArchived[], allRoomIdsNotArchived: string[], clientID: string, clientIdsNotArchived: string[]): string[] {
         const allErrorMessages: string[] = []
 
         if (booking === undefined || Object.keys(booking).length === 0) {
@@ -90,14 +90,14 @@ export class BookingValidator {
         this.validateBooking(booking, allRoomIdsNotArchived, clientID, clientIdsNotArchived).map(
             error => allErrorMessages.push(error)
         )
-        validateDateIsOccupied(booking, allBookingsNotArchived).map(
+        validateDateIsOccupied(booking, allBookingDatesNotArchived).map(
             error => allErrorMessages.push(error)
         )
 
         return allErrorMessages
     }
 
-    validateExistingBooking(booking: BookingInterfaceId, allBookingsNotArchived: BookingInterfaceIdMongodb[], allRoomIdsNotArchived: string[], clientID: string, clientIdsNotArchived: string[]): string[] {
+    validateExistingBooking(booking: BookingInterfaceId, allBookingDatesAndIdNotArchived: BookingInterfaceDatesAndIdNotArchived[], allRoomIdsNotArchived: string[], clientID: string, clientIdsNotArchived: string[]): string[] {
         const allErrorMessages: string[] = []
 
         if (booking === undefined || Object.keys(booking).length === 0) {
@@ -108,7 +108,7 @@ export class BookingValidator {
         this.validateBooking(booking, allRoomIdsNotArchived, clientID, clientIdsNotArchived).map(
             error => allErrorMessages.push(error)
         )
-        validateDateIsOccupiedIfBookingExists(booking, allBookingsNotArchived).map(
+        validateDateIsOccupiedIfBookingExists(booking, allBookingDatesAndIdNotArchived).map(
             error => allErrorMessages.push(error)
         )
 

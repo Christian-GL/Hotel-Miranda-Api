@@ -1,7 +1,7 @@
 
 import { ServiceInterfaceMongodb } from '../../interfaces/mongodb/serviceInterfaceMongodb'
 import { BookingModelMongodb } from '../../models/mongodb/bookingModelMongodb'
-import { BookingInterfaceDTO, BookingInterfaceIdMongodb } from '../../interfaces/mongodb/bookingInterfaceMongodb'
+import { BookingInterfaceDatesAndIdNotArchived, BookingInterfaceDatesNotArchived, BookingInterfaceDTO, BookingInterfaceIdMongodb } from '../../interfaces/mongodb/bookingInterfaceMongodb'
 import { OptionYesNo } from '../../enums/optionYesNo'
 import mongoose from 'mongoose'
 import { RoomModelMongodb } from '../../models/mongodb/roomModelMongodb'
@@ -29,7 +29,35 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
             return bookings
         }
         catch (error) {
-            console.error('Error in fetchAllIds of bookingService', error)
+            console.error('Error in fetchAllIdsNotArchived of bookingService', error)
+            throw error
+        }
+    }
+
+    async fetchAllDatesNotArchived(): Promise<BookingInterfaceDatesNotArchived[]> {
+        try {
+            const bookings = await BookingModelMongodb.find(
+                { isArchived: OptionYesNo.no },
+                { check_in_date: 1, check_out_date: 1, _id: 0 }
+            ).lean()
+            return bookings
+        }
+        catch (error) {
+            console.error('Error in fetchAllDatesNotArchived of bookingService', error)
+            throw error
+        }
+    }
+
+    async fetchAllDatesAndIdNotArchived(): Promise<BookingInterfaceDatesAndIdNotArchived[]> {
+        try {
+            const bookings = await BookingModelMongodb.find(
+                { isArchived: OptionYesNo.no },
+                { _id: 1, check_in_date: 1, check_out_date: 1 }
+            ).lean()
+            return bookings
+        }
+        catch (error) {
+            console.error('Error in fetchAllDatesNotArchived of bookingService', error)
             throw error
         }
     }
@@ -227,7 +255,6 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
             session.endSession()
         }
     }
-
 
     async delete(id: string): Promise<boolean> {
         // Borra la booking y elimina su id de referencia en las rooms asociadas

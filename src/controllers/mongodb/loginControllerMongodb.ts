@@ -86,7 +86,7 @@ loginRouterMongodb.post('/', async (req: Request, res: Response): Promise<void> 
             role: (user as any).role ?? 'user'
         }
 
-        const token = jwt.sign(payload, process.env.TOKEN_SECRET as string, { expiresIn: '1h' })
+        const token = jwt.sign(payload, process.env.TOKEN_SECRET as string, { expiresIn: '7d' })
 
         res.status(200).json({
             token,

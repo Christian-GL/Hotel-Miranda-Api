@@ -5,10 +5,19 @@ import { RoomInterfaceIdMongodb } from "./roomInterfaceMongodb"
 import { ClientInterfaceIdMongodb } from "./clientInterfaceMongodb"
 
 
-export interface BookingInterfaceDTO {
-    order_date: Date
+export interface BookingInterfaceDatesNotArchived {
     check_in_date: Date
     check_out_date: Date
+}
+
+export interface BookingInterfaceDatesAndIdNotArchived extends BookingInterfaceDatesNotArchived {
+    _id: string
+}
+
+export interface BookingInterfaceDTO extends BookingInterfaceDatesNotArchived {
+    order_date: Date
+    // check_in_date
+    // check_out_date
     price: number
     special_request: string
     isArchived: OptionYesNo
@@ -24,7 +33,7 @@ export interface BookingInterfaceIdMongodb extends BookingInterfaceDTO, Document
     _id: string
 }
 
-export interface BookingInterfaceIdFullDataMongodb extends Omit<BookingInterfaceIdMongodb, 'room_id' | 'client_id'> {
-    room_data_list: RoomInterfaceIdMongodb[]
-    client_data: ClientInterfaceIdMongodb
-}
+// export interface BookingInterfaceIdFullDataMongodb extends Omit<BookingInterfaceIdMongodb, 'room_id' | 'client_id'> {
+//     room_data_list: RoomInterfaceIdMongodb[]
+//     client_data: ClientInterfaceIdMongodb
+// }

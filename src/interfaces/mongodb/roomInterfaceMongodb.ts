@@ -22,6 +22,6 @@ export interface RoomInterfaceIdMongodb extends RoomInterfaceDTO, Document {
     _id: string
 }
 
-export interface RoomInterfaceFullDataMongodb extends Omit<RoomInterfaceIdMongodb, 'booking_id_list'> {
-    booking_data_list: BookingInterfaceIdMongodb[]
-}
+// export interface RoomInterfaceFullDataMongodb extends Omit<RoomInterfaceIdMongodb, 'booking_id_list'> {
+//     booking_data_list: BookingInterfaceIdMongodb[]
+// }
