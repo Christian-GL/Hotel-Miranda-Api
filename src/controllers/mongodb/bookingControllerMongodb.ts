@@ -202,7 +202,7 @@ bookingRouterMongodb.post('/', async (req: Request, res: Response) => {
         return
     }
     try {
-        const createdBooking = await bookingServiceMongodb.createAndLinkRooms(bookingToValidate)
+        const createdBooking = await bookingServiceMongodb.createAndLinkRoomsClient(bookingToValidate)
         res.status(201).json(createdBooking)
         return
     }

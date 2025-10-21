@@ -5,6 +5,7 @@ import { BookingInterfaceDatesAndIdNotArchived, BookingInterfaceDatesNotArchived
 import { OptionYesNo } from '../../enums/optionYesNo'
 import mongoose from 'mongoose'
 import { RoomModelMongodb } from '../../models/mongodb/roomModelMongodb'
+import { ClientModelMongodb } from '../../models/mongodb/clientModelMongodb'
 
 
 export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInterfaceIdMongodb> {
@@ -86,8 +87,8 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
         }
     }
 
-    async createAndLinkRooms(bookingDTO: BookingInterfaceDTO): Promise<BookingInterfaceIdMongodb> {
-        // Crea una booking y añade su _id al "booking_id_list" de todas las rooms indicadas.
+    async createAndLinkRoomsClient(booking: BookingInterfaceDTO): Promise<BookingInterfaceIdMongodb> {
+        // Crea una booking y añade su _id al "booking_id_list" de todas las rooms indicadas y al cliente asociado.
         const session = await mongoose.startSession()
         try {
             let createdBookingId: string | null = null
@@ -95,37 +96,51 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
             await session.withTransaction(async () => {
 
                 // Creamos la booking
-                const createdArr = await BookingModelMongodb.create([bookingDTO], { session })
+                const createdArr = await BookingModelMongodb.create([booking], { session })
                 const bookingDoc = createdArr[0] as any
                 createdBookingId = String(bookingDoc._id)
 
                 // Actualizamos las rooms asociadas añadiendo el id de la booking a su "booking_id_list"
-                const roomIds: string[] = Array.isArray(bookingDTO.room_id_list) ? bookingDTO.room_id_list.map(String) : []
+                const roomIds: string[] = Array.isArray(booking.room_id_list) ? booking.room_id_list.map(String) : []
                 if (roomIds.length > 0) {
                     const foundRooms = await RoomModelMongodb.find({ _id: { $in: roomIds } })
                         .select('_id')
                         .session(session)
                         .lean()
-                    const foundSet = new Set(foundRooms.map((room: any) => String(room._id)))
-                    const missing = roomIds.filter(id => !foundSet.has(id))
+                    const foundSet = new Set(foundRooms.map((r: any) => String(r._id)))
+                    const missingRooms = roomIds.filter(id => !foundSet.has(id))
 
-                    if (missing.length > 0) {
-                        throw new Error(`Some room IDs do not exist: ${missing.join(', ')}`)
+                    if (missingRooms.length > 0) {
+                        throw new Error(`Some room IDs do not exist: ${missingRooms.join(', ')}`)
                     }
-                    else {
-                        await RoomModelMongodb.updateMany(
-                            { _id: { $in: roomIds } },
-                            { $addToSet: { booking_id_list: bookingDoc._id } },
-                            { session }
-                        )
-                    }
+                    await RoomModelMongodb.updateMany(
+                        { _id: { $in: roomIds } },
+                        { $addToSet: { booking_id_list: bookingDoc._id } },
+                        { session }
+                    ).exec()
                 }
+
+                // Validar y actualizar client (añadir el booking id)
+                const clientId = String(booking.client_id ?? '')
+                if (!clientId) {
+                    throw new Error('Client id is required')
+                }
+                const foundClient = await ClientModelMongodb.findById(clientId).select('_id').session(session).lean()
+                if (!foundClient) {
+                    throw new Error(`Client #${clientId} not found`)
+                }
+                await ClientModelMongodb.findOneAndUpdate(
+                    { _id: clientId },
+                    { $addToSet: { booking_id_list: bookingDoc._id } },
+                    { session }
+                ).exec()
             })
 
             // Condición rara: comprobamos que "createdBookingId" fue asignado (si algo raro ocurriese y no se creó la booking, lanzamos error.
             if (!createdBookingId) {
                 throw new Error('Booking creation failed (no id returned)')
             }
+
             const finalBooking = await BookingModelMongodb.findById(createdBookingId).lean()
             return finalBooking as BookingInterfaceIdMongodb
         }
@@ -211,8 +226,7 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
                     }
                     else {
                         if (newRoomIds.length > 0) {
-                            // validación ya hecha para IdsToAdd, pero aquí añadimos a todas las newRoomIds (asegúrate que existen)
-                            // Para seguridad validamos existencia de newRoomIds (si no lo validaste antes):
+                            // validación ya hecha para IdsToAdd, pero aquí añadimos a todas las newRoomIds (para mayor seguridad validamos existencia de newRoomIds)
                             const found = await RoomModelMongodb.find({ _id: { $in: newRoomIds } }).select('_id').session(session).lean()
                             const foundSet = new Set(found.map((r: any) => String(r._id)))
                             const missing = newRoomIds.filter(id => !foundSet.has(id))
