@@ -169,9 +169,112 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
         }
     }
 
-    async updateAndLinkRooms(id: string, bookingDTO: BookingInterfaceDTO): Promise<BookingInterfaceIdMongodb | null> {
+    // SIN LÓGICA DE CLIENTES AÑADIDA:
+    // async updateAndLinkRooms(id: string, bookingDTO: BookingInterfaceDTO): Promise<BookingInterfaceIdMongodb | null> {
+    //     const session = await mongoose.startSession()
+    //     try {
+    //         await session.withTransaction(async () => {
+    //             const bookingToUpdate = await BookingModelMongodb.findOne({ _id: id }).session(session).lean()
+    //             if (!bookingToUpdate) {
+    //                 throw new Error(`Booking #${id} not found`)
+    //             }
+
+    //             const oldRoomIds: string[] = Array.isArray(bookingToUpdate.room_id_list)
+    //                 ? Array.from(new Set(bookingToUpdate.room_id_list.map(String)))
+    //                 : []
+    //             const newRoomIds: string[] = Array.isArray(bookingDTO.room_id_list)
+    //                 ? Array.from(new Set(bookingDTO.room_id_list.map(String)))
+    //                 : []
+
+    //             const IdsToAdd = newRoomIds.filter(rid => !(new Set(oldRoomIds)).has(rid))
+    //             const IdsToRemove = oldRoomIds.filter(rid => !(new Set(newRoomIds)).has(rid))
+
+    //             // Validar existencia de rooms que vamos a AÑADIR (IdsToAdd)
+    //             if (IdsToAdd.length > 0) {
+    //                 const found = await RoomModelMongodb.find({ _id: { $in: IdsToAdd } }).select('_id').session(session).lean()
+    //                 const foundSet = new Set(found.map((r: any) => String(r._id)))
+    //                 const missing = IdsToAdd.filter(id => !foundSet.has(id))
+    //                 if (missing.length > 0) {
+    //                     throw new Error(`Some room IDs do not exist: ${missing.join(', ')}`)
+    //                 }
+    //             }
+
+    //             // Actualizar la booking dentro de la sesión
+    //             const updatedBookingDoc = await BookingModelMongodb.findOneAndUpdate(
+    //                 { _id: id },
+    //                 bookingDTO,
+    //                 { new: true, session }
+    //             ).exec()
+
+    //             // Condición de error rara pero realizada por seguridad:
+    //             if (!updatedBookingDoc) {
+    //                 throw new Error(`Booking #${id} not found`)
+    //             }
+
+    //             // Lógica sobre isArchived
+    //             const oldArchived = String(bookingToUpdate.isArchived ?? '').toLowerCase()
+    //             const newArchived = String(bookingDTO.isArchived ?? '').toLowerCase()
+
+    //             if (oldArchived !== newArchived) {
+    //                 if (newArchived === String(OptionYesNo.yes)) {
+    //                     if (oldRoomIds.length > 0) {
+    //                         await RoomModelMongodb.updateMany(
+    //                             { _id: { $in: oldRoomIds }, booking_id_list: updatedBookingDoc._id },
+    //                             { $pull: { booking_id_list: updatedBookingDoc._id } },
+    //                             { session }
+    //                         ).exec()
+    //                     }
+    //                 }
+    //                 else {
+    //                     if (newRoomIds.length > 0) {
+    //                         // validación ya hecha para IdsToAdd, pero aquí añadimos a todas las newRoomIds (para mayor seguridad validamos existencia de newRoomIds)
+    //                         const found = await RoomModelMongodb.find({ _id: { $in: newRoomIds } }).select('_id').session(session).lean()
+    //                         const foundSet = new Set(found.map((r: any) => String(r._id)))
+    //                         const missing = newRoomIds.filter(id => !foundSet.has(id))
+    //                         if (missing.length > 0) {
+    //                             throw new Error(`Some room IDs do not exist: ${missing.join(', ')}`)
+    //                         }
+    //                         await RoomModelMongodb.updateMany(
+    //                             { _id: { $in: newRoomIds } },
+    //                             { $addToSet: { booking_id_list: updatedBookingDoc._id } },
+    //                             { session }
+    //                         ).exec()
+    //                     }
+    //                 }
+    //             }
+    //             else {
+    //                 // Si no hubo cambio en isArchived: aplicar diferencias normales entre listas
+    //                 if (IdsToAdd.length > 0) {
+    //                     await RoomModelMongodb.updateMany(
+    //                         { _id: { $in: IdsToAdd } },
+    //                         { $addToSet: { booking_id_list: updatedBookingDoc._id } },
+    //                         { session }
+    //                     ).exec()
+    //                 }
+    //                 if (IdsToRemove.length > 0) {
+    //                     await RoomModelMongodb.updateMany(
+    //                         { _id: { $in: IdsToRemove } },
+    //                         { $pull: { booking_id_list: updatedBookingDoc._id } },
+    //                         { session }
+    //                     ).exec()
+    //                 }
+    //             }
+    //         })
+    //         const finalFresh = await BookingModelMongodb.findById(id).lean()
+    //         return finalFresh as BookingInterfaceIdMongodb | null
+    //     }
+    //     catch (error) {
+    //         throw error
+    //     }
+    //     finally {
+    //         session.endSession()
+    //     }
+    // }
+
+    async updateAndLinkRoomsClient(id: string, bookingDTO: BookingInterfaceDTO): Promise<BookingInterfaceIdMongodb | null> {
         const session = await mongoose.startSession()
         try {
+
             await session.withTransaction(async () => {
                 const bookingToUpdate = await BookingModelMongodb.findOne({ _id: id }).session(session).lean()
                 if (!bookingToUpdate) {
@@ -184,7 +287,6 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
                 const newRoomIds: string[] = Array.isArray(bookingDTO.room_id_list)
                     ? Array.from(new Set(bookingDTO.room_id_list.map(String)))
                     : []
-
                 const IdsToAdd = newRoomIds.filter(rid => !(new Set(oldRoomIds)).has(rid))
                 const IdsToRemove = oldRoomIds.filter(rid => !(new Set(newRoomIds)).has(rid))
 
@@ -198,24 +300,36 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
                     }
                 }
 
-                // Actualizar la booking dentro de la sesión
+                // Validar existencia del nuevo client si cambia
+                const oldClientId = String(bookingToUpdate.client_id ?? '')
+                const newClientId = String(bookingDTO.client_id ?? '')
+
+                if (newClientId && oldClientId !== newClientId) {
+                    // Comprobar que el nuevo cliente existe
+                    const foundClient = await ClientModelMongodb.findById(newClientId).select('_id').session(session).lean()
+                    if (!foundClient) {
+                        throw new Error(`Client #${newClientId} not found`)
+                    }
+                }
+
+                // BOOKING actualización dentro de la sesión
                 const updatedBookingDoc = await BookingModelMongodb.findOneAndUpdate(
                     { _id: id },
                     bookingDTO,
                     { new: true, session }
                 ).exec()
-
                 // Condición de error rara pero realizada por seguridad:
                 if (!updatedBookingDoc) {
                     throw new Error(`Booking #${id} not found`)
                 }
 
-                // Lógica sobre isArchived
+                // ROOMS: Lógica sobre isArchived (si cambió) y/o diferencias entre listas
                 const oldArchived = String(bookingToUpdate.isArchived ?? '').toLowerCase()
                 const newArchived = String(bookingDTO.isArchived ?? '').toLowerCase()
 
                 if (oldArchived !== newArchived) {
                     if (newArchived === String(OptionYesNo.yes)) {
+                        // Si BOOKING pasa a archivada: quitar referencia de todas las oldRoomIds
                         if (oldRoomIds.length > 0) {
                             await RoomModelMongodb.updateMany(
                                 { _id: { $in: oldRoomIds }, booking_id_list: updatedBookingDoc._id },
@@ -225,8 +339,8 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
                         }
                     }
                     else {
+                        // Si BOOKING deja de estar archivada: añadir referencia a newRoomIds (validando existencia)
                         if (newRoomIds.length > 0) {
-                            // validación ya hecha para IdsToAdd, pero aquí añadimos a todas las newRoomIds (para mayor seguridad validamos existencia de newRoomIds)
                             const found = await RoomModelMongodb.find({ _id: { $in: newRoomIds } }).select('_id').session(session).lean()
                             const foundSet = new Set(found.map((r: any) => String(r._id)))
                             const missing = newRoomIds.filter(id => !foundSet.has(id))
@@ -258,6 +372,28 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
                         ).exec()
                     }
                 }
+
+                // Si el client cambia, mover el booking_id_list del client viejo al nuevo
+                if (newClientId && oldClientId !== newClientId) {
+                    // Quitar booking id del client viejo (si existe)
+                    if (oldClientId) {
+                        await ClientModelMongodb.updateOne(
+                            { _id: oldClientId, booking_id_list: updatedBookingDoc._id },
+                            { $pull: { booking_id_list: updatedBookingDoc._id } },
+                            { session }
+                        ).exec()
+                    }
+
+                    // Añadir booking id al client nuevo (ya validado su existencia arriba)
+                    await ClientModelMongodb.updateOne(
+                        { _id: newClientId },
+                        { $addToSet: { booking_id_list: updatedBookingDoc._id } },
+                        { session }
+                    ).exec()
+                }
+                else {
+                    // Si el client no cambia: comportamiento especial cuando isArchived cambia respecto a client (posible lógica futura)
+                }
             })
             const finalFresh = await BookingModelMongodb.findById(id).lean()
             return finalFresh as BookingInterfaceIdMongodb | null
@@ -269,6 +405,7 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
             session.endSession()
         }
     }
+
 
     async delete(id: string): Promise<boolean> {
         // Borra la booking y elimina su id de referencia en las rooms asociadas

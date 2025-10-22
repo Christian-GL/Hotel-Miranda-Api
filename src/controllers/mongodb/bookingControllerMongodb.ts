@@ -258,7 +258,7 @@ bookingRouterMongodb.put('/:id', async (req: Request, res: Response) => {
 
     // Si se pasan las validaciones de la booking
     try {
-        const updatedBooking = await bookingServiceMongodb.updateAndLinkRooms(bookingId, bookingToValidate)
+        const updatedBooking = await bookingServiceMongodb.updateAndLinkRoomsClient(bookingId, bookingToValidate)
         if (!updatedBooking) {
             res.status(404).json({ message: `Booking #${bookingId} not found` })
             return
