@@ -327,16 +327,13 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
     }
 
     async delete(id: string): Promise<boolean> {
-        // Borra la booking y elimina su id de referencia en las rooms asociadas
+        // Borra la booking y elimina su id de referencia en las rooms y en el client asociados
         const session = await mongoose.startSession()
         try {
-            let deleted = false
-
             await session.withTransaction(async () => {
                 const booking = await BookingModelMongodb.findById(id).session(session).lean() as (BookingInterfaceIdMongodb | null)
                 if (!booking) {
-                    deleted = false
-                    return
+                    return false
                 }
 
                 const roomIds: string[] = Array.isArray(booking.room_id_list)
@@ -350,15 +347,22 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
                     ).exec()
                 }
 
-                const deletedDoc = await BookingModelMongodb.findOneAndDelete({ _id: id }, { session }).exec()
-                if (!deletedDoc) {
-                    // condición rara: hubo booking al inicio, pero aquí no se encuentra: provocar rollback
-                    throw new Error(`Booking #${id} not found during delete`)
+                const clientId = booking.client_id ? String(booking.client_id).trim() : ''
+                if (clientId) {
+                    await ClientModelMongodb.updateOne(
+                        { _id: clientId, booking_id_list: id },
+                        { $pull: { booking_id_list: id } },
+                        { session }
+                    ).exec()
                 }
 
-                deleted = true
+                const deletedDoc = await BookingModelMongodb.findOneAndDelete({ _id: id }, { session }).exec()
+                if (!deletedDoc) {
+                    // Condición muy rara: existía al principio pero no ahora: forzar rollback
+                    throw new Error(`Booking #${id} not found during delete`)
+                }
             })
-            return deleted
+            return true
         }
         catch (error) {
             throw error
