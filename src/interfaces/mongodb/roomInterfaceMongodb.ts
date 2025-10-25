@@ -6,13 +6,18 @@ import { BookingInterfaceIdMongodb } from "./bookingInterfaceMongodb"
 import { OptionYesNo } from "../../enums/optionYesNo"
 
 
-export interface RoomInterfaceDTO {
+export interface RoomInterfacePriceAndDiscount {
+    price: number
+    discount: number
+}
+
+export interface RoomInterfaceDTO extends RoomInterfacePriceAndDiscount {
     number: string
     photos: string[]
     type: RoomType
     amenities: RoomAmenities[]
-    price: number
-    discount: number
+    // price
+    // discount
     isActive: OptionYesNo
     isArchived: OptionYesNo
     booking_id_list: string[]

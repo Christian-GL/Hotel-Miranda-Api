@@ -1,7 +1,7 @@
 
 import { ServiceInterfaceMongodb } from '../../interfaces/mongodb/serviceInterfaceMongodb'
 import { RoomModelMongodb } from '../../models/mongodb/roomModelMongodb'
-import { RoomInterfaceDTO, RoomInterfaceIdMongodb } from '../../interfaces/mongodb/roomInterfaceMongodb'
+import { RoomInterfaceDTO, RoomInterfaceIdMongodb, RoomInterfacePriceAndDiscount } from '../../interfaces/mongodb/roomInterfaceMongodb'
 import { OptionYesNo } from '../../enums/optionYesNo'
 import mongoose from 'mongoose'
 import { BookingModelMongodb } from '../../models/mongodb/bookingModelMongodb'
@@ -45,6 +45,30 @@ export class RoomServiceMongodb implements ServiceInterfaceMongodb<RoomInterface
         catch (err) {
             console.error('Error in fetchAllNumbers of roomService', err)
             throw err
+        }
+    }
+
+    async fetchPricesAndDiscounts(ids: string[]): Promise<RoomInterfacePriceAndDiscount[]> {
+        try {
+            if (!Array.isArray(ids) || ids.length === 0) {
+                return []
+            }
+            const rooms = await RoomModelMongodb.find(
+                {
+                    _id: { $in: ids },
+                    isArchived: OptionYesNo.no
+                },
+                {
+                    _id: 0,
+                    price: 1,
+                    discount: 1
+                }
+            ).lean()
+            return rooms as RoomInterfacePriceAndDiscount[]
+        }
+        catch (error) {
+            console.error('Error in fetchPricesAndDiscounts of bookingService', error)
+            throw error
         }
     }
 
