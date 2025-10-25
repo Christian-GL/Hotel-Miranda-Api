@@ -219,7 +219,7 @@ bookingRouterMongodb.post('/', async (req: Request, res: Response) => {
                 return
             }
 
-            // aplicar descuento a cada habitación y sumar
+            // Aplicar descuento a cada habitación y sumar
             const total = prices.reduce((acc: number, r: any) => {
                 const price = Number(r.price ?? 0)
                 const discount = Number(r.discount ?? 0)
