@@ -202,6 +202,36 @@ bookingRouterMongodb.post('/', async (req: Request, res: Response) => {
         return
     }
     try {
+        // --- CALCULAR PRECIO TOTAL A PARTIR DE ROOMS ---
+        const roomIds: string[] = Array.isArray(bookingToValidate.room_id_list) ? bookingToValidate.room_id_list.map(String) : []
+
+        // Si no se han pasado rooms, precio = 0
+        if (roomIds.length === 0) {
+            bookingToValidate.price = 0
+        } else {
+            const prices = await roomServiceMongodb.fetchPricesAndDiscounts(roomIds)
+            // Si alguna room no fue encontrada (ej. ids faltan o están archivadas)
+            if (prices.length !== roomIds.length) {
+                // calcular cuáles faltan (informativo)
+                const foundSet = new Set(prices.map((r: any) => String(r._id)))
+                const missing = roomIds.filter(id => !foundSet.has(id))
+                res.status(400).json({ message: `Some room IDs do not exist or are archived: ${missing.join(', ')}` })
+                return
+            }
+
+            // aplicar descuento a cada habitación y sumar
+            const total = prices.reduce((acc: number, r: any) => {
+                const price = Number(r.price ?? 0)
+                const discount = Number(r.discount ?? 0)
+                const effective = price * (1 - (discount / 100))
+                return acc + effective
+            }, 0)
+
+            // redondeo a 2 decimales (opcional)
+            bookingToValidate.price = Number(total.toFixed(2))
+        }
+
+        // Ahora procedemos a crear la booking (transaccional)
         const createdBooking = await bookingServiceMongodb.createAndLinkRoomsClient(bookingToValidate)
         res.status(201).json(createdBooking)
         return
