@@ -252,6 +252,7 @@ bookingRouterMongodb.post('/', async (req: Request, res: Response) => {
     }
 })
 
+
 bookingRouterMongodb.put('/:id', async (req: Request, res: Response) => {
 
     const bookingId = req.params.id
