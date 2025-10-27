@@ -208,7 +208,8 @@ bookingRouterMongodb.post('/', async (req: Request, res: Response) => {
         // Si no se han pasado rooms, precio = 0
         if (roomIds.length === 0) {
             bookingToValidate.price = 0
-        } else {
+        }
+        else {
             const prices = await roomServiceMongodb.fetchPricesAndDiscounts(roomIds)
             // Si alguna room no fue encontrada (ej. ids faltan o están archivadas)
             if (prices.length !== roomIds.length) {
@@ -227,7 +228,6 @@ bookingRouterMongodb.post('/', async (req: Request, res: Response) => {
                 return acc + effective
             }, 0)
 
-            // redondeo a 2 decimales (opcional)
             bookingToValidate.price = Number(total.toFixed(2))
         }
 
@@ -252,7 +252,6 @@ bookingRouterMongodb.post('/', async (req: Request, res: Response) => {
     }
 })
 
-
 bookingRouterMongodb.put('/:id', async (req: Request, res: Response) => {
 
     const bookingId = req.params.id
@@ -260,14 +259,48 @@ bookingRouterMongodb.put('/:id', async (req: Request, res: Response) => {
         order_date: new Date(req.body.order_date),
         check_in_date: new Date(req.body.check_in_date),
         check_out_date: new Date(req.body.check_out_date),
-        price: req.body.price,
+        price: req.body.price, // provisional — lo recalculamos abajo
         special_request: String(req.body.special_request ?? '').trim(),
         isArchived: req.body.isArchived ?? OptionYesNo.no,
-        room_id_list: Array.isArray(req.body.room_id_list) ? req.body.room_id_list : [],
+        room_id_list: Array.isArray(req.body.room_id_list) ? req.body.room_id_list.map(String) : [],
         client_id: String(req.body.client_id ?? '').trim()
     }
 
-    // BOOKING validaciones
+    // --- CALCULAR PRECIO TOTAL A PARTIR DE ROOMS (antes de validar) ---
+    try {
+        const roomIds: string[] = bookingToValidate.room_id_list
+        if (roomIds.length === 0) {
+            bookingToValidate.price = 0
+        } else {
+            // fetchPricesAndDiscounts debe recibir los ids y devolver solo las rooms no archivadas
+            const prices = await roomServiceMongodb.fetchPricesAndDiscounts(roomIds)
+
+            // Si alguna room no fue encontrada (ids faltan o están archivadas)
+            if (prices.length !== roomIds.length) {
+                const foundSet = new Set(prices.map((r: any) => String(r._id)))
+                const missing = roomIds.filter(id => !foundSet.has(id))
+                res.status(400).json({ message: `Some room IDs do not exist or are archived: ${missing.join(', ')}` })
+                return
+            }
+
+            // Aplicar descuento a cada habitación y sumar
+            const total = prices.reduce((acc: number, r: any) => {
+                const price = Number(r.price ?? 0)
+                const discount = Number(r.discount ?? 0)
+                const effective = price * (1 - (discount / 100))
+                return acc + effective
+            }, 0)
+
+            // redondeo a 2 decimales
+            bookingToValidate.price = Number(total.toFixed(2))
+        }
+    } catch (err) {
+        console.error('Error fetching room prices in booking update:', err)
+        res.status(500).json({ message: 'Error fetching room prices' })
+        return
+    }
+
+    // BOOKING validaciones (con el price ya calculado)
     const allBookingDatesAndIdNotArchived = await bookingServiceMongodb.fetchAllDatesAndIdNotArchived()
     const allRoomIdsNotArchived = await roomServiceMongodb.fetchAllIdsNotArchived()
     const allClientIdsNotArchived = await clientServiceMongodb.fetchAllIdsNotArchived()
@@ -312,6 +345,7 @@ bookingRouterMongodb.put('/:id', async (req: Request, res: Response) => {
         return
     }
 })
+
 
 bookingRouterMongodb.delete('/:id', adminOnly, async (req: Request, res: Response) => {
     const id = req.params.id

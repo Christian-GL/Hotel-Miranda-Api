@@ -53,9 +53,12 @@ export class BookingValidator {
             return errorsCheckingProperties
         }
 
-        validateRoomPrice(booking.price, 'Price').map(
-            error => allErrorMessages.push(error)
-        )
+        if (booking.room_id_list.length < 1) {
+            allErrorMessages.push('Room ID list is empty')
+        }
+        if (booking.client_id === '') {
+            allErrorMessages.push('Client ID is empty')
+        }
         validateTextArea(booking.special_request, 'Booking special request').map(
             error => allErrorMessages.push(error)
         )
