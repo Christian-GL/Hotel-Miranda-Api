@@ -346,7 +346,6 @@ bookingRouterMongodb.put('/:id', async (req: Request, res: Response) => {
     }
 })
 
-
 bookingRouterMongodb.delete('/:id', adminOnly, async (req: Request, res: Response) => {
     const id = req.params.id
     try {
