@@ -10,6 +10,7 @@ import { BookingInterfaceDatesAndIdNotArchived, BookingInterfaceDatesNotArchived
 
 export class BookingValidator {
 
+    
     private validatePropertyTypes(booking: BookingInterfaceDTO): string[] {
         const errorMessages: string[] = []
 
