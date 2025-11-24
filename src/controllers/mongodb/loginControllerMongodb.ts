@@ -68,10 +68,16 @@ loginRouterMongodb.post('/', async (req: Request, res: Response): Promise<void> 
             res.status(404).json({ message: 'User or password wrong' })
             return
         }
-
         if (!process.env.TOKEN_SECRET) {
             console.error('TOKEN_SECRET not defined')
             res.status(500).json({ message: 'Server error: TOKEN_SECRET is not defined' })
+            return
+        }
+        const now = new Date()
+        if (now < new Date(user.start_date) || now > new Date(user.end_date)) {
+            res.status(403).json({
+                message: 'Access denied: The user is not active in the allowed date range.'
+            })
             return
         }
 
