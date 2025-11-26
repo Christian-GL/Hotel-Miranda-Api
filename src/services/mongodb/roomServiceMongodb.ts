@@ -165,7 +165,7 @@ export class RoomServiceMongodb implements ServiceInterfaceMongodb<RoomInterface
         }
     }
 
-    async delete(id: string): Promise<boolean> {
+    async deleteAndArchiveBookings(id: string): Promise<boolean> {
         const session = await mongoose.startSession()
         try {
             await session.withTransaction(async () => {

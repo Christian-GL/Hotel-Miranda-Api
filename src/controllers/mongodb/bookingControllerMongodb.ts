@@ -383,7 +383,7 @@ bookingRouterMongodb.put('/:id', async (req: Request, res: Response) => {
 bookingRouterMongodb.delete('/:id', adminOnly, async (req: Request, res: Response) => {
     const id = req.params.id
     try {
-        const deleted = await bookingServiceMongodb.delete(id)
+        const deleted = await bookingServiceMongodb.deleteAndArchiveBookings(id)
         if (deleted) {
             res.status(204).send()
             return

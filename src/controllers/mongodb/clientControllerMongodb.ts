@@ -225,7 +225,7 @@ clientRouterMongodb.put('/:id', async (req: Request, res: Response) => {
 
 clientRouterMongodb.delete('/:id', adminOnly, async (req: Request, res: Response) => {
     try {
-        const deletedClient = await clientServiceMongodb.delete(req.params.id)
+        const deletedClient = await clientServiceMongodb.deleteAndArchiveBookings(req.params.id)
         if (deletedClient) {
             res.status(204).json()
         }

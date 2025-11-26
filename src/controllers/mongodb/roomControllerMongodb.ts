@@ -288,8 +288,7 @@ roomRouterMongodb.put('/:id', async (req: Request, res: Response) => {
 roomRouterMongodb.delete('/:id', adminOnly, async (req: Request, res: Response): Promise<void> => {
     const roomId = req.params.id
     try {
-        // También archiva las bookings asociadas
-        const deleteRoom = await roomServiceMongodb.delete(roomId)
+        const deleteRoom = await roomServiceMongodb.deleteAndArchiveBookings(roomId)
         if (deleteRoom) {
             res.status(204).send()
             return
