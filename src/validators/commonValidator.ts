@@ -63,14 +63,22 @@ export const validateBoolean = (bool: any, fieldName: string = 'Boolean field'):
 }
 
 export const validateDate = (date: any, fieldName: string = 'Date field'): string[] => {
-    const errorMessages: string[] = []
+    const errors: string[] = []
 
-    if (!(date instanceof Date) || isNaN(date.getTime())) {
-        errorMessages.push(`${fieldName} is not a valid date (must be in ISO format: YYYY-MM-DDTHH:mm:ss.sssZ)`)
-        return errorMessages
+    if (date === null || date === undefined) {
+        errors.push(`${fieldName} is null or undefined`)
+        return errors
+    }
+    if (!(date instanceof Date)) {
+        errors.push(`${fieldName} must be a Date object`)
+        return errors
+    }
+    if (isNaN(date.getTime())) {
+        errors.push(`${fieldName} is not a valid date (Invalid Date)`)
+        return errors
     }
 
-    return errorMessages
+    return errors
 }
 
 

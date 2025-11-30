@@ -82,7 +82,7 @@ export class UserValidator {
                 error => allErrorMessages.push(error)
             )
         }
-        validateOptionYesNo(user.isArchived, 'Room isArchived').map(
+        validateOptionYesNo(user.isArchived, 'User isArchived').map(
             error => allErrorMessages.push(error)
         )
 
