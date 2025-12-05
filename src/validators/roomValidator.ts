@@ -70,7 +70,7 @@ export class RoomValidator {
         validateRoomPrice(room.price, 'Room price').map(
             error => allErrorMessages.push(error)
         )
-        validateRoomDiscount(room.discount, 'Room type').map(
+        validateRoomDiscount(room.discount, 'Room Discount').map(
             error => allErrorMessages.push(error)
         )
         validateOptionYesNo(room.isActive, 'Room isActive').map(
