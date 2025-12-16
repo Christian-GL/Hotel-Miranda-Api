@@ -165,7 +165,7 @@ userRouterMongodb.get('/:id', async (req: Request, res: Response) => {
     }
 })
 
-userRouterMongodb.post('/', async (req: Request, res: Response) => {
+userRouterMongodb.post('/', adminOnly, async (req: Request, res: Response) => {
 
     const userToValidate: UserInterfaceDTO = {
         photo: req.body.photo == null ? null : String(req.body.photo).trim(),
@@ -198,7 +198,7 @@ userRouterMongodb.post('/', async (req: Request, res: Response) => {
     }
 })
 
-userRouterMongodb.put('/:id', async (req: Request, res: Response) => {
+userRouterMongodb.put('/:id', adminOnly, async (req: Request, res: Response) => {
 
     const existingUser = await UserModelMongodb.findById(req.body._id).select("password")
     let passwordHasChanged = false
