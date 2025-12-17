@@ -60,30 +60,29 @@ loginRouterMongodb.post('/', async (req: Request, res: Response): Promise<void> 
             user = await (userService as any).fetchByEmail(email)
         }
         else {
-            const all = await userService.fetchAll()
-            user = all.find(u => u.email === email)
+            const allUsers = await userService.fetchAll()
+            user = allUsers.find(user => user.email === email)
         }
 
         if (!user) {
-            res.status(404).json({ message: 'User or password wrong' })
+            res.status(404).json({ message: 'Email or password wrong' })
             return
         }
         if (!process.env.TOKEN_SECRET) {
-            console.error('TOKEN_SECRET not defined')
             res.status(500).json({ message: 'Server error: TOKEN_SECRET is not defined' })
             return
         }
         const now = new Date()
         if (now < new Date(user.start_date) || now > new Date(user.end_date)) {
             res.status(403).json({
-                message: 'Access denied: The user is not active in the allowed date range.'
+                message: 'Access denied: The user is not active in the allowed date range, contact an administrator'
             })
             return
         }
 
         const passwordMatches = await bcrypt.compare(password, user.password)
         if (!passwordMatches) {
-            res.status(400).json({ message: 'User or password wrong' })
+            res.status(400).json({ message: 'Email or password wrong' })
             return
         }
 
@@ -101,8 +100,8 @@ loginRouterMongodb.post('/', async (req: Request, res: Response): Promise<void> 
         })
         return
     }
-    catch (err) {
-        console.error('Login error:', err)
+    catch (error) {
+        console.error('Login error:', error)
         res.status(500).json({ message: 'Internal server error' })
         return
     }
