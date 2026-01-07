@@ -215,7 +215,7 @@ export const validateDateRelativeToAnother = (date1: Date, mustBeBeforeNow: bool
     return errorMessages
 }
 
-export const validateCheckInCheckOut = (checkIn: Date, checkOut: Date): string[] => {
+export const validateCheckInCheckOutNewBooking = (checkIn: Date, checkOut: Date): string[] => {
     const errorMessages: string[] = []
 
     validateDateRelativeToAnother(checkIn, false, new Date(), 'Check in date').map(
@@ -224,6 +224,22 @@ export const validateCheckInCheckOut = (checkIn: Date, checkOut: Date): string[]
     validateDateRelativeToAnother(checkOut, false, new Date(), 'Check out date').map(
         error => errorMessages.push(error)
     )
+    if (checkIn >= checkOut) {
+        errorMessages.push('Check in date must be before Check out date')
+    }
+
+    return errorMessages
+}
+
+export const validateCheckInCheckOutExistingBooking = (checkIn: Date, checkOut: Date): string[] => {
+    const errorMessages: string[] = []
+
+    validateDate(checkIn, 'Check In').map(error => {
+        errorMessages.push(error)
+    })
+    validateDate(checkOut, 'Check Out').map(error => {
+        errorMessages.push(error)
+    })
     if (checkIn >= checkOut) {
         errorMessages.push('Check in date must be before Check out date')
     }
