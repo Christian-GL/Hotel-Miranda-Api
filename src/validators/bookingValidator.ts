@@ -5,7 +5,7 @@ import {
     validateDateIsOccupiedIfBookingExists, validateTextArea, validateStringList,
     validateCheckInCheckOutExistingBooking
 } from "./commonValidator"
-import { BookingInterfaceDatesAndIdNotArchived, BookingInterfaceDatesNotArchived, BookingInterfaceDTO, BookingInterfaceId, BookingInterfaceIdMongodb } from "../interfaces/mongodb/bookingInterfaceMongodb"
+import { BookingInterfaceCheckInOutId, BookingInterfaceCheckInOut, BookingInterfaceDTO, BookingInterfaceId, BookingInterfaceIdMongodb } from "../interfaces/mongodb/bookingInterfaceMongodb"
 
 
 export class BookingValidator {
@@ -86,7 +86,7 @@ export class BookingValidator {
         return allErrorMessages
     }
 
-    validateNewBooking(booking: BookingInterfaceDTO, allBookingDatesNotArchived: BookingInterfaceDatesNotArchived[], allRoomIdsNotArchived: string[], clientID: string, clientIdsNotArchived: string[]): string[] {
+    validateNewBooking(booking: BookingInterfaceDTO, allBookingDatesNotArchived: BookingInterfaceCheckInOut[], allRoomIdsNotArchived: string[], clientID: string, clientIdsNotArchived: string[]): string[] {
         const allErrorMessages: string[] = []
 
         if (booking === undefined || Object.keys(booking).length === 0) {
@@ -104,7 +104,7 @@ export class BookingValidator {
         return allErrorMessages
     }
 
-    validateExistingBooking(booking: BookingInterfaceId, allBookingDatesAndIdNotArchived: BookingInterfaceDatesAndIdNotArchived[], allRoomIdsNotArchived: string[], clientID: string, clientIdsNotArchived: string[]): string[] {
+    validateExistingBooking(booking: BookingInterfaceId, allBookingDatesAndIdNotArchived: BookingInterfaceCheckInOutId[], allRoomIdsNotArchived: string[], clientID: string, clientIdsNotArchived: string[]): string[] {
         const allErrorMessages: string[] = []
 
         if (booking === undefined || Object.keys(booking).length === 0) {

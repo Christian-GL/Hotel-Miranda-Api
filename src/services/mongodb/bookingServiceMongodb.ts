@@ -1,7 +1,7 @@
 
 import { ServiceInterfaceMongodb } from '../../interfaces/mongodb/serviceInterfaceMongodb'
 import { BookingModelMongodb } from '../../models/mongodb/bookingModelMongodb'
-import { BookingInterfaceDatesAndIdNotArchived, BookingInterfaceDatesNotArchived, BookingInterfaceDTO, BookingInterfaceIdMongodb } from '../../interfaces/mongodb/bookingInterfaceMongodb'
+import { BookingInterfaceCheckInOutId, BookingInterfaceCheckInOut, BookingInterfaceDTO, BookingInterfaceIdMongodb } from '../../interfaces/mongodb/bookingInterfaceMongodb'
 import { OptionYesNo } from '../../enums/optionYesNo'
 import mongoose from 'mongoose'
 import { RoomModelMongodb } from '../../models/mongodb/roomModelMongodb'
@@ -35,7 +35,7 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
         }
     }
 
-    async fetchAllDatesNotArchived(): Promise<BookingInterfaceDatesNotArchived[]> {
+    async fetchAllDatesNotArchived(): Promise<BookingInterfaceCheckInOut[]> {
         try {
             const bookings = await BookingModelMongodb.find(
                 { isArchived: OptionYesNo.no },
@@ -49,7 +49,7 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
         }
     }
 
-    async fetchAllDatesAndIdNotArchived(): Promise<BookingInterfaceDatesAndIdNotArchived[]> {
+    async fetchAllDatesAndIdNotArchived(): Promise<BookingInterfaceCheckInOutId[]> {
         try {
             const bookings = await BookingModelMongodb.find(
                 { isArchived: OptionYesNo.no },
@@ -58,7 +58,7 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
             return bookings
         }
         catch (error) {
-            console.error('Error in fetchAllDatesNotArchived of bookingService', error)
+            console.error('Error in fetchAllDatesAndIdNotArchived of bookingService', error)
             throw error
         }
     }
