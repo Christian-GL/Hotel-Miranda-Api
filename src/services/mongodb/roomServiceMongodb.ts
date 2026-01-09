@@ -43,7 +43,36 @@ export class RoomServiceMongodb implements ServiceInterfaceMongodb<RoomInterface
             return rooms.map((r: any) => String(r.number))
         }
         catch (err) {
-            console.error('Error in fetchAllNumbers of roomService', err)
+            console.error('Error in fetchAllNumbersNotArchived of roomService', err)
+            throw err
+        }
+    }
+
+    async fetchAllIdsActived(): Promise<string[]> {
+        try {
+            const rooms = await RoomModelMongodb.find(
+                { isActive: OptionYesNo.yes },
+                { _id: 1 }
+            ).lean()
+            return rooms.map((r: any) => String(r._id))
+        }
+        catch (err) {
+            console.error('Error in fetchAllIdsActived of roomService', err)
+            throw err
+        }
+    }
+
+    async fetchIdByNumber(roomNumber: string): Promise<string | null> {
+        try {
+            const room = await RoomModelMongodb.findOne(
+                { number: roomNumber },
+                { _id: 1 }
+            ).lean()
+
+            return room ? String(room._id) : null
+        }
+        catch (err) {
+            console.error('Error in fetchIdByNumber of roomService', err)
             throw err
         }
     }

@@ -9,7 +9,7 @@ import { RoomServiceMongodb } from '../../services/mongodb/roomServiceMongodb'
 import { RoomValidator } from '../../validators/roomValidator'
 import { RoomInterfaceDTO } from '../../interfaces/mongodb/roomInterfaceMongodb'
 import { OptionYesNo } from '../../enums/optionYesNo'
-import { BookingServiceMongodb } from '../../services/mongodb/bookingServiceMongodb'
+import { RoomModelMongodb } from '../../models/mongodb/roomModelMongodb'
 
 
 export const roomRouterMongodb = Router()
@@ -177,7 +177,7 @@ roomRouterMongodb.get('/:id', async (req: Request, res: Response) => {
 
 roomRouterMongodb.post('/', async (req: Request, res: Response) => {
 
-    const allRoomNumbers = await roomServiceMongodb.fetchAllNumbersNotArchived()
+    const allRoomNumbersNotArchived = await roomServiceMongodb.fetchAllNumbersNotArchived()
     const roomToValidate: RoomInterfaceDTO = {
         photos: req.body.photos,
         number: req.body.number.trim().toLowerCase(),
@@ -190,7 +190,7 @@ roomRouterMongodb.post('/', async (req: Request, res: Response) => {
         booking_id_list: []
     }
     const roomValidator = new RoomValidator()
-    const totalErrors = roomValidator.validateNewRoom(roomToValidate, allRoomNumbers)
+    const totalErrors = roomValidator.validateNewRoom(roomToValidate, allRoomNumbersNotArchived)
     if (totalErrors.length === 0) {
         try {
             const newRoom = await roomServiceMongodb.create(roomToValidate)
@@ -217,7 +217,7 @@ roomRouterMongodb.put('/:id', async (req: Request, res: Response) => {
             res.status(404).json({ message: `Room #${roomID} not found` })
             return
         }
-        const allRoomNumbers = await roomServiceMongodb.fetchAllNumbersNotArchived()
+        const allRoomNumbersNotArchived = await roomServiceMongodb.fetchAllNumbersNotArchived()
         const actualRoomNumber = req.body.number.trim().toLowerCase()
         const roomToUpdate: RoomInterfaceDTO = {
             photos: req.body.photos,
@@ -231,10 +231,25 @@ roomRouterMongodb.put('/:id', async (req: Request, res: Response) => {
             booking_id_list: req.body.booking_id_list
         }
         const roomValidator = new RoomValidator()
-        const totalErrors = roomValidator.validateExistingRoom(roomToUpdate, actualRoomNumber, allRoomNumbers)
+        const totalErrors = roomValidator.validateExistingRoom(roomToUpdate, actualRoomNumber, allRoomNumbersNotArchived)
         if (totalErrors.length > 0) {
             res.status(400).json({ message: totalErrors.join(', ') })
             return
+        }
+        const oldRoomId = await roomServiceMongodb.fetchIdByNumber(roomToUpdate.number)
+        if (oldRoomId === null) return
+        if (roomToUpdate.isArchived === OptionYesNo.no) {
+            if (allRoomNumbersNotArchived.includes(roomToUpdate.number) && roomID !== oldRoomId) {
+                res.status(400).json('A room with this number is already not archived')
+                return
+            }
+        }
+        if (roomToUpdate.isActive === OptionYesNo.yes) {
+            const allRoomIdsActived = await roomServiceMongodb.fetchAllIdsActived()
+            if (allRoomIdsActived.includes(roomID) && roomID !== oldRoomId) {
+                res.status(400).json('A room with this ID is already active')
+                return
+            }
         }
 
         // BOOKINGS asociadas validación de su existencia en BD
