@@ -271,12 +271,16 @@ roomRouterMongodb.put('/:id', async (req: Request, res: Response) => {
 
         // Si tanto la ROOM como sus BOOKINGS existen y pasan validaciones hacemos las actualizaciones correspondientes en BD
         try {
-            const finalRoom = await roomServiceMongodb.updateAndArchiveBookingsIfNeeded(roomID, roomToUpdate)
-            if (!finalRoom) {
+            const result = await roomServiceMongodb.updateAndArchiveBookingsIfNeeded(roomID, roomToUpdate)
+            if (!result) {
                 res.status(404).json({ message: `Room #${roomID} not found` })
                 return
             }
-            res.status(200).json(finalRoom)
+            const { roomUpdated: room, updatedBookings } = result
+            res.status(200).json({
+                room,
+                updatedBookings
+            })
             return
         }
         catch (error: any) {
@@ -303,12 +307,16 @@ roomRouterMongodb.put('/:id', async (req: Request, res: Response) => {
 roomRouterMongodb.delete('/:id', adminOnly, async (req: Request, res: Response): Promise<void> => {
     const roomId = req.params.id
     try {
-        const deleteRoom = await roomServiceMongodb.deleteAndArchiveBookings(roomId)
-        if (deleteRoom) {
-            res.status(204).send()
+        const result = await roomServiceMongodb.deleteAndArchiveBookings(roomId)
+        if (!result) {
+            res.status(404).json({ message: `Room #${roomId} not found` })
             return
         }
-        res.status(404).json({ message: `Room #${roomId} not found` })
+        const { roomDeleted: deleted, updatedBookings } = result
+        res.status(200).json({
+            deleted,
+            updatedBookings
+        })
         return
     }
     catch (error: any) {

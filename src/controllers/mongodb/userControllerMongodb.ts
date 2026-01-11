@@ -243,7 +243,7 @@ userRouterMongodb.put('/:id', adminOnly, async (req: Request, res: Response) => 
 
 userRouterMongodb.delete('/:id', adminOnly, async (req: Request, res: Response) => {
     try {
-        const deletedUser = await userServiceMongodb.deleteAndArchiveBookings(req.params.id)
+        const deletedUser = await userServiceMongodb.delete(req.params.id)
         if (deletedUser) {
             res.status(204).json()
         } else {

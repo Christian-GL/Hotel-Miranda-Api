@@ -63,7 +63,7 @@ export class UserServiceMongodb implements ServiceInterfaceMongodb<UserInterface
         }
     }
 
-    async deleteAndArchiveBookings(id: string): Promise<boolean> {
+    async delete(id: string): Promise<boolean> {
         try {
             const deletedUser = await UserModelMongodb.findByIdAndDelete(id)
             if (deletedUser) return true

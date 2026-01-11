@@ -5,6 +5,7 @@ import { RoomInterfaceDTO, RoomInterfaceIdMongodb, RoomInterfacePriceAndDiscount
 import { OptionYesNo } from '../../enums/optionYesNo'
 import mongoose from 'mongoose'
 import { BookingModelMongodb } from '../../models/mongodb/bookingModelMongodb'
+import { BookingInterfaceIdMongodb } from '../../interfaces/mongodb/bookingInterfaceMongodb'
 
 
 export class RoomServiceMongodb implements ServiceInterfaceMongodb<RoomInterfaceIdMongodb> {
@@ -157,9 +158,16 @@ export class RoomServiceMongodb implements ServiceInterfaceMongodb<RoomInterface
         }
     }
 
-    async updateAndArchiveBookingsIfNeeded(roomId: string, roomToUpdate: RoomInterfaceDTO): Promise<RoomInterfaceIdMongodb | null> {
+    async updateAndArchiveBookingsIfNeeded(roomId: string, roomToUpdate: RoomInterfaceDTO)
+        : Promise<{
+            roomUpdated: RoomInterfaceIdMongodb | null
+            updatedBookings: BookingInterfaceIdMongodb[]
+        }> {
+
         // Actualiza la room y (si procede) archiva las bookings en una única transacción.
         const session = await mongoose.startSession()
+        let updatedBookings: BookingInterfaceIdMongodb[] = []
+
         try {
             await session.withTransaction(async () => {
 
@@ -175,16 +183,24 @@ export class RoomServiceMongodb implements ServiceInterfaceMongodb<RoomInterface
 
                 // Archiba las bookings asociadas en caso de que la room ya no esté disponible
                 if ((roomToUpdate.isActive === OptionYesNo.no || roomToUpdate.isArchived === OptionYesNo.yes) && roomToUpdate.booking_id_list && roomToUpdate.booking_id_list.length > 0) {
+
                     await BookingModelMongodb.updateMany(
                         { _id: { $in: roomToUpdate.booking_id_list }, isArchived: OptionYesNo.no },
                         { $set: { isArchived: OptionYesNo.yes } },
                         { session }
                     ).exec()
+
+                    updatedBookings = await BookingModelMongodb.find(
+                        { _id: { $in: roomToUpdate.booking_id_list } }
+                    ).session(session).lean() as BookingInterfaceIdMongodb[]
                 }
             })
 
             const finalRoomFresh = await RoomModelMongodb.findById(roomId).lean()
-            return finalRoomFresh as RoomInterfaceIdMongodb | null
+            return {
+                roomUpdated: finalRoomFresh as RoomInterfaceIdMongodb | null,
+                updatedBookings
+            }
         }
         catch (error) {
             throw error
@@ -194,10 +210,18 @@ export class RoomServiceMongodb implements ServiceInterfaceMongodb<RoomInterface
         }
     }
 
-    async deleteAndArchiveBookings(id: string): Promise<boolean> {
+    async deleteAndArchiveBookings(id: string
+    ): Promise<{
+        roomDeleted: boolean
+        updatedBookings: BookingInterfaceIdMongodb[]
+    }> {
+
         const session = await mongoose.startSession()
+        let updatedBookings: BookingInterfaceIdMongodb[] = []
+
         try {
             await session.withTransaction(async () => {
+
                 const room = await RoomModelMongodb.findById(id).session(session).lean() as (RoomInterfaceIdMongodb | null)
                 if (!room) {
                     return false
@@ -206,12 +230,17 @@ export class RoomServiceMongodb implements ServiceInterfaceMongodb<RoomInterface
                 const bookingIds: string[] = Array.isArray((room as any).booking_id_list)
                     ? Array.from(new Set((room as any).booking_id_list.map((x: any) => String(x).trim())))
                     : []
+
                 if (bookingIds.length > 0) {
                     await BookingModelMongodb.updateMany(
                         { _id: { $in: bookingIds }, isArchived: OptionYesNo.no },
                         { $set: { isArchived: OptionYesNo.yes } },
                         { session }
                     ).exec()
+
+                    updatedBookings = await BookingModelMongodb.find(
+                        { _id: { $in: bookingIds } }
+                    ).session(session).lean() as BookingInterfaceIdMongodb[]
                 }
 
                 const deletedRoom = await RoomModelMongodb.findOneAndDelete({ _id: id }, { session }).exec()
@@ -220,13 +249,29 @@ export class RoomServiceMongodb implements ServiceInterfaceMongodb<RoomInterface
                     throw new Error(`Room #${id} not found during delete`)
                 }
             })
-            return true
+
+            return {
+                roomDeleted: true,
+                updatedBookings
+            }
         }
         catch (error: any) {
             throw error
         }
         finally {
             session.endSession()
+        }
+    }
+
+    async delete(id: string): Promise<boolean> {
+        try {
+            const deletedRoom = await RoomModelMongodb.findByIdAndDelete(id)
+            if (deletedRoom) return true
+            else return false
+        }
+        catch (error) {
+            console.error('Error in delete of roomService', error)
+            throw error
         }
     }
 

@@ -326,7 +326,7 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
         }
     }
 
-    async deleteAndArchiveBookings(id: string): Promise<boolean> {
+    async delete(id: string): Promise<boolean> {
         // Borra la booking y elimina su id de referencia en las rooms y en el client asociados
         const session = await mongoose.startSession()
         try {

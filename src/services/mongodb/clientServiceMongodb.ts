@@ -86,7 +86,7 @@ export class ClientServiceMongodb implements ServiceInterfaceMongodb<ClientInter
         }
     }
 
-    async deleteAndArchiveBookings(id: string): Promise<boolean> {
+    async delete(id: string): Promise<boolean> {
         try {
             const deletedClient = await ClientModelMongodb.findByIdAndDelete(id)
             if (deletedClient) return true
