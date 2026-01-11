@@ -249,10 +249,8 @@ bookingRouterMongodb.post('/', async (req: Request, res: Response) => {
     }
 
     try {
-        const createdBooking =
-            await bookingServiceMongodb.createAndLinkRoomsClient(bookingToValidate)
-
-        res.status(201).json(createdBooking)
+        const allNewData = await bookingServiceMongodb.createAndLinkRoomsClient(bookingToValidate)
+        res.status(201).json(allNewData)
         return
     }
     catch (error: any) {
@@ -356,12 +354,12 @@ bookingRouterMongodb.put('/:id', async (req: Request, res: Response) => {
     }
 
     try {
-        const updatedBooking = await bookingServiceMongodb.updateAndLinkRoomsClient(bookingId, bookingToValidate)
-        if (!updatedBooking) {
+        const allNewData = await bookingServiceMongodb.updateAndLinkRoomsClient(bookingId, bookingToValidate)
+        if (!allNewData || !allNewData.booking) {
             res.status(404).json({ message: `Booking #${bookingId} not found` })
             return
         }
-        res.status(200).json(updatedBooking)
+        res.status(200).json(allNewData)
         return
     }
     catch (error: any) {
@@ -383,12 +381,12 @@ bookingRouterMongodb.put('/:id', async (req: Request, res: Response) => {
 bookingRouterMongodb.delete('/:id', adminOnly, async (req: Request, res: Response) => {
     const id = req.params.id
     try {
-        const deleted = await bookingServiceMongodb.delete(id)
-        if (deleted) {
-            res.status(204).send()
+        const allNewData = await bookingServiceMongodb.deleteAndUpdateRoomsAndClient(id)
+        if (!allNewData || !allNewData.deleted) {
+            res.status(404).json({ message: `Booking #${id} not found` })
             return
         }
-        res.status(404).json({ message: `Booking #${id} not found` })
+        res.status(200).json(allNewData)
         return
     }
     catch (error: any) {

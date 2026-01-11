@@ -6,6 +6,8 @@ import { OptionYesNo } from '../../enums/optionYesNo'
 import mongoose from 'mongoose'
 import { RoomModelMongodb } from '../../models/mongodb/roomModelMongodb'
 import { ClientModelMongodb } from '../../models/mongodb/clientModelMongodb'
+import { ClientInterfaceIdMongodb } from '../../interfaces/mongodb/clientInterfaceMongodb'
+import { RoomInterfaceIdMongodb } from '../../interfaces/mongodb/roomInterfaceMongodb'
 
 
 export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInterfaceIdMongodb> {
@@ -87,12 +89,15 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
         }
     }
 
-    async createAndLinkRoomsClient(booking: BookingInterfaceDTO): Promise<BookingInterfaceIdMongodb> {
+    async createAndLinkRoomsClient(booking: BookingInterfaceDTO): Promise<{
+        booking: BookingInterfaceIdMongodb
+        updatedRooms: RoomInterfaceIdMongodb[]
+        updatedClient: ClientInterfaceIdMongodb
+    }> {
         // Crea una booking y añade su _id al "booking_id_list" de todas las rooms indicadas y al cliente asociado.
         const session = await mongoose.startSession()
         try {
             let createdBookingId: string | null = null
-
             await session.withTransaction(async () => {
 
                 // Creamos la booking
@@ -142,7 +147,14 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
             }
 
             const finalBooking = await BookingModelMongodb.findById(createdBookingId).lean()
-            return finalBooking as BookingInterfaceIdMongodb
+            const updatedRooms = await RoomModelMongodb.find({ booking_id_list: createdBookingId }).lean()
+            const updatedClient = await ClientModelMongodb.findOne({ booking_id_list: createdBookingId }).lean()
+
+            return {
+                booking: finalBooking as BookingInterfaceIdMongodb,
+                updatedRooms: updatedRooms as RoomInterfaceIdMongodb[],
+                updatedClient: updatedClient as ClientInterfaceIdMongodb
+            }
         }
         finally {
             session.endSession()
@@ -169,7 +181,11 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
         }
     }
 
-    async updateAndLinkRoomsClient(id: string, bookingDTO: BookingInterfaceDTO): Promise<BookingInterfaceIdMongodb | null> {
+    async updateAndLinkRoomsClient(id: string, bookingDTO: BookingInterfaceDTO): Promise<{
+        booking: BookingInterfaceIdMongodb | null
+        updatedRooms: RoomInterfaceIdMongodb[]
+        updatedClient: ClientInterfaceIdMongodb | null
+    }> {
         const session = await mongoose.startSession()
         try {
 
@@ -316,7 +332,14 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
                 }
             })
             const finalFresh = await BookingModelMongodb.findById(id).lean()
-            return finalFresh as BookingInterfaceIdMongodb | null
+            const updatedRooms = await RoomModelMongodb.find({ booking_id_list: id }).lean()
+            const updatedClient = await ClientModelMongodb.findOne({ booking_id_list: id }).lean()
+
+            return {
+                booking: finalFresh as BookingInterfaceIdMongodb | null,
+                updatedRooms: updatedRooms as RoomInterfaceIdMongodb[],
+                updatedClient: updatedClient as ClientInterfaceIdMongodb | null
+            }
         }
         catch (error) {
             throw error
@@ -326,19 +349,28 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
         }
     }
 
-    async delete(id: string): Promise<boolean> {
+    async deleteAndUpdateRoomsAndClient(id: string): Promise<{
+        deleted: boolean
+        updatedRooms: RoomInterfaceIdMongodb[]
+        updatedClient: ClientInterfaceIdMongodb | null
+    }> {
         // Borra la booking y elimina su id de referencia en las rooms y en el client asociados
         const session = await mongoose.startSession()
         try {
+            let affectedRoomIds: string[] = []
+            let affectedClientId: string | null = null
+
             await session.withTransaction(async () => {
                 const booking = await BookingModelMongodb.findById(id).session(session).lean() as (BookingInterfaceIdMongodb | null)
                 if (!booking) {
-                    return false
+                    return
                 }
 
                 const roomIds: string[] = Array.isArray(booking.room_id_list)
                     ? Array.from(new Set(booking.room_id_list.map((x: any) => String(x).trim())))
                     : []
+                affectedRoomIds = roomIds
+
                 if (roomIds.length > 0) {
                     await RoomModelMongodb.updateMany(
                         { _id: { $in: roomIds } },
@@ -348,6 +380,8 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
                 }
 
                 const clientId = booking.client_id ? String(booking.client_id).trim() : ''
+                affectedClientId = clientId || null
+
                 if (clientId) {
                     await ClientModelMongodb.updateOne(
                         { _id: clientId, booking_id_list: id },
@@ -362,7 +396,20 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
                     throw new Error(`Booking #${id} not found during delete`)
                 }
             })
-            return true
+
+            const updatedRooms = affectedRoomIds.length > 0
+                ? await RoomModelMongodb.find({ _id: { $in: affectedRoomIds } }).lean()
+                : []
+
+            const updatedClient = affectedClientId
+                ? await ClientModelMongodb.findById(affectedClientId).lean()
+                : null
+
+            return {
+                deleted: true,
+                updatedRooms: updatedRooms as RoomInterfaceIdMongodb[],
+                updatedClient: updatedClient as ClientInterfaceIdMongodb | null
+            }
         }
         catch (error) {
             throw error
@@ -372,5 +419,16 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
         }
     }
 
-}
+    async delete(id: string): Promise<boolean> {
+        try {
+            const deletedBooking = await BookingModelMongodb.findByIdAndDelete(id)
+            if (deletedBooking) return true
+            else return false
+        }
+        catch (error) {
+            console.error('Error in delete of bookingService', error)
+            throw error
+        }
+    }
 
+}
