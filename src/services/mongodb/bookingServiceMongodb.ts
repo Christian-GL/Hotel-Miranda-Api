@@ -351,6 +351,7 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
 
     async deleteAndUpdateRoomsAndClient(id: string): Promise<{
         deleted: boolean
+        bookingId: string
         updatedRooms: RoomInterfaceIdMongodb[]
         updatedClient: ClientInterfaceIdMongodb | null
     }> {
@@ -407,6 +408,7 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
 
             return {
                 deleted: true,
+                bookingId: id,
                 updatedRooms: updatedRooms as RoomInterfaceIdMongodb[],
                 updatedClient: updatedClient as ClientInterfaceIdMongodb | null
             }

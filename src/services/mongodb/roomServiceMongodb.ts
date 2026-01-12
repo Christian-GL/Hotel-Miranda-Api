@@ -213,6 +213,7 @@ export class RoomServiceMongodb implements ServiceInterfaceMongodb<RoomInterface
     async deleteAndArchiveBookings(id: string
     ): Promise<{
         roomDeleted: boolean
+        roomId: string
         updatedBookings: BookingInterfaceIdMongodb[]
     }> {
 
@@ -252,6 +253,7 @@ export class RoomServiceMongodb implements ServiceInterfaceMongodb<RoomInterface
 
             return {
                 roomDeleted: true,
+                roomId: id,
                 updatedBookings
             }
         }

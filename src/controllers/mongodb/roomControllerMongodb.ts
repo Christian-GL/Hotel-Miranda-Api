@@ -313,10 +313,7 @@ roomRouterMongodb.delete('/:id', adminOnly, async (req: Request, res: Response):
             return
         }
         const { roomDeleted: deleted, updatedBookings } = allNewData
-        res.status(200).json({
-            deleted,
-            updatedBookings
-        })
+        res.status(200).json(allNewData)
         return
     }
     catch (error: any) {
