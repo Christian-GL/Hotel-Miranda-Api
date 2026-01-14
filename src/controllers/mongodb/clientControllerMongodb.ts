@@ -190,8 +190,7 @@ clientRouterMongodb.post('/', async (req: Request, res: Response) => {
     }
 })
 
-clientRouterMongodb.put('/:id', async (req: Request, res: Response) => {
-
+clientRouterMongodb.put('/:id', async (req: Request, res: Response): Promise<void> => {
     const clientToValidate: ClientInterfaceDTO = {
         full_name: req.body.full_name.trim(),
         email: req.body.email.trim().toLowerCase(),
@@ -199,42 +198,73 @@ clientRouterMongodb.put('/:id', async (req: Request, res: Response) => {
         isArchived: req.body.isArchived.trim(),
         booking_id_list: req.body.booking_id_list
     }
-    const bookingList = await bookingServiceMongodb.fetchAll()
-    const bookingIdList = bookingList.map(booking => booking._id.toString())
-    const clientValidator = new ClientValidator()
-    const totalErrors = clientValidator.validateExistingClient(clientToValidate, bookingIdList)
-    if (totalErrors.length === 0) {
-        try {
-            const updatedClient = await clientServiceMongodb.update(req.params.id, clientToValidate)
-            if (updatedClient !== null) {
-                res.status(200).json(updatedClient)
-            }
-            else {
-                res.status(404).json({ message: `Client #${req.params.id} not found` })
-            }
+    try {
+        const bookingList = await bookingServiceMongodb.fetchAll()
+        const bookingIdList = bookingList.map(b => b._id.toString())
+
+        const clientValidator = new ClientValidator()
+        const totalErrors = clientValidator.validateExistingClient(
+            clientToValidate,
+            bookingIdList
+        )
+        if (totalErrors.length > 0) {
+            res.status(400).json({ message: totalErrors.join(', ') })
+            return
         }
-        catch (error) {
-            console.error("Error in put of clientController:", error)
-            res.status(500).json({ message: "Internal server error" })
+
+        const allNewData = await clientServiceMongodb
+            .updateAndArchiveBookingsIfNeeded(req.params.id, clientToValidate)
+        if (!allNewData.clientUpdated) {
+            res.status(404).json({ message: `Client #${req.params.id} not found` })
+            return
         }
+        res.status(200).json(allNewData)
+        return
     }
-    else {
-        res.status(400).json({ message: totalErrors.join(', ') })
+    catch (error: any) {
+        const msg = String(error?.message ?? '')
+        if (
+            msg.toLowerCase().includes('replica set')
+            || msg.toLowerCase().includes('transactions')
+            || msg.toLowerCase().includes('withtransaction')
+        ) {
+            res.status(500).json({
+                message: `Transaction error: ${msg}. Ensure MongoDB supports transactions (replica set / Atlas).`
+            })
+            return
+        }
+        res.status(500).json({ message: 'Internal server error' })
+        return
     }
 })
 
-clientRouterMongodb.delete('/:id', adminOnly, async (req: Request, res: Response) => {
+clientRouterMongodb.delete('/:id', adminOnly, async (req: Request, res: Response): Promise<void> => {
+    const clientId = req.params.id
+
     try {
-        const deletedClient = await clientServiceMongodb.delete(req.params.id)
-        if (deletedClient) {
-            res.status(204).json()
+        const allNewData = await clientServiceMongodb.deleteAndArchiveBookings(clientId)
+        if (!allNewData) {
+            res.status(404).json({ message: `Client #${clientId} not found` })
+            return
         }
-        else {
-            res.status(404).json({ message: `Client #${req.params.id} not found` })
-        }
+        res.status(200).json(allNewData)
+        return
     }
-    catch (error) {
-        console.error("Error in delete of clientController:", error)
-        res.status(500).json({ message: "Internal server error" })
+    catch (error: any) {
+        const msg = String(error?.message ?? '')
+        if (
+            msg.toLowerCase().includes('replica set') ||
+            msg.toLowerCase().includes('transactions') ||
+            msg.toLowerCase().includes('withtransaction')
+        ) {
+            res.status(500).json({
+                message: `Transaction error: ${msg}. Ensure MongoDB supports transactions (replica set / Atlas).`
+            })
+            return
+        }
+        res.status(500).json({
+            message: error?.message ?? 'Internal server error'
+        })
+        return
     }
 })
