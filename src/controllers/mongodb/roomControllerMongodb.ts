@@ -278,7 +278,7 @@ roomRouterMongodb.put('/:id', async (req: Request, res: Response) => {
             }
             const { roomUpdated: room, updatedBookings } = allNewData
             res.status(200).json({
-                room,
+                roomUpdated: room,
                 updatedBookings
             })
             return

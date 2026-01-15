@@ -198,7 +198,7 @@ export class RoomServiceMongodb implements ServiceInterfaceMongodb<RoomInterface
 
             const finalRoomFresh = await RoomModelMongodb.findById(roomId).lean()
             return {
-                roomUpdated: finalRoomFresh as RoomInterfaceIdMongodb | null,
+                roomUpdated: finalRoomFresh as RoomInterfaceIdMongodb,
                 updatedBookings
             }
         }
@@ -210,12 +210,12 @@ export class RoomServiceMongodb implements ServiceInterfaceMongodb<RoomInterface
         }
     }
 
-    async deleteAndArchiveBookings(id: string
-    ): Promise<{
-        roomDeleted: boolean
-        roomId: string
-        updatedBookings: BookingInterfaceIdMongodb[]
-    }> {
+    async deleteAndArchiveBookings(id: string)
+        : Promise<{
+            roomDeleted: boolean
+            roomId: string
+            updatedBookings: BookingInterfaceIdMongodb[]
+        }> {
 
         const session = await mongoose.startSession()
         let updatedBookings: BookingInterfaceIdMongodb[] = []
