@@ -227,10 +227,11 @@ roomRouterMongodb.put('/:id', async (req: Request, res: Response) => {
             return
         }
         const allRoomNumbersNotArchived = await roomServiceMongodb.fetchAllNumbersNotArchived()
-        const actualRoomNumber = req.body.number.trim().toLowerCase()
+        const oldRoomNumber = actualRoom.number
+        const newRoomNumber = req.body.number.trim().toLowerCase()
         const roomToUpdate: RoomInterfaceDTO = {
             photos: req.body.photos,
-            number: actualRoomNumber,
+            number: newRoomNumber,
             type: req.body.type.trim(),
             amenities: req.body.amenities,
             price: req.body.price,
@@ -240,7 +241,7 @@ roomRouterMongodb.put('/:id', async (req: Request, res: Response) => {
             booking_id_list: req.body.booking_id_list
         }
         const roomValidator = new RoomValidator()
-        const totalErrors = roomValidator.validateExistingRoom(roomToUpdate, actualRoomNumber, allRoomNumbersNotArchived)
+        const totalErrors = roomValidator.validateExistingRoom(roomToUpdate, oldRoomNumber, allRoomNumbersNotArchived)
         if (totalErrors.length > 0) {
             res.status(400).json({ message: totalErrors.join(', ') })
             return
