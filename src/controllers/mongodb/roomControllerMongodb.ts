@@ -180,7 +180,7 @@ roomRouterMongodb.post('/', async (req: Request, res: Response) => {
     const allRoomNumbersNotArchived = await roomServiceMongodb.fetchAllNumbersNotArchived()
     const roomToValidate: RoomInterfaceDTO = {
         photos: req.body.photos,
-        number: req.body.number.trim().toLowerCase(),
+        number: req.body.number.trim(),
         type: req.body.type.trim(),
         amenities: req.body.amenities,
         price: req.body.price,
@@ -196,9 +196,18 @@ roomRouterMongodb.post('/', async (req: Request, res: Response) => {
             const newRoom = await roomServiceMongodb.create(roomToValidate)
             res.status(201).json(newRoom)
         }
-        catch (error) {
-            console.error("Error in post of roomController:", error)
-            res.status(500).json({ message: "Internal server error" })
+        catch (error: any) {
+            // KEY duplicada (propiedad number)
+            if (error?.code === 11000) {
+                res.status(409).json({
+                    message: `Room number "${roomToValidate.number}" already exists`
+                })
+                return
+            }
+            console.error('Error in post of roomController:', error)
+            res.status(500).json({
+                message: 'Internal server error'
+            })
         }
     }
     else {

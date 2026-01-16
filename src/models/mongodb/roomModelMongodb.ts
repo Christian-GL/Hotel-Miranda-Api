@@ -11,7 +11,7 @@ const RoomSchemaMongodb = new Schema<RoomInterfaceIdMongodb>
         number: {
             type: String,
             required: true,
-            unique: true
+            // unique: true
         },
         photos: {
             type: [String],
@@ -50,5 +50,15 @@ const RoomSchemaMongodb = new Schema<RoomInterfaceIdMongodb>
             required: true
         }
     })
+
+// "unique: true" aplicado sobre la propiedad number solo cuando "isArchived" equivale a "no"
+RoomSchemaMongodb.index(
+    { number: 1 },
+    {
+        unique: true,
+        partialFilterExpression: { isArchived: OptionYesNo.no }
+    }
+)
+
 
 export const RoomModelMongodb = model<RoomInterfaceIdMongodb>('Room', RoomSchemaMongodb)
