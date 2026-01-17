@@ -160,7 +160,7 @@ export class RoomServiceMongodb implements ServiceInterfaceMongodb<RoomInterface
         }
     }
 
-    async updateAndArchiveBookingsIfNeeded(roomId: string, roomToUpdate: RoomInterfaceDTO)
+    async updateAndArchiveBookingsAndClientsIfNeeded(roomId: string, roomToUpdate: RoomInterfaceDTO)
         : Promise<{
             roomUpdated: RoomInterfaceIdMongodb | null
             updatedBookings: BookingInterfaceIdMongodb[]

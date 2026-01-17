@@ -281,15 +281,16 @@ roomRouterMongodb.put('/:id', async (req: Request, res: Response) => {
 
         // Si tanto la ROOM como sus BOOKINGS existen y pasan validaciones hacemos las actualizaciones correspondientes en BD
         try {
-            const allNewData = await roomServiceMongodb.updateAndArchiveBookingsIfNeeded(roomID, roomToUpdate)
+            const allNewData = await roomServiceMongodb.updateAndArchiveBookingsAndClientsIfNeeded(roomID, roomToUpdate)
             if (!allNewData) {
                 res.status(404).json({ message: `Room #${roomID} not found` })
                 return
             }
-            const { roomUpdated: room, updatedBookings } = allNewData
+            const { roomUpdated: room, updatedBookings, updatedClients } = allNewData
             res.status(200).json({
                 roomUpdated: room,
-                updatedBookings
+                updatedBookings,
+                updatedClients
             })
             return
         }
