@@ -6,6 +6,8 @@ import { OptionYesNo } from '../../enums/optionYesNo'
 import mongoose from 'mongoose'
 import { BookingModelMongodb } from '../../models/mongodb/bookingModelMongodb'
 import { BookingInterfaceIdMongodb } from '../../interfaces/mongodb/bookingInterfaceMongodb'
+import { ClientModelMongodb } from '../../models/mongodb/clientModelMongodb'
+import { ClientInterfaceIdMongodb } from '../../interfaces/mongodb/clientInterfaceMongodb'
 
 
 export class RoomServiceMongodb implements ServiceInterfaceMongodb<RoomInterfaceIdMongodb> {
@@ -162,11 +164,13 @@ export class RoomServiceMongodb implements ServiceInterfaceMongodb<RoomInterface
         : Promise<{
             roomUpdated: RoomInterfaceIdMongodb | null
             updatedBookings: BookingInterfaceIdMongodb[]
+            updatedClients: ClientInterfaceIdMongodb[]
         }> {
 
         // Actualiza la room y (si procede) archiva las bookings en una única transacción.
         const session = await mongoose.startSession()
-        let updatedBookings: BookingInterfaceIdMongodb[] = []
+        let updatedBookingsNotArchived: BookingInterfaceIdMongodb[] = []
+        let updatedClients: ClientInterfaceIdMongodb[] = []
 
         try {
             await session.withTransaction(async () => {
@@ -181,7 +185,7 @@ export class RoomServiceMongodb implements ServiceInterfaceMongodb<RoomInterface
                     throw new Error(`Room #${roomId} not found`)
                 }
 
-                // Archiba las bookings asociadas en caso de que la room ya no esté disponible
+                // Archiba las bookings asociadas y actualiza sus clientes en caso de que la room ya no esté disponible
                 if ((roomToUpdate.isActive === OptionYesNo.no || roomToUpdate.isArchived === OptionYesNo.yes) && roomToUpdate.booking_id_list && roomToUpdate.booking_id_list.length > 0) {
 
                     await BookingModelMongodb.updateMany(
@@ -189,17 +193,54 @@ export class RoomServiceMongodb implements ServiceInterfaceMongodb<RoomInterface
                         { $set: { isArchived: OptionYesNo.yes } },
                         { session }
                     ).exec()
+                    updatedBookingsNotArchived = await BookingModelMongodb.find({
+                        _id: { $in: roomToUpdate.booking_id_list },
+                        isArchived: OptionYesNo.yes
+                    }
+                    ).session(session).lean()
 
-                    updatedBookings = await BookingModelMongodb.find(
-                        { _id: { $in: roomToUpdate.booking_id_list } }
-                    ).session(session).lean() as BookingInterfaceIdMongodb[]
+                    // Actualizar lista de bookings de los clientes asociados:
+                    // Agrupar bookings archivadas por cliente
+                    const bookingsByClient = new Map<string, string[]>()
+                    for (const booking of updatedBookingsNotArchived) {
+                        if (booking.isArchived !== OptionYesNo.yes) continue
+                        if (!booking.client_id) continue
+
+                        const clientId = booking.client_id.toString()
+                        const bookingId = booking._id.toString()
+
+                        const list = bookingsByClient.get(clientId) ?? []
+                        list.push(bookingId)
+                        bookingsByClient.set(clientId, list)
+                    }
+                    // Actualizar clientes dentro de la misma transacción
+                    for (const [clientId, bookingIds] of bookingsByClient.entries()) {
+                        await ClientModelMongodb.updateOne(
+                            { _id: clientId },
+                            {
+                                $pull: {
+                                    booking_id_list: { $in: bookingIds }
+                                }
+                            },
+                            { session }
+                        ).exec()
+                        const clientIds = Array.from(bookingsByClient.keys())
+                        if (clientIds.length > 0) {
+                            updatedClients = await ClientModelMongodb.find(
+                                { _id: { $in: clientIds } }
+                            ).session(session).lean() as ClientInterfaceIdMongodb[]
+                        }
+
+                    }
+
                 }
             })
 
             const finalRoomFresh = await RoomModelMongodb.findById(roomId).lean()
             return {
                 roomUpdated: finalRoomFresh as RoomInterfaceIdMongodb,
-                updatedBookings
+                updatedBookings: updatedBookingsNotArchived,
+                updatedClients: updatedClients
             }
         }
         catch (error) {
