@@ -1,9 +1,9 @@
 
-import { faker } from '@faker-js/faker'
+import { allLocales, faker } from '@faker-js/faker'
 import { connectMongodbDB } from './src/utils/databaseMongodb'
 import { hashPassword } from './src/utils/hashPassword'
 
-import { BookingInterfaceIdMongodb } from './src/interfaces/mongodb/bookingInterfaceMongodb'
+import { BookingInterfaceCheckInOut, BookingInterfaceIdMongodb } from './src/interfaces/mongodb/bookingInterfaceMongodb'
 import { RoomInterfaceDTO, RoomInterfaceIdMongodb } from './src/interfaces/mongodb/roomInterfaceMongodb'
 import { ClientInterfaceIdMongodb } from './src/interfaces/mongodb/clientInterfaceMongodb'
 import { UserInterfaceIdMongodb } from './src/interfaces/mongodb/userInterfaceMongodb'
@@ -19,7 +19,14 @@ import { RoomType } from './src/enums/roomType'
 import { RoomAmenities } from './src/enums/roomAmenities'
 import { OptionYesNo } from './src/enums/optionYesNo'
 import { Role } from './src/enums/role'
+import { BookingServiceMongodb } from './src/services/mongodb/bookingServiceMongodb'
+import { RoomServiceMongodb } from './src//services/mongodb/roomServiceMongodb'
+import { ClientServiceMongodb } from './src/services/mongodb/clientServiceMongodb'
 
+
+const bookingServiceMongodb = new BookingServiceMongodb()
+const roomServiceMongodb = new RoomServiceMongodb()
+const clientServiceMongodb = new ClientServiceMongodb()
 
 const createUsers = async (): Promise<void> => {
     await connectMongodbDB()
@@ -73,13 +80,13 @@ const createUsers = async (): Promise<void> => {
     }
 }
 
-const createClientsNoBookings = async (): Promise<void> => {
+const createClientsNoBookings = async (numberClients: number): Promise<void> => {
     await connectMongodbDB()
     try {
         const clients: InstanceType<typeof ClientModelMongodb>[] = []
         const clientValidator = new ClientValidator()
         let totalErrors
-        for (let i = 0; i < 5; i++) {
+        for (let i = 0; i < numberClients; i++) {
             const fakeClient = new ClientModelMongodb({
                 full_name: faker.person.fullName(),
                 email: faker.internet.email(),
@@ -152,13 +159,16 @@ const createRoomsOnly = async (): Promise<void> => {
 const createBookingsOnly = async (): Promise<void> => {
     await connectMongodbDB()
     try {
-        const bookings: InstanceType<typeof BookingModelMongodb>[] = []
+        const allBookings: InstanceType<typeof BookingModelMongodb>[] = []
+
+        const allBookingDatesNotArchived = await bookingServiceMongodb.fetchAllDatesNotArchived()
+        const allRoomIdsNotArchived = await roomServiceMongodb.fetchAllIdsNotArchived()
+        const allClientIdsNotArchived = await clientServiceMongodb.fetchAllIdsNotArchived()
         const bookingValidator = new BookingValidator()
         let totalRoomNumbers = []
         let actualNumber = ''
-        
+
         let totalErrors
-        const allRooms: RoomInterfaceDTO[] = []    // temporal
         for (let i = 0; i < 5; i++) {
             const check_in_date = faker.date.future({ years: faker.number.float({ min: 0.2, max: 2 }) })
             actualNumber = String(faker.number.int({ min: 0, max: 999 })).padStart(3, '0')
@@ -170,24 +180,26 @@ const createBookingsOnly = async (): Promise<void> => {
                 special_request: faker.lorem.sentence(faker.number.int({ min: 10, max: 40 })),
                 isArchived: faker.helpers.arrayElement(Object.values(OptionYesNo)),
                 room_id_list: [],
-                client_id: 0
+                client_id: "0"
             })
             totalRoomNumbers.push(actualNumber)
             totalErrors = bookingValidator.validateNewBooking(
                 fakeBooking.toObject() as BookingInterfaceIdMongodb,
-                bookings as BookingInterfaceIdMongodb[],
-                totalRoomNumbers
+                allBookingDatesNotArchived,
+                allRoomIdsNotArchived,
+                fakeBooking.client_id,
+                allClientIdsNotArchived
             )
             if (totalErrors.length === 0) {
-                bookings.push(fakeBooking)
+                allBookings.push(fakeBooking)
             }
             else {
                 console.error(`Validación fallida en el fakeBooking #${i}: ${totalErrors.join(', ')}`)
                 continue
             }
         }
-        console.log(`Bookings válidas: ${bookings}`)
-        await BookingModelMongodb.insertMany(bookings)
+        console.log(`Bookings válidas: ${allBookings}`)
+        await BookingModelMongodb.insertMany(allBookings)
     }
     catch (error) {
         console.error('Error creating bookings with faker', error)
@@ -275,19 +287,17 @@ const createBookingsOnly = async (): Promise<void> => {
 
 const main = async () => {
     // await createUsers()
-    // await createClientsNoBookings()
-    // await createRoomsOnly()
+    await createClientsNoBookings(3)
+    await createRoomsOnly()
     // await createBookingsOnly()
-    // await createRoomsAndBookings()
 }
-
 main()
 
 
 
-/* === Ejecutar fichero Seed: === */
+/* === Ejecutar fichero Seed (crea .js de todos los ficheros d proyecto, opción menos práctica) === */
 // npx tsc seedMongodb.ts
 // node seedMongodb.js
 
-/* === Ejecuta el fichero .ts sin necesidad de crear previamente un .js (tampoco se crean otros .js en por el poryecto) === */
+/* === Ejecuta el fichero .ts sin necesidad de crear previamente un .js (tampoco se crean otros .js en por el proyecto) === */
 // npx ts-node seedMongodb.ts

@@ -14,8 +14,8 @@ export interface BookingInterfaceCheckInOutId extends BookingInterfaceCheckInOut
 
 export interface BookingInterfaceDTO extends BookingInterfaceCheckInOut {
     order_date: Date
-    // check_in_date
-    // check_out_date
+    // check_in_date: Date
+    // check_out_date: Date
     price: number
     special_request: string
     isArchived: OptionYesNo
