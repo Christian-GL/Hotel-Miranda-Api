@@ -318,7 +318,7 @@ roomRouterMongodb.put('/:id', async (req: Request, res: Response) => {
 roomRouterMongodb.delete('/:id', adminOnly, async (req: Request, res: Response): Promise<void> => {
     const roomId = req.params.id
     try {
-        const allNewData = await roomServiceMongodb.deleteAndArchiveBookings(roomId)
+        const allNewData = await roomServiceMongodb.deleteAndArchiveBookingsAndClientsIfNeeded(roomId)
         if (!allNewData) {
             res.status(404).json({ message: `Room #${roomId} not found` })
             return

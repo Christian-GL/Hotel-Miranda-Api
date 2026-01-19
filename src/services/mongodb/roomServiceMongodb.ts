@@ -251,15 +251,17 @@ export class RoomServiceMongodb implements ServiceInterfaceMongodb<RoomInterface
         }
     }
 
-    async deleteAndArchiveBookings(id: string)
+    async deleteAndArchiveBookingsAndClientsIfNeeded(id: string)
         : Promise<{
             roomDeleted: boolean
             roomId: string
             updatedBookings: BookingInterfaceIdMongodb[]
+            updatedClients: ClientInterfaceIdMongodb[]
         }> {
 
         const session = await mongoose.startSession()
         let updatedBookings: BookingInterfaceIdMongodb[] = []
+        let updatedClients: ClientInterfaceIdMongodb[] = []
 
         try {
             await session.withTransaction(async () => {
@@ -279,10 +281,26 @@ export class RoomServiceMongodb implements ServiceInterfaceMongodb<RoomInterface
                         { $set: { isArchived: OptionYesNo.yes } },
                         { session }
                     ).exec()
-
                     updatedBookings = await BookingModelMongodb.find(
                         { _id: { $in: bookingIds } }
                     ).session(session).lean() as BookingInterfaceIdMongodb[]
+
+                    const clientIds = Array.from(
+                        new Set(updatedBookings.map(b => String(b.client_id)))
+                    )
+
+                    await ClientModelMongodb.updateMany(
+                        { _id: { $in: clientIds } },
+                        {
+                            $pull: {
+                                booking_id_list: { $in: bookingIds }
+                            }
+                        },
+                        { session }
+                    ).exec()
+                    updatedClients = await ClientModelMongodb.find(
+                        { _id: { $in: clientIds } }
+                    ).session(session).lean()
                 }
 
                 const deletedRoom = await RoomModelMongodb.findOneAndDelete({ _id: id }, { session }).exec()
@@ -295,7 +313,8 @@ export class RoomServiceMongodb implements ServiceInterfaceMongodb<RoomInterface
             return {
                 roomDeleted: true,
                 roomId: id,
-                updatedBookings
+                updatedBookings,
+                updatedClients
             }
         }
         catch (error: any) {
