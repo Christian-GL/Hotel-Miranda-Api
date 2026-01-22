@@ -187,6 +187,8 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
         updatedClient: ClientInterfaceIdMongodb | null
     }> {
         const session = await mongoose.startSession()
+        let affectedClientId: string | null = null
+
         try {
 
             await session.withTransaction(async () => {
@@ -291,6 +293,7 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
                         // Si client cambió junto con archivado, quitamos de oldClientId (si existe).
                         const targetClientForPull = oldClientId || newClientId
                         if (targetClientForPull) {
+                            affectedClientId = targetClientForPull
                             await ClientModelMongodb.updateOne(
                                 { _id: targetClientForPull, booking_id_list: updatedBookingDoc._id },
                                 { $pull: { booking_id_list: updatedBookingDoc._id } },
@@ -301,6 +304,7 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
                     else {
                         // booking dejó de estar archivada: asegurarnos de que está en el client nuevo (newClientId)
                         if (newClientId) {
+                            affectedClientId = newClientId
                             const foundClient = await ClientModelMongodb.findById(newClientId).select('_id').session(session).lean()
                             if (!foundClient) {
                                 throw new Error(`Client #${newClientId} not found`)
@@ -317,12 +321,14 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
                     // Si no cambió isArchived, pero cambió el client: mover referencia de oldClientId a newClientId
                     if (newClientId && oldClientId !== newClientId) {
                         if (oldClientId) {
+                            affectedClientId = oldClientId
                             await ClientModelMongodb.updateOne(
                                 { _id: oldClientId, booking_id_list: updatedBookingDoc._id },
                                 { $pull: { booking_id_list: updatedBookingDoc._id } },
                                 { session }
                             ).exec()
                         }
+                        affectedClientId = oldClientId
                         await ClientModelMongodb.updateOne(
                             { _id: newClientId },
                             { $addToSet: { booking_id_list: updatedBookingDoc._id } },
@@ -333,7 +339,11 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
             })
             const finalFresh = await BookingModelMongodb.findById(id).lean()
             const updatedRooms = await RoomModelMongodb.find({ booking_id_list: id }).lean()
-            const updatedClient = await ClientModelMongodb.findOne({ booking_id_list: id }).lean()
+            // const updatedClient = await ClientModelMongodb.findOne({ booking_id_list: id }).lean()
+            let updatedClient = null
+            if (affectedClientId) {
+                updatedClient = await ClientModelMongodb.findById(affectedClientId).lean()
+            }
 
             return {
                 booking: finalFresh as BookingInterfaceIdMongodb | null,
@@ -401,7 +411,6 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
             const updatedRooms = affectedRoomIds.length > 0
                 ? await RoomModelMongodb.find({ _id: { $in: affectedRoomIds } }).lean()
                 : []
-
             const updatedClient = affectedClientId
                 ? await ClientModelMongodb.findById(affectedClientId).lean()
                 : null
