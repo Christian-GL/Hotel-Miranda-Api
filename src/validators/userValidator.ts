@@ -4,12 +4,12 @@ import {
     validateEmail, validatePhoneNumber, validateDateRelativeToAnother,
     validateTextArea, validateRole, validateNewPassword, validateOptionYesNo
 } from './commonValidator'
-import { UserInterfaceDTO } from '../interfaces/mongodb/userInterfaceMongodb'
+import { UserInterface } from '../interfaces/mongodb/userInterfaceMongodb'
 
 
 export class UserValidator {
 
-    private validatePropertyTypes(user: UserInterfaceDTO): string[] {
+    private validatePropertyTypes(user: UserInterface): string[] {
         const errorMessages: string[] = []
 
         if (user.photo !== null) {
@@ -48,7 +48,7 @@ export class UserValidator {
         return errorMessages
     }
 
-    validateUser(user: UserInterfaceDTO, passwordHasChanged: boolean = false): string[] {
+    validateUser(user: UserInterface, passwordHasChanged: boolean = false): string[] {
         const allErrorMessages: string[] = []
 
         const errorsCheckingProperties = this.validatePropertyTypes(user)

@@ -1,7 +1,7 @@
 
 import { ServiceInterfaceMongodb } from '../../interfaces/mongodb/serviceInterfaceMongodb'
 import { UserModelMongodb } from '../../models/mongodb/userModelMongodb'
-import { UserInterfaceDTO, UserInterfaceIdMongodb } from '../../interfaces/mongodb/userInterfaceMongodb'
+import { UserInterface, UserInterfaceIdMongodb } from '../../interfaces/mongodb/userInterfaceMongodb'
 import { hashPassword } from '../../utils/hashPassword'
 
 
@@ -30,7 +30,7 @@ export class UserServiceMongodb implements ServiceInterfaceMongodb<UserInterface
         }
     }
 
-    async create(user: UserInterfaceDTO): Promise<UserInterfaceIdMongodb> {
+    async create(user: UserInterface): Promise<UserInterfaceIdMongodb> {
         try {
             user.password = await hashPassword(user.password)
             const newUser: UserInterfaceIdMongodb = new UserModelMongodb(user)
@@ -43,7 +43,7 @@ export class UserServiceMongodb implements ServiceInterfaceMongodb<UserInterface
         }
     }
 
-    async update(id: string, user: UserInterfaceDTO, passwordHasChanged: boolean = false): Promise<UserInterfaceIdMongodb | null> {
+    async update(id: string, user: UserInterface, passwordHasChanged: boolean = false): Promise<UserInterfaceIdMongodb | null> {
         try {
             if (passwordHasChanged) {
                 user.password = await hashPassword(user.password)

@@ -1,7 +1,7 @@
 
 import { ServiceInterfaceMongodb } from '../../interfaces/mongodb/serviceInterfaceMongodb'
 import { ClientModelMongodb } from '../../models/mongodb/clientModelMongodb'
-import { ClientInterfaceDTO, ClientInterfaceIdMongodb } from '../../interfaces/mongodb/clientInterfaceMongodb'
+import { ClientInterface, ClientInterfaceIdMongodb } from '../../interfaces/mongodb/clientInterfaceMongodb'
 import { OptionYesNo } from '../../enums/optionYesNo'
 import mongoose from 'mongoose'
 import { BookingInterfaceIdMongodb } from '../../interfaces/mongodb/bookingInterfaceMongodb'
@@ -61,7 +61,7 @@ export class ClientServiceMongodb implements ServiceInterfaceMongodb<ClientInter
         }
     }
 
-    async create(client: ClientInterfaceDTO): Promise<ClientInterfaceIdMongodb> {
+    async create(client: ClientInterface): Promise<ClientInterfaceIdMongodb> {
         try {
             const newClient: ClientInterfaceIdMongodb = new ClientModelMongodb(client)
             await newClient.save()
@@ -73,7 +73,7 @@ export class ClientServiceMongodb implements ServiceInterfaceMongodb<ClientInter
         }
     }
 
-    async updateAndArchiveBookingsIfNeeded(clientId: string, clientToUpdate: ClientInterfaceDTO
+    async updateAndArchiveBookingsIfNeeded(clientId: string, clientToUpdate: ClientInterface
     ): Promise<{
         clientUpdated: ClientInterfaceIdMongodb | null
         updatedBookings: BookingInterfaceIdMongodb[]
@@ -146,7 +146,7 @@ export class ClientServiceMongodb implements ServiceInterfaceMongodb<ClientInter
         }
     }
 
-    async update(id: string, client: ClientInterfaceDTO): Promise<ClientInterfaceIdMongodb | null> {
+    async update(id: string, client: ClientInterface): Promise<ClientInterfaceIdMongodb | null> {
         try {
             const updatedClient: ClientInterfaceIdMongodb | null = await ClientModelMongodb.findOneAndUpdate(
                 { _id: id },

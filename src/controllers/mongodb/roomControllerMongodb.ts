@@ -7,7 +7,7 @@ import { authMiddleware } from '../../middleware/authMiddleware'
 import { adminOnly } from '../../middleware/adminOnly'
 import { RoomServiceMongodb } from '../../services/mongodb/roomServiceMongodb'
 import { RoomValidator } from '../../validators/roomValidator'
-import { RoomInterfaceDTO } from '../../interfaces/mongodb/roomInterfaceMongodb'
+import { RoomInterface } from '../../interfaces/mongodb/roomInterfaceMongodb'
 import { OptionYesNo } from '../../enums/optionYesNo'
 import { RoomModelMongodb } from '../../models/mongodb/roomModelMongodb'
 
@@ -178,7 +178,7 @@ roomRouterMongodb.get('/:id', async (req: Request, res: Response) => {
 roomRouterMongodb.post('/', async (req: Request, res: Response) => {
 
     const allRoomNumbersNotArchived = await roomServiceMongodb.fetchAllNumbersNotArchived()
-    const roomToValidate: RoomInterfaceDTO = {
+    const roomToValidate: RoomInterface = {
         photos: req.body.photos,
         number: req.body.number.trim(),
         type: req.body.type.trim(),
@@ -229,7 +229,7 @@ roomRouterMongodb.put('/:id', async (req: Request, res: Response) => {
         const allRoomNumbersNotArchived = await roomServiceMongodb.fetchAllNumbersNotArchived()
         const oldRoomNumber = actualRoom.number
         const newRoomNumber = req.body.number.trim().toLowerCase()
-        const roomToUpdate: RoomInterfaceDTO = {
+        const roomToUpdate: RoomInterface = {
             photos: req.body.photos,
             number: newRoomNumber,
             type: req.body.type.trim(),

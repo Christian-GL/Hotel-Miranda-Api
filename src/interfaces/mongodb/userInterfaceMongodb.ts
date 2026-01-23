@@ -5,7 +5,7 @@ import { Role } from "../../enums/role"
 import { OptionYesNo } from "../../enums/optionYesNo"
 
 
-export interface UserInterfaceDTO {
+export interface UserInterface {
     photo: string | null
     full_name: string
     email: string
@@ -18,6 +18,6 @@ export interface UserInterfaceDTO {
     isArchived: OptionYesNo
 }
 
-export interface UserInterfaceIdMongodb extends UserInterfaceDTO, Document {
+export interface UserInterfaceIdMongodb extends UserInterface, Document {
     _id: string
 }

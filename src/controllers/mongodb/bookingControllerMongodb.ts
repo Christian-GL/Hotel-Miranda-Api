@@ -5,7 +5,7 @@ import { authMiddleware } from '../../middleware/authMiddleware'
 import { adminOnly } from '../../middleware/adminOnly'
 import { BookingServiceMongodb } from '../../services/mongodb/bookingServiceMongodb'
 import { BookingValidator } from '../../validators/bookingValidator'
-import { BookingInterfaceDTO, BookingInterfaceId } from '../../interfaces/mongodb/bookingInterfaceMongodb'
+import { BookingInterface } from '../../interfaces/mongodb/bookingInterfaceMongodb'
 import { RoomServiceMongodb } from '../../services/mongodb/roomServiceMongodb'
 import { OptionYesNo } from '../../enums/optionYesNo'
 import { ClientServiceMongodb } from '../../services/mongodb/clientServiceMongodb'
@@ -220,7 +220,7 @@ bookingRouterMongodb.post('/', async (req: Request, res: Response) => {
         return
     }
 
-    const bookingToValidate: BookingInterfaceDTO = {
+    const bookingToValidate: BookingInterface = {
         order_date: new Date(req.body.order_date),
         check_in_date: new Date(req.body.check_in_date),
         check_out_date: new Date(req.body.check_out_date),
@@ -323,7 +323,7 @@ bookingRouterMongodb.put('/:id', async (req: Request, res: Response) => {
     }
 
     const bookingId = req.params.id
-    const bookingToValidate: BookingInterfaceDTO = {
+    const bookingToValidate: BookingInterface = {
         order_date: new Date(req.body.order_date),
         check_in_date: new Date(req.body.check_in_date),
         check_out_date: new Date(req.body.check_out_date),

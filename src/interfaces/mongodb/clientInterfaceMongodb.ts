@@ -3,7 +3,7 @@ import { Document } from "mongoose"
 import { OptionYesNo } from "../../enums/optionYesNo"
 
 
-export interface ClientInterfaceDTO {
+export interface ClientInterface {
     full_name: string
     email: string
     phone_number: string
@@ -11,14 +11,6 @@ export interface ClientInterfaceDTO {
     booking_id_list: string[]
 }
 
-export interface ClientInterfaceIdMongodb extends ClientInterfaceDTO, Document {
+export interface ClientInterfaceIdMongodb extends ClientInterface, Document {
     _id: string
 }
-
-// export interface ClientInterfaceFullDataMongodb extends Omit<ClientInterfaceIdMongodb, 'booking_id_list'> {
-//     booking_data_list: {
-//         room_id: string
-//         review_date: Date
-//         review_comment: string
-//     }[]
-// }

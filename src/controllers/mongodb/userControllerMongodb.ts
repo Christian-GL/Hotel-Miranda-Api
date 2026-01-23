@@ -3,7 +3,7 @@ import { Request, Response } from 'express'
 import Router from 'express'
 import { authMiddleware } from '../../middleware/authMiddleware'
 import { adminOnly } from '../../middleware/adminOnly'
-import { UserInterfaceDTO } from '../../interfaces/mongodb/userInterfaceMongodb'
+import { UserInterface } from '../../interfaces/mongodb/userInterfaceMongodb'
 import { UserModelMongodb } from '../../models/mongodb/userModelMongodb'
 import { UserServiceMongodb } from '../../services/mongodb/userServiceMongodb'
 import { UserValidator } from '../../validators/userValidator'
@@ -167,7 +167,7 @@ userRouterMongodb.get('/:id', async (req: Request, res: Response) => {
 
 userRouterMongodb.post('/', adminOnly, async (req: Request, res: Response) => {
 
-    const userToValidate: UserInterfaceDTO = {
+    const userToValidate: UserInterface = {
         photo: req.body.photo == null ? null : String(req.body.photo).trim(),
         full_name: req.body.full_name.trim(),
         email: req.body.email.trim().toLowerCase(),
@@ -206,7 +206,7 @@ userRouterMongodb.put('/:id', adminOnly, async (req: Request, res: Response) => 
         if (req.body.password !== existingUser.password) passwordHasChanged = true
     }
 
-    const userToValidate: UserInterfaceDTO = {
+    const userToValidate: UserInterface = {
         photo: req.body.photo == null ? null : String(req.body.photo).trim(),
         full_name: req.body.full_name.trim(),
         email: req.body.email.trim().toLowerCase(),

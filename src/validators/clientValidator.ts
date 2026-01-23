@@ -5,12 +5,12 @@ import {
     validateOptionYesNo, validateMongoDBObjectIdList,
     validateExistingListItemsInAnotherList
 } from "./commonValidator"
-import { ClientInterfaceDTO } from "../interfaces/mongodb/clientInterfaceMongodb"
+import { ClientInterface } from "../interfaces/mongodb/clientInterfaceMongodb"
 
 
 export class ClientValidator {
 
-    private validatePropertyTypes(client: ClientInterfaceDTO): string[] {
+    private validatePropertyTypes(client: ClientInterface): string[] {
         const errorMessages: string[] = []
 
         validateString(client.full_name, 'full_name').map(
@@ -32,7 +32,7 @@ export class ClientValidator {
         return errorMessages
     }
 
-    private validateClient(client: ClientInterfaceDTO): string[] {
+    private validateClient(client: ClientInterface): string[] {
         const allErrorMessages: string[] = []
 
         const errorsCheckingProperties = this.validatePropertyTypes(client)
@@ -59,7 +59,7 @@ export class ClientValidator {
         return allErrorMessages
     }
 
-    validateNewClient(client: ClientInterfaceDTO): string[] {
+    validateNewClient(client: ClientInterface): string[] {
         const allErrorMessages: string[] = []
 
         if (client === undefined || Object.keys(client).length === 0) {
@@ -74,7 +74,7 @@ export class ClientValidator {
         return allErrorMessages
     }
 
-    validateExistingClient(client: ClientInterfaceDTO, bookingIdList: string[]): string[] {
+    validateExistingClient(client: ClientInterface, bookingIdList: string[]): string[] {
         const allErrorMessages: string[] = []
 
         if (client === undefined || Object.keys(client).length === 0) {

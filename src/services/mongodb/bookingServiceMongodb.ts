@@ -1,7 +1,7 @@
 
 import { ServiceInterfaceMongodb } from '../../interfaces/mongodb/serviceInterfaceMongodb'
 import { BookingModelMongodb } from '../../models/mongodb/bookingModelMongodb'
-import { BookingInterfaceCheckInOutId, BookingInterfaceCheckInOut, BookingInterfaceDTO, BookingInterfaceIdMongodb } from '../../interfaces/mongodb/bookingInterfaceMongodb'
+import { BookingInterfaceCheckInOutId, BookingInterfaceCheckInOut, BookingInterface, BookingInterfaceIdMongodb } from '../../interfaces/mongodb/bookingInterfaceMongodb'
 import { OptionYesNo } from '../../enums/optionYesNo'
 import mongoose from 'mongoose'
 import { RoomModelMongodb } from '../../models/mongodb/roomModelMongodb'
@@ -77,7 +77,7 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
         }
     }
 
-    async create(booking: BookingInterfaceDTO): Promise<BookingInterfaceIdMongodb> {
+    async create(booking: BookingInterface): Promise<BookingInterfaceIdMongodb> {
         try {
             const newBooking: BookingInterfaceIdMongodb = new BookingModelMongodb(booking)
             await newBooking.save()
@@ -89,7 +89,7 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
         }
     }
 
-    async createAndLinkRoomsClient(booking: BookingInterfaceDTO): Promise<{
+    async createAndLinkRoomsClient(booking: BookingInterface): Promise<{
         booking: BookingInterfaceIdMongodb
         updatedRooms: RoomInterfaceIdMongodb[]
         updatedClient: ClientInterfaceIdMongodb
@@ -161,7 +161,7 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
         }
     }
 
-    async update(id: string, booking: BookingInterfaceDTO): Promise<BookingInterfaceIdMongodb | null> {
+    async update(id: string, booking: BookingInterface): Promise<BookingInterfaceIdMongodb | null> {
         try {
             const existingBooking: BookingInterfaceIdMongodb | null = await this.fetchById(id)
             if (existingBooking == null) return null
@@ -181,7 +181,7 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
         }
     }
 
-    async updateAndLinkRoomsClient(id: string, bookingDTO: BookingInterfaceDTO): Promise<{
+    async updateAndLinkRoomsClient(id: string, bookingDTO: BookingInterface): Promise<{
         booking: BookingInterfaceIdMongodb | null
         updatedRooms: RoomInterfaceIdMongodb[]
         updatedClient: ClientInterfaceIdMongodb | null

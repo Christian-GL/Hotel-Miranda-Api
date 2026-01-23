@@ -3,7 +3,7 @@ import { Request, Response } from 'express'
 import Router from 'express'
 import { authMiddleware } from '../../middleware/authMiddleware'
 import { adminOnly } from '../../middleware/adminOnly'
-import { ClientInterfaceDTO } from '../../interfaces/mongodb/clientInterfaceMongodb'
+import { ClientInterface } from '../../interfaces/mongodb/clientInterfaceMongodb'
 import { ClientServiceMongodb } from '../../services/mongodb/clientServiceMongodb'
 import { ClientValidator } from '../../validators/clientValidator'
 import { BookingServiceMongodb } from '../../services/mongodb/bookingServiceMongodb'
@@ -164,7 +164,7 @@ clientRouterMongodb.get('/:id', async (req: Request, res: Response) => {
 
 clientRouterMongodb.post('/', async (req: Request, res: Response) => {
 
-    const clientToValidate: ClientInterfaceDTO = {
+    const clientToValidate: ClientInterface = {
         full_name: req.body.full_name.trim(),
         email: req.body.email.trim().toLowerCase(),
         phone_number: req.body.phone_number.trim(),
@@ -192,7 +192,7 @@ clientRouterMongodb.post('/', async (req: Request, res: Response) => {
 
 clientRouterMongodb.put('/:id', async (req: Request, res: Response): Promise<void> => {
 
-    const clientToValidate: ClientInterfaceDTO = {
+    const clientToValidate: ClientInterface = {
         full_name: req.body.full_name.trim(),
         email: req.body.email.trim().toLowerCase(),
         phone_number: req.body.phone_number.trim(),
@@ -253,7 +253,6 @@ clientRouterMongodb.put('/:id', async (req: Request, res: Response): Promise<voi
         return
     }
 })
-
 
 clientRouterMongodb.delete('/:id', adminOnly, async (req: Request, res: Response): Promise<void> => {
     const clientId = req.params.id

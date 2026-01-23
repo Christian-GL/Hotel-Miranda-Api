@@ -1,5 +1,5 @@
 
-import { BookingInterfaceCheckInOutId, BookingInterfaceCheckInOut, BookingInterfaceDTO, BookingInterfaceId, BookingInterfaceIdMongodb } from "../interfaces/mongodb/bookingInterfaceMongodb"
+import { BookingInterfaceCheckInOutId, BookingInterfaceCheckInOut, BookingInterface, BookingInterfaceId, BookingInterfaceIdMongodb } from "../interfaces/mongodb/bookingInterfaceMongodb"
 import { RoomType } from "../enums/roomType"
 import { Role } from "../enums/role"
 import { RoomAmenities } from "../enums/roomAmenities"
@@ -247,7 +247,7 @@ export const validateCheckInCheckOutExistingBooking = (checkIn: Date, checkOut: 
     return errorMessages
 }
 
-export const validateDateIsOccupied = (booking: BookingInterfaceDTO, otherBookings: BookingInterfaceCheckInOut[]): string[] => {
+export const validateDateIsOccupied = (booking: BookingInterface, otherBookings: BookingInterfaceCheckInOut[]): string[] => {
     const errorMessages: string[] = []
 
     for (let i = 0; i < otherBookings.length; i++) {
