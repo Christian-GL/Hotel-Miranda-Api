@@ -191,6 +191,7 @@ clientRouterMongodb.post('/', async (req: Request, res: Response) => {
 })
 
 clientRouterMongodb.put('/:id', async (req: Request, res: Response): Promise<void> => {
+
     const clientToValidate: ClientInterfaceDTO = {
         full_name: req.body.full_name.trim(),
         email: req.body.email.trim().toLowerCase(),
@@ -198,26 +199,41 @@ clientRouterMongodb.put('/:id', async (req: Request, res: Response): Promise<voi
         isArchived: req.body.isArchived.trim(),
         booking_id_list: req.body.booking_id_list
     }
+
     try {
         const bookingList = await bookingServiceMongodb.fetchAll()
         const bookingIdList = bookingList.map(b => b._id.toString())
 
         const clientValidator = new ClientValidator()
-        const totalErrors = clientValidator.validateExistingClient(
-            clientToValidate,
-            bookingIdList
-        )
+
+        // 🔴 NO validar booking_id_list si el client se está DESARCHIVANDO
+        const totalErrors =
+            req.body.isArchived === OptionYesNo.no
+                ? clientValidator.validateExistingClient(
+                    { ...clientToValidate, booking_id_list: [] },
+                    bookingIdList
+                )
+                : clientValidator.validateExistingClient(
+                    clientToValidate,
+                    bookingIdList
+                )
+
         if (totalErrors.length > 0) {
             res.status(400).json({ message: totalErrors.join(', ') })
             return
         }
 
-        const allNewData = await clientServiceMongodb
-            .updateAndArchiveBookingsIfNeeded(req.params.id, clientToValidate)
+        const allNewData =
+            await clientServiceMongodb.updateAndArchiveBookingsIfNeeded(
+                req.params.id,
+                clientToValidate
+            )
+
         if (!allNewData.clientUpdated) {
             res.status(404).json({ message: `Client #${req.params.id} not found` })
             return
         }
+
         res.status(200).json(allNewData)
         return
     }
@@ -238,11 +254,12 @@ clientRouterMongodb.put('/:id', async (req: Request, res: Response): Promise<voi
     }
 })
 
+
 clientRouterMongodb.delete('/:id', adminOnly, async (req: Request, res: Response): Promise<void> => {
     const clientId = req.params.id
 
     try {
-        const allNewData = await clientServiceMongodb.deleteAndArchiveBookings(clientId)
+        const allNewData = await clientServiceMongodb.deleteAndArchiveBookingsIfNeeded(clientId)
         if (!allNewData) {
             res.status(404).json({ message: `Client #${clientId} not found` })
             return

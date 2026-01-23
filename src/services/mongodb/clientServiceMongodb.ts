@@ -84,6 +84,22 @@ export class ClientServiceMongodb implements ServiceInterfaceMongodb<ClientInter
 
         try {
             await session.withTransaction(async () => {
+
+                // Si se va a desarchivar un cliente, vacia su "booking_id_list" (ya que las bookings asociadas siguen archivadas)
+                const oldClient = await ClientModelMongodb
+                    .findById(clientId)
+                    .session(session)
+                    .lean() as ClientInterfaceIdMongodb | null
+
+                if (!oldClient) {
+                    throw new Error(`Client #${clientId} not found`)
+                }
+                if (
+                    oldClient.isArchived === OptionYesNo.yes &&
+                    clientToUpdate.isArchived === OptionYesNo.no
+                ) {
+                    clientToUpdate.booking_id_list = []
+                }
                 const updatedClient = await ClientModelMongodb.findOneAndUpdate(
                     { _id: clientId },
                     clientToUpdate,
@@ -146,7 +162,7 @@ export class ClientServiceMongodb implements ServiceInterfaceMongodb<ClientInter
         }
     }
 
-    async deleteAndArchiveBookings(id: string
+    async deleteAndArchiveBookingsIfNeeded(id: string
     ): Promise<{
         clientDeleted: boolean
         clientId: string
