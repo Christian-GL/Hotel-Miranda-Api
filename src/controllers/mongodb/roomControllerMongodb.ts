@@ -9,7 +9,6 @@ import { RoomServiceMongodb } from '../../services/mongodb/roomServiceMongodb'
 import { RoomValidator } from '../../validators/roomValidator'
 import { RoomInterface } from '../../interfaces/mongodb/roomInterfaceMongodb'
 import { OptionYesNo } from '../../enums/optionYesNo'
-import { RoomModelMongodb } from '../../models/mongodb/roomModelMongodb'
 
 
 export const roomRouterMongodb = Router()
@@ -281,7 +280,7 @@ roomRouterMongodb.put('/:id', async (req: Request, res: Response) => {
 
         // Si tanto la ROOM como sus BOOKINGS existen y pasan validaciones hacemos las actualizaciones correspondientes en BD
         try {
-            const allNewData = await roomServiceMongodb.updateAndArchiveBookingsAndClientsIfNeeded(roomID, roomToUpdate)
+            const allNewData = await roomServiceMongodb.update(roomID, roomToUpdate)
             if (!allNewData) {
                 res.status(404).json({ message: `Room #${roomID} not found` })
                 return
@@ -318,7 +317,7 @@ roomRouterMongodb.put('/:id', async (req: Request, res: Response) => {
 roomRouterMongodb.delete('/:id', adminOnly, async (req: Request, res: Response): Promise<void> => {
     const roomId = req.params.id
     try {
-        const allNewData = await roomServiceMongodb.deleteAndArchiveBookingsAndClientsIfNeeded(roomId)
+        const allNewData = await roomServiceMongodb.delete(roomId)
         if (!allNewData) {
             res.status(404).json({ message: `Room #${roomId} not found` })
             return

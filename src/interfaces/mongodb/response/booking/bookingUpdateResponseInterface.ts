@@ -1,11 +1,11 @@
 
-import { BookingInterface } from "../../bookingInterfaceMongodb"
-import { RoomInterface } from "../../roomInterfaceMongodb"
-import { ClientInterface } from "../../clientInterfaceMongodb"
+import { BookingInterfaceIdMongodb } from "../../bookingInterfaceMongodb"
+import { RoomInterfaceIdMongodb } from "../../roomInterfaceMongodb"
+import { ClientInterfaceIdMongodb } from "../../clientInterfaceMongodb"
 
 
 export interface BookingUpdateResponseInterface {
-    booking: BookingInterface | null,
-    updatedRooms: RoomInterface[],
-    updatedClient: ClientInterface | null
+    booking: BookingInterfaceIdMongodb | null,
+    updatedRooms: RoomInterfaceIdMongodb[],
+    updatedClient: ClientInterfaceIdMongodb | null
 }

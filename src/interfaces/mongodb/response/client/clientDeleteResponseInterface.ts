@@ -3,7 +3,7 @@ import { BookingInterface } from "../../bookingInterfaceMongodb"
 
 
 export interface ClientDeleteResponseInterface {
-    clientDeleted: boolean
+    clientIsDeleted: boolean
     clientId: string
     updatedBookings: BookingInterface[]
 }

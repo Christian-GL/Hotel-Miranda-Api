@@ -1,11 +1,11 @@
 
-import { BookingInterface } from "../../bookingInterfaceMongodb"
-import { ClientInterface } from "../../clientInterfaceMongodb"
+import { BookingInterfaceIdMongodb } from "../../bookingInterfaceMongodb"
+import { ClientInterfaceIdMongodb } from "../../clientInterfaceMongodb"
 
 
 export interface RoomDeleteResponseInterface {
-    roomDeleted: boolean
+    roomIsDeleted: boolean
     roomId: string
-    updatedBookings: BookingInterface[]
-    updatedClients: ClientInterface[]
+    updatedBookings: BookingInterfaceIdMongodb[]
+    updatedClients: ClientInterfaceIdMongodb[]
 }

@@ -6,9 +6,16 @@ import { OptionYesNo } from '../../enums/optionYesNo'
 import mongoose from 'mongoose'
 import { BookingInterfaceIdMongodb } from '../../interfaces/mongodb/bookingInterfaceMongodb'
 import { BookingModelMongodb } from '../../models/mongodb/bookingModelMongodb'
+import { ClientDeleteResponseInterface } from '../../interfaces/mongodb/response/client/clientDeleteResponseInterface'
+import { ClientUpdateResponseInterface } from '../../interfaces/mongodb/response/client/clientUpdateResponseInterface'
 
 
-export class ClientServiceMongodb implements ServiceInterfaceMongodb<ClientInterfaceIdMongodb> {
+export class ClientServiceMongodb implements ServiceInterfaceMongodb<
+    ClientInterface,
+    ClientInterfaceIdMongodb,
+    ClientUpdateResponseInterface,
+    ClientDeleteResponseInterface
+> {
 
     async fetchAll(): Promise<ClientInterfaceIdMongodb[]> {
         try {
@@ -73,12 +80,8 @@ export class ClientServiceMongodb implements ServiceInterfaceMongodb<ClientInter
         }
     }
 
-    async updateAndArchiveBookingsIfNeeded(clientId: string, clientToUpdate: ClientInterface
-    ): Promise<{
-        clientUpdated: ClientInterfaceIdMongodb | null
-        updatedBookings: BookingInterfaceIdMongodb[]
-    }> {
-
+    async update(clientId: string, clientToUpdate: ClientInterface): Promise<ClientUpdateResponseInterface> {
+        // Actualiza el cliente y si es necesario archiva las bookings asociadas.
         const session = await mongoose.startSession()
         let updatedBookings: BookingInterfaceIdMongodb[] = []
 
@@ -134,7 +137,7 @@ export class ClientServiceMongodb implements ServiceInterfaceMongodb<ClientInter
             })
             const finalClientFresh = await ClientModelMongodb.findById(clientId).lean()
             return {
-                clientUpdated: finalClientFresh as ClientInterfaceIdMongodb | null,
+                clientUpdated: finalClientFresh as ClientInterfaceIdMongodb,
                 updatedBookings
             }
         }
@@ -146,29 +149,8 @@ export class ClientServiceMongodb implements ServiceInterfaceMongodb<ClientInter
         }
     }
 
-    async update(id: string, client: ClientInterface): Promise<ClientInterfaceIdMongodb | null> {
-        try {
-            const updatedClient: ClientInterfaceIdMongodb | null = await ClientModelMongodb.findOneAndUpdate(
-                { _id: id },
-                client,
-                { new: true }
-            )
-            if (updatedClient) return updatedClient
-            else return null
-        }
-        catch (error) {
-            console.error('Error in update of clientService', error)
-            throw error
-        }
-    }
-
-    async deleteAndArchiveBookingsIfNeeded(id: string
-    ): Promise<{
-        clientDeleted: boolean
-        clientId: string
-        updatedBookings: BookingInterfaceIdMongodb[]
-    }> {
-
+    async delete(id: string): Promise<ClientDeleteResponseInterface> {
+        // Elimina el cliente y si es necesario archiva las bookings asociadas.
         const session = await mongoose.startSession()
         let updatedBookings: BookingInterfaceIdMongodb[] = []
 
@@ -224,7 +206,7 @@ export class ClientServiceMongodb implements ServiceInterfaceMongodb<ClientInter
             })
 
             return {
-                clientDeleted: true,
+                clientIsDeleted: true,
                 clientId: id,
                 updatedBookings
             }
@@ -234,18 +216,6 @@ export class ClientServiceMongodb implements ServiceInterfaceMongodb<ClientInter
         }
         finally {
             session.endSession()
-        }
-    }
-
-    async delete(id: string): Promise<boolean> {
-        try {
-            const deletedClient = await ClientModelMongodb.findByIdAndDelete(id)
-            if (deletedClient) return true
-            else return false
-        }
-        catch (error) {
-            console.error('Error in delete of clientService', error)
-            throw error
         }
     }
 

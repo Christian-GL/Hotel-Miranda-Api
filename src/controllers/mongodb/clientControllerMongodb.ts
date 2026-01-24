@@ -224,7 +224,7 @@ clientRouterMongodb.put('/:id', async (req: Request, res: Response): Promise<voi
         }
 
         const allNewData =
-            await clientServiceMongodb.updateAndArchiveBookingsIfNeeded(
+            await clientServiceMongodb.update(
                 req.params.id,
                 clientToValidate
             )
@@ -258,7 +258,7 @@ clientRouterMongodb.delete('/:id', adminOnly, async (req: Request, res: Response
     const clientId = req.params.id
 
     try {
-        const allNewData = await clientServiceMongodb.deleteAndArchiveBookingsIfNeeded(clientId)
+        const allNewData = await clientServiceMongodb.delete(clientId)
         if (!allNewData) {
             res.status(404).json({ message: `Client #${clientId} not found` })
             return

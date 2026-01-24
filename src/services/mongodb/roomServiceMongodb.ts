@@ -8,9 +8,16 @@ import { BookingModelMongodb } from '../../models/mongodb/bookingModelMongodb'
 import { BookingInterfaceIdMongodb } from '../../interfaces/mongodb/bookingInterfaceMongodb'
 import { ClientModelMongodb } from '../../models/mongodb/clientModelMongodb'
 import { ClientInterfaceIdMongodb } from '../../interfaces/mongodb/clientInterfaceMongodb'
+import { RoomDeleteResponseInterface } from '../../interfaces/mongodb/response/room/roomDeleteResponseInterface'
+import { RoomUpdateResponseInterface } from '../../interfaces/mongodb/response/room/roomUpdateResponseInterface'
 
 
-export class RoomServiceMongodb implements ServiceInterfaceMongodb<RoomInterfaceIdMongodb> {
+export class RoomServiceMongodb implements ServiceInterfaceMongodb<
+    RoomInterface,
+    RoomInterfaceIdMongodb,
+    RoomUpdateResponseInterface,
+    RoomDeleteResponseInterface
+> {
 
     async fetchAll(): Promise<RoomInterfaceIdMongodb[]> {
         try {
@@ -140,34 +147,8 @@ export class RoomServiceMongodb implements ServiceInterfaceMongodb<RoomInterface
         }
     }
 
-    async update(id: string, room: RoomInterface): Promise<RoomInterfaceIdMongodb | null> {
-        try {
-            const existingRoom: RoomInterfaceIdMongodb | null = await this.fetchById(id)
-            if (existingRoom == null) return null
-
-            const updatedRoom: RoomInterfaceIdMongodb | null = await RoomModelMongodb.findOneAndUpdate(
-                { _id: id },
-                room,
-                { new: true }
-            )
-            if (updatedRoom === null) return null
-
-            return updatedRoom
-        }
-        catch (error) {
-            console.error('Error in update of roomService', error)
-            throw error
-        }
-    }
-
-    async updateAndArchiveBookingsAndClientsIfNeeded(roomId: string, roomToUpdate: RoomInterface)
-        : Promise<{
-            roomUpdated: RoomInterfaceIdMongodb | null
-            updatedBookings: BookingInterfaceIdMongodb[]
-            updatedClients: ClientInterfaceIdMongodb[]
-        }> {
-
-        // Actualiza la room y (si procede) archiva las bookings en una única transacción.
+    async update(roomId: string, roomToUpdate: RoomInterface): Promise<RoomUpdateResponseInterface> {
+        // Actualiza la room y si es necesario archiva las bookings y los clientes asociados.
         const session = await mongoose.startSession()
         let updatedBookingsNotArchived: BookingInterfaceIdMongodb[] = []
         let updatedClients: ClientInterfaceIdMongodb[] = []
@@ -251,14 +232,8 @@ export class RoomServiceMongodb implements ServiceInterfaceMongodb<RoomInterface
         }
     }
 
-    async deleteAndArchiveBookingsAndClientsIfNeeded(id: string)
-        : Promise<{
-            roomDeleted: boolean
-            roomId: string
-            updatedBookings: BookingInterfaceIdMongodb[]
-            updatedClients: ClientInterfaceIdMongodb[]
-        }> {
-
+    async delete(id: string): Promise<RoomDeleteResponseInterface> {
+        // Elimina la room y si es necesario archiva las bookings y los clientes asociados.
         const session = await mongoose.startSession()
         let updatedBookings: BookingInterfaceIdMongodb[] = []
         let updatedClients: ClientInterfaceIdMongodb[] = []
@@ -311,7 +286,7 @@ export class RoomServiceMongodb implements ServiceInterfaceMongodb<RoomInterface
             })
 
             return {
-                roomDeleted: true,
+                roomIsDeleted: true,
                 roomId: id,
                 updatedBookings,
                 updatedClients
@@ -322,18 +297,6 @@ export class RoomServiceMongodb implements ServiceInterfaceMongodb<RoomInterface
         }
         finally {
             session.endSession()
-        }
-    }
-
-    async delete(id: string): Promise<boolean> {
-        try {
-            const deletedRoom = await RoomModelMongodb.findByIdAndDelete(id)
-            if (deletedRoom) return true
-            else return false
-        }
-        catch (error) {
-            console.error('Error in delete of roomService', error)
-            throw error
         }
     }
 

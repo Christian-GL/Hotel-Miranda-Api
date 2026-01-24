@@ -8,9 +8,17 @@ import { RoomModelMongodb } from '../../models/mongodb/roomModelMongodb'
 import { ClientModelMongodb } from '../../models/mongodb/clientModelMongodb'
 import { ClientInterfaceIdMongodb } from '../../interfaces/mongodb/clientInterfaceMongodb'
 import { RoomInterfaceIdMongodb } from '../../interfaces/mongodb/roomInterfaceMongodb'
+import { BookingCreateResponseInterface } from '../../interfaces/mongodb/response/booking/bookingCreateResponseInterface'
+import { BookingUpdateResponseInterface } from '../../interfaces/mongodb/response/booking/bookingUpdateResponseInterface'
+import { BookingDeleteResponseInterface } from '../../interfaces/mongodb/response/booking/bookingDeleteResponseInterface'
 
 
-export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInterfaceIdMongodb> {
+export class BookingServiceMongodb implements ServiceInterfaceMongodb<
+    BookingInterface,
+    BookingCreateResponseInterface,
+    BookingUpdateResponseInterface,
+    BookingDeleteResponseInterface
+> {
 
     async fetchAll(): Promise<BookingInterfaceIdMongodb[]> {
         try {
@@ -77,23 +85,7 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
         }
     }
 
-    async create(booking: BookingInterface): Promise<BookingInterfaceIdMongodb> {
-        try {
-            const newBooking: BookingInterfaceIdMongodb = new BookingModelMongodb(booking)
-            await newBooking.save()
-            return newBooking
-        }
-        catch (error) {
-            console.error('Error in create of bookingService', error)
-            throw error
-        }
-    }
-
-    async createAndLinkRoomsClient(booking: BookingInterface): Promise<{
-        booking: BookingInterfaceIdMongodb
-        updatedRooms: RoomInterfaceIdMongodb[]
-        updatedClient: ClientInterfaceIdMongodb
-    }> {
+    async create(booking: BookingInterface): Promise<BookingCreateResponseInterface> {
         // Crea una booking y añade su _id al "booking_id_list" de todas las rooms indicadas y al cliente asociado.
         const session = await mongoose.startSession()
         try {
@@ -161,31 +153,8 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
         }
     }
 
-    async update(id: string, booking: BookingInterface): Promise<BookingInterfaceIdMongodb | null> {
-        try {
-            const existingBooking: BookingInterfaceIdMongodb | null = await this.fetchById(id)
-            if (existingBooking == null) return null
-
-            const updatedBooking: BookingInterfaceIdMongodb | null = await BookingModelMongodb.findOneAndUpdate(
-                { _id: id },
-                booking,
-                { new: true }
-            )
-            if (updatedBooking === null) return null
-
-            return updatedBooking
-        }
-        catch (error) {
-            console.error('Error in update of bookingService', error)
-            throw error
-        }
-    }
-
-    async updateAndLinkRoomsClient(id: string, bookingDTO: BookingInterface): Promise<{
-        booking: BookingInterfaceIdMongodb | null
-        updatedRooms: RoomInterfaceIdMongodb[]
-        updatedClient: ClientInterfaceIdMongodb | null
-    }> {
+    async update(id: string, bookingDTO: BookingInterface): Promise<BookingUpdateResponseInterface> {
+        // Actualiza la booking y si es necesario actualiza las rooms y el cliente asociados.
         const session = await mongoose.startSession()
         let affectedClientId: string | null = null
 
@@ -359,13 +328,8 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
         }
     }
 
-    async deleteAndUpdateRoomsAndClient(id: string): Promise<{
-        deleted: boolean
-        bookingId: string
-        updatedRooms: RoomInterfaceIdMongodb[]
-        updatedClient: ClientInterfaceIdMongodb | null
-    }> {
-        // Borra la booking y elimina su id de referencia en las rooms y en el client asociados
+    async delete(id: string): Promise<BookingDeleteResponseInterface> {
+        // Elimina la booking y elimina su id de referencia en las rooms y en el client asociados
         const session = await mongoose.startSession()
         try {
             let affectedRoomIds: string[] = []
@@ -416,7 +380,7 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
                 : null
 
             return {
-                deleted: true,
+                bookingIsDeleted: true,
                 bookingId: id,
                 updatedRooms: updatedRooms as RoomInterfaceIdMongodb[],
                 updatedClient: updatedClient as ClientInterfaceIdMongodb | null
@@ -427,18 +391,6 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<BookingInt
         }
         finally {
             session.endSession()
-        }
-    }
-
-    async delete(id: string): Promise<boolean> {
-        try {
-            const deletedBooking = await BookingModelMongodb.findByIdAndDelete(id)
-            if (deletedBooking) return true
-            else return false
-        }
-        catch (error) {
-            console.error('Error in delete of bookingService', error)
-            throw error
         }
     }
 
