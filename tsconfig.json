@@ -108,5 +108,8 @@
     // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
     "skipLibCheck": true                                 /* Skip type checking all .d.ts files. */
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": [
+    "src/**/mysql/**"   // Excluimos las carpetas con código de Mysql (versión antigua con errores de compilación)
+  ]
 }

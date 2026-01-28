@@ -15,6 +15,7 @@ provider:
   runtime: nodejs20.x
 functions:
   app:
+    # Versión V2:
     handler: dist/src/index.handler
     events:
       - http:
