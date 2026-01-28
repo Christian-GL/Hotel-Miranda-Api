@@ -253,6 +253,13 @@ import { userRouterMongodb } from './controllers/mongodb/userControllerMongodb'
 export const app = express()
 app.use(express.json())
 app.use(cors())
+// De CHATGPT:
+// app.use(cors({
+//   origin: '*',
+//   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+//   allowedHeaders: ['Content-Type', 'Authorization']
+// }))
+// app.options('*', cors())
 
 app.use('/login', loginRouterMongodb)
 app.use('/api-dashboard/v3/bookings', bookingRouterMongodb)
@@ -294,3 +301,4 @@ export const handler = main
 //  Comandos para generar carpeta de la API para subir a AmazonWebServices:
 // 	>> npx tsc
 // 	>> serverless deploy
+//  >> npx serverless info    // Ver info (endpoint)
