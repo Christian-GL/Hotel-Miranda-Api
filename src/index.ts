@@ -253,19 +253,13 @@ import { userRouterMongodb } from './controllers/mongodb/userControllerMongodb'
 export const app = express()
 app.use(express.json())
 app.use(cors())
-// De CHATGPT:
-// app.use(cors({
-//   origin: '*',
-//   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-//   allowedHeaders: ['Content-Type', 'Authorization']
-// }))
-// app.options('*', cors())
 
 app.use('/login', loginRouterMongodb)
 app.use('/api-dashboard/v3/bookings', bookingRouterMongodb)
 app.use('/api-dashboard/v3/rooms', roomRouterMongodb)
 app.use('/api-dashboard/v3/clients', clientRouterMongodb)
 app.use('/api-dashboard/v3/users', userRouterMongodb)
+
 // app.use('/login', loginRouterMysql)
 // app.use('/api-dashboard/v3/bookings', bookingRouterMysql)
 // app.use('/api-dashboard/v3/rooms', roomRouterMysql)
@@ -275,13 +269,14 @@ app.use('/api-dashboard/v3/users', userRouterMongodb)
 app.get('/live', (_req: Request, res: Response) => {
   res.send(new Date().toISOString())
 })
+app.get('/test', (_req: Request, res: Response) => {
+  res.send('test')
+})
 
 const handlerLambda = serverless(app)
 let isDbConnected = false
-
 export const main = async (event: any, context: any) => {
   context.callbackWaitsForEmptyEventLoop = false
-
   console.log('Handler ON')
   if (!isDbConnected) {
     console.log('Connecting to Mongodb Atlas…')
@@ -290,15 +285,17 @@ export const main = async (event: any, context: any) => {
     console.log('Connection completed')
     isDbConnected = true
   }
-
   return handlerLambda(event, context)
 }
-
 export const handler = main
 
 
 
+
+
 //  Comandos para generar carpeta de la API para subir a AmazonWebServices:
+//  >> Remove-Item -Recurse -Force dist, .serverless    // Elimina el contenido generado por el "npx tsc" anterior
 // 	>> npx tsc
+//  >> serverless remove      // Eliminar configuración anterior (opcional pero recomendable si hay errores)
 // 	>> serverless deploy
-//  >> npx serverless info    // Ver info (endpoint)
+//  >> npx serverless info    // Ver info (útil para saber endpoint)serverless remove
