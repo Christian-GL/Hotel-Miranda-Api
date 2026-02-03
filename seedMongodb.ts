@@ -4,7 +4,7 @@ import { connectMongodbDB } from './src/utils/databaseMongodb'
 import { hashPassword } from './src/utils/hashPassword'
 
 import { BookingInterfaceCheckInOut, BookingInterfaceIdMongodb } from './src/interfaces/mongodb/bookingInterfaceMongodb'
-import { RoomInterfaceDTO, RoomInterfaceIdMongodb } from './src/interfaces/mongodb/roomInterfaceMongodb'
+import { RoomInterface, RoomInterfaceIdMongodb } from './src/interfaces/mongodb/roomInterfaceMongodb'
 import { ClientInterfaceIdMongodb } from './src/interfaces/mongodb/clientInterfaceMongodb'
 import { UserInterfaceIdMongodb } from './src/interfaces/mongodb/userInterfaceMongodb'
 import { BookingModelMongodb } from './src/models/mongodb/bookingModelMongodb'
@@ -112,19 +112,69 @@ const createClientsNoBookings = async (numberClients: number): Promise<void> => 
     }
 }
 
-const createRoomsOnly = async (): Promise<void> => {
+const createRoomsOnly = async (numberRooms: number): Promise<void> => {
     await connectMongodbDB()
     try {
         const rooms: InstanceType<typeof RoomModelMongodb>[] = []
         const roomValidator = new RoomValidator()
+        // URL fotos de rooms: https://unsplash.com/es/s/fotos/hotel-room
+        const hotelRoomImages = [
+            "https://images.unsplash.com/photo-1505691938895-1758d7feb511",
+            "https://images.unsplash.com/photo-1471115853179-bb1d604434e0",
+            "https://images.unsplash.com/photo-1519821172141-b1c09a4f8b53",
+            "https://images.unsplash.com/photo-1493809842364-78817add7ffb",
+            "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267",
+            "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb",
+            "https://images.unsplash.com/photo-1525026198544-46cae6ee4e98",
+            "https://images.unsplash.com/photo-1542314831-b4a5f6cb7c3a",
+            "https://images.unsplash.com/photo-1576675780201-67329831be1b",
+            "https://images.unsplash.com/photo-1590490360182-c33d57733427",
+            "https://images.unsplash.com/photo-1566073771259-6a8506099945",
+            "https://images.unsplash.com/photo-1542314831-c98aad179a11",
+            "https://images.unsplash.com/photo-1534850336045-cb2f2b490043",
+            "https://images.unsplash.com/photo-1542314831-9f8f0374e9de",
+            "https://images.unsplash.com/photo-1560185127-6c670ede356e",
+            "https://images.unsplash.com/photo-1505691938895-552c7412fdfb",
+            "https://images.unsplash.com/photo-1590490360182-c33d57733427",
+            "https://images.unsplash.com/photo-1525026198544-dd1bc5a28a76",
+            "https://images.unsplash.com/photo-1484154218962-a197022b5858",
+            "https://images.unsplash.com/photo-1522708323590-e79c1c854b09",
+            "https://images.unsplash.com/photo-1566073771259-e8e68d1e1a4c",
+            "https://images.unsplash.com/photo-1542314831-68eebv6db7c6",
+            "https://images.unsplash.com/photo-1505691938895-43df9bb53ecf",
+            "https://images.unsplash.com/photo-1576675780201-8b2aae943988",
+            "https://images.unsplash.com/photo-1542314831-b7f4c73b66a8",
+            "https://images.unsplash.com/photo-1525026198544-39ed3c5855fc",
+            "https://images.unsplash.com/photo-1542314831-f2ffbc9eedbc",
+            "https://images.unsplash.com/photo-1590490360182-abcde57891ef",
+            "https://images.unsplash.com/photo-1505691938895-82b12b3077c8",
+            "https://images.unsplash.com/photo-1522708323590-555a5880b7e1",
+            "https://images.unsplash.com/photo-1542314831-df5fabe4fc3d",
+            "https://images.unsplash.com/photo-1484154218962-5a5a0f93b27f",
+            "https://images.unsplash.com/photo-1542314831-864e951b93a9",
+            "https://images.unsplash.com/photo-1525026198544-dba5a0f90c68",
+            "https://images.unsplash.com/photo-1505691938895-a1e69ce2f79c",
+            "https://images.unsplash.com/photo-1566073771259-40245dc82598",
+            "https://images.unsplash.com/photo-1542314831-1157f19bdd6c",
+            "https://images.unsplash.com/photo-1522708323590-a5a49b4f49b2",
+            "https://images.unsplash.com/photo-1590490360182-90bb391c07e4"
+        ]
+        const shuffleArray = <T>(array: T[]): T[] => {
+            const copy = [...array]
+            for (let i = copy.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1))
+                    ;[copy[i], copy[j]] = [copy[j], copy[i]]
+            }
+            return copy
+        }
+        const shuffledImages = shuffleArray(hotelRoomImages)
         let totalRoomNumbers = []
         let actualNumber = ''
-
         let totalErrors
-        for (let i = 0; i < 5; i++) {
+        for (let i = 0; i < numberRooms; i++) {
             actualNumber = String(faker.number.int({ min: 0, max: 999 })).padStart(3, '0')
             const fakeRoom = new RoomModelMongodb({
-                photos: Array.from({ length: faker.number.int({ min: 3, max: 5 }) }, () => faker.image.urlPicsumPhotos()),
+                photos: Array.from({ length: faker.number.int({ min: 3, max: 5 }) }, () => shuffledImages.pop()!),
                 number: actualNumber,
                 type: faker.helpers.arrayElement(Object.values(RoomType)),
                 amenities: faker.helpers.arrayElements(Object.values(RoomAmenities), faker.number.int({ min: 1, max: Math.max(1, Object.values(RoomAmenities).length) })) as RoomAmenities[],
@@ -288,7 +338,7 @@ const createBookingsOnly = async (): Promise<void> => {
 const main = async () => {
     // await createUsers()
     await createClientsNoBookings(3)
-    await createRoomsOnly()
+    await createRoomsOnly(3)
     // await createBookingsOnly()
 }
 main()
