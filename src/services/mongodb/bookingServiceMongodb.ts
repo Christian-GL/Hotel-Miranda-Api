@@ -59,6 +59,64 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<
         }
     }
 
+    async fetchAllDatesByRoomsNotArchived(roomIds: string[]): Promise<BookingInterfaceCheckInOut[]> {
+        try {
+            if (!Array.isArray(roomIds) || roomIds.length === 0) {
+                return []
+            }
+
+            const bookings = await BookingModelMongodb.find(
+                {
+                    isArchived: OptionYesNo.no,
+                    room_id_list: { $in: roomIds }
+                },
+                {
+                    check_in_date: 1,
+                    check_out_date: 1,
+                    _id: 0
+                }
+            ).lean()
+
+            return bookings
+        }
+        catch (error) {
+            console.error(
+                'Error in fetchAllDatesByRoomsNotArchived of bookingService',
+                error
+            )
+            throw error
+        }
+    }
+
+    async fetchAllDatesAndIdByRoomsNotArchived(roomIds: string[]): Promise<BookingInterfaceCheckInOutId[]> {
+        try {
+            if (!Array.isArray(roomIds) || roomIds.length === 0) {
+                return []
+            }
+
+            const bookings = await BookingModelMongodb.find(
+                {
+                    isArchived: OptionYesNo.no,
+                    room_id_list: { $in: roomIds }
+                },
+                {
+                    check_in_date: 1,
+                    check_out_date: 1,
+                    _id: 1
+                }
+            ).lean()
+
+            return bookings
+        }
+        catch (error) {
+            console.error(
+                'Error in fetchAllDatesByRoomsNotArchived of bookingService',
+                error
+            )
+            throw error
+        }
+    }
+
     async fetchAllDatesAndIdNotArchived(): Promise<BookingInterfaceCheckInOutId[]> {
         try {
             const bookings = await BookingModelMongodb.find(

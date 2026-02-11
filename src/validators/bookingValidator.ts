@@ -41,7 +41,7 @@ export class BookingValidator {
         return errorMessages
     }
 
-    private validateBooking(booking: BookingInterface, newBooking: boolean, allRoomIdsNotArchived: string[], clientId: string, allClientIdsNotArchived: string[]): string[] {
+    private validateBooking(booking: BookingInterface, allRoomIdsNotArchived: string[], clientId: string, allClientIdsNotArchived: string[]): string[] {
         const allErrorMessages: string[] = []
 
         if (booking === undefined || Object.keys(booking).length === 0) {
@@ -65,13 +65,6 @@ export class BookingValidator {
         validateOptionYesNo(booking.isArchived, 'Booking isArchived').map(
             error => allErrorMessages.push(error)
         )
-        newBooking
-            ? validateCheckInCheckOutNewBooking(booking.check_in_date, booking.check_out_date).map(
-                error => allErrorMessages.push(error)
-            )
-            : validateCheckInCheckOutExistingBooking(booking.check_in_date, booking.check_out_date).map(
-                error => allErrorMessages.push(error)
-            )
 
         // Comprobamos que los IDs de las rooms y el cliente asociados a la booking existan en BD
         for (const roomID of booking.room_id_list) {
@@ -86,7 +79,7 @@ export class BookingValidator {
         return allErrorMessages
     }
 
-    validateNewBooking(booking: BookingInterface, allBookingDatesNotArchived: BookingInterfaceCheckInOut[], allRoomIdsNotArchived: string[], clientID: string, allClientIdsNotArchived: string[]): string[] {
+    validateNewBooking(booking: BookingInterface, allBookingDatesByRoomsNotArchived: BookingInterfaceCheckInOut[], allRoomIdsNotArchived: string[], clientID: string, allClientIdsNotArchived: string[]): string[] {
         const allErrorMessages: string[] = []
 
         if (booking === undefined || Object.keys(booking).length === 0) {
@@ -94,17 +87,20 @@ export class BookingValidator {
             return allErrorMessages
         }
 
-        this.validateBooking(booking, true, allRoomIdsNotArchived, clientID, allClientIdsNotArchived).map(
+        this.validateBooking(booking, allRoomIdsNotArchived, clientID, allClientIdsNotArchived).map(
             error => allErrorMessages.push(error)
         )
-        validateDateIsOccupied(booking, allBookingDatesNotArchived).map(
+        validateCheckInCheckOutNewBooking(booking.check_in_date, booking.check_out_date).map(
+            error => allErrorMessages.push(error)
+        )
+        validateDateIsOccupied(booking, allBookingDatesByRoomsNotArchived).map(
             error => allErrorMessages.push(error)
         )
 
         return allErrorMessages
     }
 
-    validateExistingBooking(booking: BookingInterfaceId, allBookingDatesAndIdNotArchived: BookingInterfaceCheckInOutId[], allRoomIdsNotArchived: string[], clientID: string, allClientIdsNotArchived: string[]): string[] {
+    validateExistingBooking(booking: BookingInterfaceId, allBookingDatesAndIdByRoomsNotArchived: BookingInterfaceCheckInOutId[], allRoomIdsNotArchived: string[], clientID: string, allClientIdsNotArchived: string[]): string[] {
         const allErrorMessages: string[] = []
 
         if (booking === undefined || Object.keys(booking).length === 0) {
@@ -112,10 +108,13 @@ export class BookingValidator {
             return allErrorMessages
         }
 
-        this.validateBooking(booking, false, allRoomIdsNotArchived, clientID, allClientIdsNotArchived).map(
+        this.validateBooking(booking, allRoomIdsNotArchived, clientID, allClientIdsNotArchived).map(
             error => allErrorMessages.push(error)
         )
-        validateDateIsOccupiedIfBookingExists(booking, allBookingDatesAndIdNotArchived).map(
+        validateCheckInCheckOutExistingBooking(booking.check_in_date, booking.check_out_date).map(
+            error => allErrorMessages.push(error)
+        )
+        validateDateIsOccupiedIfBookingExists(booking, allBookingDatesAndIdByRoomsNotArchived).map(
             error => allErrorMessages.push(error)
         )
 

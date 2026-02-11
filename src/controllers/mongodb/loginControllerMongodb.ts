@@ -92,7 +92,7 @@ loginRouterMongodb.post('/', async (req: Request, res: Response): Promise<void> 
         }
 
         // 's'(segundos) 'm'(minutos) 'h'(horas)  'd'(días) 'w'(semanas) 'y'(años)
-        const token = jwt.sign(payload, process.env.TOKEN_SECRET as string, { expiresIn: '5m' })
+        const token = jwt.sign(payload, process.env.TOKEN_SECRET as string, { expiresIn: '1h' })
 
         res.status(200).json({
             token,

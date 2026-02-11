@@ -241,7 +241,7 @@ const runServer = async () => {
   app.listen(port, () => {
     // console.log(`Servidor escuchando en http://localhost:${port}`)
   })
-  console.log('Server is running')
+  console.log(`Server is running in http://localhost:${port}`)
 }
 
 runServer()

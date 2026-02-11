@@ -230,7 +230,7 @@ bookingRouterMongodb.post('/', async (req: Request, res: Response) => {
         room_id_list: roomIds,
         client_id: req.body.client_id.trim()
     }
-    const allBookingDatesNotArchived = await bookingServiceMongodb.fetchAllDatesNotArchived()
+    const allBookingDatesNotArchived = await bookingServiceMongodb.fetchAllDatesByRoomsNotArchived(bookingToValidate.room_id_list)
     const allRoomIdsNotArchived = await roomServiceMongodb.fetchAllIdsNotArchived()
     const allClientIdsNotArchived = await clientServiceMongodb.fetchAllIdsNotArchived()
     const client = await clientServiceMongodb.fetchById(bookingToValidate.client_id)
@@ -333,8 +333,7 @@ bookingRouterMongodb.put('/:id', async (req: Request, res: Response) => {
         room_id_list: roomIds,
         client_id: req.body.client_id.trim()
     }
-
-    const allBookingDatesAndIdNotArchived = await bookingServiceMongodb.fetchAllDatesAndIdNotArchived()
+    const allBookingDatesAndIdNotArchived = await bookingServiceMongodb.fetchAllDatesAndIdByRoomsNotArchived(bookingToValidate.room_id_list)
     const allRoomIdsNotArchived = await roomServiceMongodb.fetchAllIdsNotArchived()
     const allClientIdsNotArchived = await clientServiceMongodb.fetchAllIdsNotArchived()
     const client = await clientServiceMongodb.fetchById(bookingToValidate.client_id)
