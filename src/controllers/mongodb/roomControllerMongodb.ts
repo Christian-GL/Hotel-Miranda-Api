@@ -239,14 +239,18 @@ roomRouterMongodb.put('/:id', async (req: Request, res: Response) => {
             isArchived: req.body.isArchived.trim(),
             booking_id_list: req.body.booking_id_list
         }
+
         const roomValidator = new RoomValidator()
         const totalErrors = roomValidator.validateExistingRoom(roomToUpdate, oldRoomNumber, allRoomNumbersNotArchived)
         if (totalErrors.length > 0) {
             res.status(400).json({ message: totalErrors.join(', ') })
             return
         }
-        const oldRoomId = await roomServiceMongodb.fetchIdByNumber(roomToUpdate.number)
-        if (oldRoomId === null) return
+        const oldRoomId = await roomServiceMongodb.fetchIdByNumber(oldRoomNumber)
+        if (oldRoomId === null) {
+            res.status(400).json({ message: 'Invalid room old ID format' })
+            return
+        }
         if (roomToUpdate.isArchived === OptionYesNo.no) {
             if (allRoomNumbersNotArchived.includes(roomToUpdate.number) && roomID !== oldRoomId) {
                 res.status(400).json('A room with this number is already not archived')
