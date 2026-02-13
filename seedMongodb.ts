@@ -28,13 +28,13 @@ const bookingServiceMongodb = new BookingServiceMongodb()
 const roomServiceMongodb = new RoomServiceMongodb()
 const clientServiceMongodb = new ClientServiceMongodb()
 
-const createUsers = async (): Promise<void> => {
+const createUsers = async (numberUsers: number): Promise<void> => {
     await connectMongodbDB()
     try {
         const users: InstanceType<typeof UserModelMongodb>[] = []
         const userValidator = new UserValidator()
         let totalErrors
-        for (let i = 0; i < 5; i++) {
+        for (let i = 0; i < numberUsers; i++) {
 
             const dayMs = 24 * 60 * 60 * 1000
             const now = new Date()
@@ -72,6 +72,7 @@ const createUsers = async (): Promise<void> => {
                 continue
             }
         }
+        console.log(`Total users válidos: [${users.length}]`)
         await UserModelMongodb.insertMany(users)
     }
     catch (error) {
@@ -103,7 +104,7 @@ const createClientsNoBookings = async (numberClients: number): Promise<void> => 
                 continue
             }
         }
-        console.log(`Clientes válidos: ${clients}`)
+        console.log(`Total users válidos: [${clients.length}]`)
         await ClientModelMongodb.insertMany(clients)
     }
     catch (error) {
@@ -119,62 +120,34 @@ const createRoomsOnly = async (numberRooms: number): Promise<void> => {
         const roomValidator = new RoomValidator()
         // URL fotos de rooms: https://unsplash.com/es/s/fotos/hotel-room
         const hotelRoomImages = [
-            "https://images.unsplash.com/photo-1505691938895-1758d7feb511",
-            "https://images.unsplash.com/photo-1471115853179-bb1d604434e0",
-            "https://images.unsplash.com/photo-1519821172141-b1c09a4f8b53",
-            "https://images.unsplash.com/photo-1493809842364-78817add7ffb",
-            "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267",
-            "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb",
-            "https://images.unsplash.com/photo-1525026198544-46cae6ee4e98",
-            "https://images.unsplash.com/photo-1542314831-b4a5f6cb7c3a",
-            "https://images.unsplash.com/photo-1576675780201-67329831be1b",
-            "https://images.unsplash.com/photo-1590490360182-c33d57733427",
-            "https://images.unsplash.com/photo-1566073771259-6a8506099945",
-            "https://images.unsplash.com/photo-1542314831-c98aad179a11",
-            "https://images.unsplash.com/photo-1534850336045-cb2f2b490043",
-            "https://images.unsplash.com/photo-1542314831-9f8f0374e9de",
-            "https://images.unsplash.com/photo-1560185127-6c670ede356e",
-            "https://images.unsplash.com/photo-1505691938895-552c7412fdfb",
-            "https://images.unsplash.com/photo-1590490360182-c33d57733427",
-            "https://images.unsplash.com/photo-1525026198544-dd1bc5a28a76",
-            "https://images.unsplash.com/photo-1484154218962-a197022b5858",
-            "https://images.unsplash.com/photo-1522708323590-e79c1c854b09",
-            "https://images.unsplash.com/photo-1566073771259-e8e68d1e1a4c",
-            "https://images.unsplash.com/photo-1542314831-68eebv6db7c6",
-            "https://images.unsplash.com/photo-1505691938895-43df9bb53ecf",
-            "https://images.unsplash.com/photo-1576675780201-8b2aae943988",
-            "https://images.unsplash.com/photo-1542314831-b7f4c73b66a8",
-            "https://images.unsplash.com/photo-1525026198544-39ed3c5855fc",
-            "https://images.unsplash.com/photo-1542314831-f2ffbc9eedbc",
-            "https://images.unsplash.com/photo-1590490360182-abcde57891ef",
-            "https://images.unsplash.com/photo-1505691938895-82b12b3077c8",
-            "https://images.unsplash.com/photo-1522708323590-555a5880b7e1",
-            "https://images.unsplash.com/photo-1542314831-df5fabe4fc3d",
-            "https://images.unsplash.com/photo-1484154218962-5a5a0f93b27f",
-            "https://images.unsplash.com/photo-1542314831-864e951b93a9",
-            "https://images.unsplash.com/photo-1525026198544-dba5a0f90c68",
-            "https://images.unsplash.com/photo-1505691938895-a1e69ce2f79c",
-            "https://images.unsplash.com/photo-1566073771259-40245dc82598",
-            "https://images.unsplash.com/photo-1542314831-1157f19bdd6c",
-            "https://images.unsplash.com/photo-1522708323590-a5a49b4f49b2",
-            "https://images.unsplash.com/photo-1590490360182-90bb391c07e4"
+            "https://plus.unsplash.com/premium_photo-1661963239507-7bdf41a5e66b?q=80&w=823&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "https://images.unsplash.com/photo-1711059985570-4c32ed12a12c?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "https://images.unsplash.com/photo-1631048730581-96121466be1c?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "https://images.unsplash.com/photo-1631049421450-348ccd7f8949?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "https://images.unsplash.com/photo-1631049035115-f96132761a38?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "https://images.unsplash.com/photo-1631049307485-2bfb23080676?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "https://images.unsplash.com/photo-1631048834949-1df85dc7b02f?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "https://images.unsplash.com/photo-1631049307485-2bfb23080676?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "https://images.unsplash.com/photo-1631048835135-3e8ac5e99ba0?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "https://images.unsplash.com/photo-1631048835153-946fa051ceee?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "https://images.unsplash.com/photo-1646974400439-321c4a9240b9?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "https://plus.unsplash.com/premium_photo-1678297269904-6c46528b36a7?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "https://images.unsplash.com/photo-1698927100805-2a32718a7e05?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "https://images.unsplash.com/photo-1664227430717-9a62112984cf?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "https://images.unsplash.com/photo-1648766426924-2f08483b30aa?q=80&w=735&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "https://plus.unsplash.com/premium_photo-1687995673398-bf3e55667dc5?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "https://plus.unsplash.com/premium_photo-1670360414903-19e5832f8bc4?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "https://images.unsplash.com/photo-1568495248636-6432b97bd949?q=80&w=1074&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            "https://images.unsplash.com/photo-1578683010236-d716f9a3f461?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
         ]
-        const shuffleArray = <T>(array: T[]): T[] => {
-            const copy = [...array]
-            for (let i = copy.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1))
-                    ;[copy[i], copy[j]] = [copy[j], copy[i]]
-            }
-            return copy
-        }
-        const shuffledImages = shuffleArray(hotelRoomImages)
-        let totalRoomNumbers = []
+        let totalRoomNumbers = await roomServiceMongodb.fetchAllNumbersNotArchived()
         let actualNumber = ''
         let totalErrors
         for (let i = 0; i < numberRooms; i++) {
             actualNumber = String(faker.number.int({ min: 0, max: 999 })).padStart(3, '0')
             const fakeRoom = new RoomModelMongodb({
-                photos: Array.from({ length: faker.number.int({ min: 3, max: 5 }) }, () => shuffledImages.pop()!),
+                photos: faker.helpers.arrayElements(hotelRoomImages, faker.number.int({ min: 3, max: 5 })),
                 number: actualNumber,
                 type: faker.helpers.arrayElement(Object.values(RoomType)),
                 amenities: faker.helpers.arrayElements(Object.values(RoomAmenities), faker.number.int({ min: 1, max: Math.max(1, Object.values(RoomAmenities).length) })) as RoomAmenities[],
@@ -184,20 +157,20 @@ const createRoomsOnly = async (numberRooms: number): Promise<void> => {
                 isArchived: faker.helpers.arrayElement(Object.values(OptionYesNo)),
                 booking_id_list: []
             })
-            totalRoomNumbers.push(actualNumber)
             totalErrors = roomValidator.validateNewRoom(
                 fakeRoom.toObject() as RoomInterfaceIdMongodb,
                 totalRoomNumbers
             )
             if (totalErrors.length === 0) {
                 rooms.push(fakeRoom)
+                totalRoomNumbers.push(actualNumber)
             }
             else {
                 console.error(`Validación fallida en el fakeRoom #${i}: ${totalErrors.join(', ')}`)
                 continue
             }
         }
-        console.log(`Rooms válidas: ${rooms}`)
+        console.log(`Total users válidos: [${rooms.length}]`)
         await RoomModelMongodb.insertMany(rooms)
     }
     catch (error) {
@@ -336,9 +309,9 @@ const createBookingsOnly = async (): Promise<void> => {
 
 
 const main = async () => {
-    // await createUsers()
-    await createClientsNoBookings(3)
-    await createRoomsOnly(3)
+    // await createUsers(5)
+    // await createClientsNoBookings(5)
+    await createRoomsOnly(5)
     // await createBookingsOnly()
 }
 main()
