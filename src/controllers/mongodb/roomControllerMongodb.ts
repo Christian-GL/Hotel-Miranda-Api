@@ -1,7 +1,10 @@
 
-import { Request, Response } from 'express'
+import { Request, Response, NextFunction } from 'express'
 import Router from 'express'
 import mongoose from 'mongoose'
+
+
+import { ApiError } from '../../errors/ApiError'
 import { BookingModelMongodb } from '../../models/mongodb/bookingModelMongodb'
 import { authMiddleware } from '../../middleware/authMiddleware'
 import { adminOnly } from '../../middleware/adminOnly'
@@ -148,82 +151,81 @@ roomRouterMongodb.use(authMiddleware)
  *         description: Habitación no encontrada
  */
 
-roomRouterMongodb.get('/', async (req: Request, res: Response) => {
+roomRouterMongodb.get('/', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const roomList = await roomServiceMongodb.fetchAll()
         res.json(roomList)
     }
     catch (error) {
-        console.error("Error in get (all) of roomController:", error)
-        res.status(500).json({ message: "Internal server error" })
+        next(error)
     }
 })
 
-roomRouterMongodb.get('/:id', async (req: Request, res: Response) => {
+roomRouterMongodb.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const room = await roomServiceMongodb.fetchById(req.params.id)
         if (room !== null) {
             res.json(room)
-        } else {
-            res.status(404).json({ message: `Room #${req.params.id} not found` })
+        }
+        else {
+            throw new ApiError(404, `Room #${req.params.id} not found`)
         }
     }
     catch (error) {
-        console.error("Error in get (by id) of roomController:", error)
-        res.status(500).json({ message: "Internal server error" })
+        next(error)
     }
 })
 
-roomRouterMongodb.post('/', async (req: Request, res: Response) => {
+// roomRouterMongodb.get('/:id', (req: Request, res: Response, next: NextFunction) => {
+//     next(new ApiError(400, 'Test error with next'))
+// })
 
-    const allRoomNumbersNotArchived = await roomServiceMongodb.fetchAllNumbersNotArchived()
-    const roomToValidate: RoomInterface = {
-        photos: req.body.photos,
-        number: req.body.number.trim(),
-        type: req.body.type.trim(),
-        amenities: req.body.amenities,
-        price: req.body.price,
-        discount: req.body.discount,
-        isActive: req.body.isActive.trim(),
-        isArchived: OptionYesNo.no,
-        booking_id_list: []
-    }
-    const roomValidator = new RoomValidator()
-    const totalErrors = roomValidator.validateNewRoom(roomToValidate, allRoomNumbersNotArchived)
-    if (totalErrors.length === 0) {
+
+roomRouterMongodb.post('/', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const allRoomNumbersNotArchived = await roomServiceMongodb.fetchAllNumbersNotArchived()
+        const roomToValidate: RoomInterface = {
+            photos: req.body.photos,
+            number: req.body.number?.trim(),
+            type: req.body.type?.trim(),
+            amenities: req.body.amenities,
+            price: req.body.price,
+            discount: req.body.discount,
+            isActive: req.body.isActive?.trim(),
+            isArchived: OptionYesNo.no,
+            booking_id_list: []
+        }
+        const roomValidator = new RoomValidator()
+        const totalErrors = roomValidator.validateNewRoom(roomToValidate, allRoomNumbersNotArchived)
+        if (totalErrors.length > 0) {
+            throw new ApiError(400, totalErrors.join(', '))
+        }
+
         try {
             const newRoom = await roomServiceMongodb.create(roomToValidate)
             res.status(201).json(newRoom)
+            return
         }
         catch (error: any) {
-            // KEY duplicada (propiedad number)
+            // Key duplicada (número de habitación)
             if (error?.code === 11000) {
-                res.status(409).json({
-                    message: `Room number "${roomToValidate.number}" already exists`
-                })
-                return
+                throw new ApiError(409, `Room number "${roomToValidate.number}" already exists`)
             }
-            console.error('Error in post of roomController:', error)
-            res.status(500).json({
-                message: 'Internal server error'
-            })
+            next(error)
         }
     }
-    else {
-        res.status(400).json({
-            message: totalErrors.join(', ')
-        })
+    catch (error) {
+        next(error)
     }
 })
 
-roomRouterMongodb.put('/:id', async (req: Request, res: Response) => {
+roomRouterMongodb.put('/:id', async (req: Request, res: Response, next: NextFunction) => {
     try {
         // ROOM validaciones
         const roomID = req.params.id
         const actualRoom = await roomServiceMongodb.fetchById(roomID)
         if (!actualRoom) {
-            res.status(404).json({ message: `Room #${roomID} not found` })
-            return
+            throw new ApiError(404, `Room #${roomID} not found`)
         }
         const allRoomNumbersNotArchived = await roomServiceMongodb.fetchAllNumbersNotArchived()
         const oldRoomNumber = actualRoom.number
@@ -243,25 +245,21 @@ roomRouterMongodb.put('/:id', async (req: Request, res: Response) => {
         const roomValidator = new RoomValidator()
         const totalErrors = roomValidator.validateExistingRoom(roomToUpdate, oldRoomNumber, allRoomNumbersNotArchived)
         if (totalErrors.length > 0) {
-            res.status(400).json({ message: totalErrors.join(', ') })
-            return
+            throw new ApiError(400, totalErrors.join(', '))
         }
         const oldRoomId = await roomServiceMongodb.fetchIdByNumber(oldRoomNumber)
         if (oldRoomId === null) {
-            res.status(400).json({ message: 'Invalid room old ID format' })
-            return
+            throw new ApiError(400, 'Invalid room old ID format')
         }
         if (roomToUpdate.isArchived === OptionYesNo.no) {
             if (allRoomNumbersNotArchived.includes(roomToUpdate.number) && roomID !== oldRoomId) {
-                res.status(400).json('A room with this number is already not archived')
-                return
+                throw new ApiError(400, 'A room with this number is already not archived')
             }
         }
         if (roomToUpdate.isActive === OptionYesNo.yes) {
             const allRoomIdsActived = await roomServiceMongodb.fetchAllIdsActived()
             if (allRoomIdsActived.includes(roomID) && roomID !== oldRoomId) {
-                res.status(400).json('A room with this ID is already active')
-                return
+                throw new ApiError(400, 'A room with this ID is already active')
             }
         }
 
@@ -269,16 +267,14 @@ roomRouterMongodb.put('/:id', async (req: Request, res: Response) => {
         const bookingIds: string[] = Array.from(new Set(roomToUpdate.booking_id_list ?? []))
         const invalidFormatIds = bookingIds.filter(id => !mongoose.Types.ObjectId.isValid(String(id)))
         if (invalidFormatIds.length > 0) {
-            res.status(400).json({ message: `Invalid booking ID format: ${invalidFormatIds.join(', ')}` })
-            return
+            throw new ApiError(400, `Invalid booking ID format: ${invalidFormatIds.join(', ')}`)
         }
         if (bookingIds.length > 0) {
             const foundBookings = await BookingModelMongodb.find({ _id: { $in: bookingIds } }, { _id: 1 }).lean()
             const foundSet = new Set(foundBookings.map((booking: any) => String(booking._id)))
             const missing = bookingIds.filter(id => !foundSet.has(id))
             if (missing.length > 0) {
-                res.status(400).json({ message: `Some booking IDs do not exist: ${missing.join(', ')}` })
-                return
+                throw new ApiError(400, `Some booking IDs do not exist: ${missing.join(', ')}`)
             }
         }
 
@@ -286,8 +282,7 @@ roomRouterMongodb.put('/:id', async (req: Request, res: Response) => {
         try {
             const allNewData = await roomServiceMongodb.update(roomID, roomToUpdate)
             if (!allNewData) {
-                res.status(404).json({ message: `Room #${roomID} not found` })
-                return
+                throw new ApiError(404, `Room #${roomID} not found`)
             }
             const { roomUpdated: room, updatedBookings, updatedClients } = allNewData
             res.status(200).json({
@@ -300,45 +295,36 @@ roomRouterMongodb.put('/:id', async (req: Request, res: Response) => {
         catch (error: any) {
             const message = error?.message ?? 'Transaction failed'
             if (String(message).toLowerCase().includes('not found')) {
-                res.status(404).json({ message })
-                return
+                throw new ApiError(404, message)
             }
             if (String(message).toLowerCase().includes('replica set') || String(message).toLowerCase().includes('transactions')) {
-                res.status(500).json({ message: `Transaction error: ${message}. Ensure MongoDB supports transactions (replica set / Atlas).` })
-                return
+                throw new ApiError(500, `Transaction error: ${message}. Ensure MongoDB supports transactions (replica set / Atlas).`)
             }
-            res.status(500).json({ message })
-            return
+            throw new ApiError(500, message)
         }
     }
     catch (error: any) {
-        console.error('Error in put of roomController:', error)
-        res.status(500).json({ message: (error && error.message) ? error.message : 'Internal server error' })
-        return
+        next(error)
     }
 })
 
-roomRouterMongodb.delete('/:id', adminOnly, async (req: Request, res: Response): Promise<void> => {
+roomRouterMongodb.delete('/:id', adminOnly, async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const roomId = req.params.id
     try {
         const allNewData = await roomServiceMongodb.delete(roomId)
         if (!allNewData) {
-            res.status(404).json({ message: `Room #${roomId} not found` })
-            return
+            throw new ApiError(404, `Room #${roomId} not found`)
         }
         res.status(200).json(allNewData)
         return
     }
     catch (error: any) {
         const msg = String(error?.message ?? '')
-        if (msg.toLowerCase().includes('replica set') || msg.toLowerCase().includes('transactions') || msg.toLowerCase().includes('withtransaction')) {
-            res.status(500).json({
-                message: `Transaction error: ${msg}. Ensure MongoDB supports transactions (replica set / Atlas).`
-            })
-            return
+        if (msg.toLowerCase().includes('replica set') ||
+            msg.toLowerCase().includes('transactions') ||
+            msg.toLowerCase().includes('withtransaction')) {
+            return next(new ApiError(500, `Transaction error: ${msg}. Ensure MongoDB supports transactions (replica set / Atlas).`))
         }
-        console.error('Error in delete of roomController:', error)
-        res.status(500).json({ message: (error && error.message) ? error.message : 'Internal server error' })
-        return
+        return next(new ApiError(500, msg || 'Internal unknow server error'))
     }
 })

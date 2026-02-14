@@ -1,7 +1,9 @@
 
-import { Request, Response, Router } from "express"
+import { Request, Response, Router, NextFunction } from "express"
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
+
+import { ApiError } from '../../errors/ApiError'
 import { UserInterfaceIdMongodb } from "../../interfaces/mongodb/userInterfaceMongodb"
 import { UserServiceMongodb } from "../../services/mongodb/userServiceMongodb"
 
@@ -50,7 +52,7 @@ export const loginRouterMongodb = Router()
  */
 
 
-loginRouterMongodb.post('/', async (req: Request, res: Response): Promise<void> => {
+loginRouterMongodb.post('/', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const { email, password } = req.body
     const userService = new UserServiceMongodb()
 
@@ -65,25 +67,19 @@ loginRouterMongodb.post('/', async (req: Request, res: Response): Promise<void> 
         }
 
         if (!user) {
-            res.status(404).json({ message: 'Email or password wrong' })
-            return
+            throw new ApiError(404, 'Email or password wrong')
         }
         if (!process.env.TOKEN_SECRET) {
-            res.status(500).json({ message: 'Server error: TOKEN_SECRET is not defined' })
-            return
+            throw new ApiError(500, 'Server error: TOKEN_SECRET is not defined')
         }
         const now = new Date()
         if (now < new Date(user.start_date) || now > new Date(user.end_date)) {
-            res.status(403).json({
-                message: 'Access denied: The user is not active in the allowed date range, contact an administrator'
-            })
-            return
+            throw new ApiError(403, 'Access denied: The user is not active in the allowed date range, contact an administrator')
         }
 
         const passwordMatches = await bcrypt.compare(password, user.password)
         if (!passwordMatches) {
-            res.status(400).json({ message: 'Email or password wrong' })
-            return
+            throw new ApiError(400, 'Email or password wrong')
         }
 
         const payload = {
@@ -102,8 +98,6 @@ loginRouterMongodb.post('/', async (req: Request, res: Response): Promise<void> 
         return
     }
     catch (error) {
-        console.error('Login error:', error)
-        res.status(500).json({ message: 'Internal server error' })
-        return
+        next(error)
     }
 })
