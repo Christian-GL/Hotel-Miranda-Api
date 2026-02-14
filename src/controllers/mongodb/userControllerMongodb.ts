@@ -148,7 +148,7 @@ userRouterMongodb.get('/', async (req: Request, res: Response, next: NextFunctio
         res.json(userList)
     }
     catch (error) {
-        next(error)
+        return next(error)
     }
 })
 
@@ -166,7 +166,7 @@ userRouterMongodb.get('/:id', async (req: Request, res: Response, next: NextFunc
         }
     }
     catch (error) {
-        next(error)
+        return next(error)
     }
 })
 
@@ -192,7 +192,7 @@ userRouterMongodb.post('/', adminOnly, async (req: Request, res: Response, next:
                 res.status(201).json(createdUser)
             }
             catch (error) {
-                next(error)
+                return next(error)
             }
         }
         else {
@@ -200,7 +200,7 @@ userRouterMongodb.post('/', adminOnly, async (req: Request, res: Response, next:
         }
     }
     catch (error) {
-        next(error)
+        return next(error)
     }
 })
 
@@ -217,7 +217,7 @@ userRouterMongodb.put('/:id', adminOnly, async (req: Request, res: Response, nex
         if (req.body.password !== existingUser.password) passwordHasChanged = true
     }
     catch (error) {
-        next(error)
+        return next(error)
     }
 
     const userToValidate: UserInterface = {
@@ -245,7 +245,7 @@ userRouterMongodb.put('/:id', adminOnly, async (req: Request, res: Response, nex
             }
         }
         catch (error) {
-            next(error)
+            return next(error)
         }
     }
     else {
@@ -255,6 +255,9 @@ userRouterMongodb.put('/:id', adminOnly, async (req: Request, res: Response, nex
 
 userRouterMongodb.delete('/:id', adminOnly, async (req: Request, res: Response, next: NextFunction) => {
     try {
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            throw new ApiError(400, 'Invalid id format')
+        }
         const userId = req.params.id
         const deletedUser = await userServiceMongodb.delete(userId)
         if (!deletedUser) {
@@ -263,6 +266,6 @@ userRouterMongodb.delete('/:id', adminOnly, async (req: Request, res: Response, 
         res.status(204).json()
     }
     catch (error) {
-        next(error)
+        return next(error)
     }
 })

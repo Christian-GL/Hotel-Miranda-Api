@@ -145,12 +145,15 @@ clientRouterMongodb.get('/', async (req: Request, res: Response, next: NextFunct
         res.json(clientList)
     }
     catch (error) {
-        next(error)
+        return next(error)
     }
 })
 
 clientRouterMongodb.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
     try {
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            throw new ApiError(400, 'Invalid id format')
+        }
         const client = await clientServiceMongodb.fetchById(req.params.id)
         if (client !== null) {
             res.json(client)
@@ -160,7 +163,7 @@ clientRouterMongodb.get('/:id', async (req: Request, res: Response, next: NextFu
         }
     }
     catch (error) {
-        next(error)
+        return next(error)
     }
 })
 
@@ -181,7 +184,7 @@ clientRouterMongodb.post('/', async (req: Request, res: Response, next: NextFunc
                 res.status(201).json(newClient)
             }
             catch (error) {
-                next(error)
+                return next(error)
             }
         }
         else {
@@ -189,12 +192,15 @@ clientRouterMongodb.post('/', async (req: Request, res: Response, next: NextFunc
         }
     }
     catch (error) {
-        next(error)
+        return next(error)
     }
 })
 
 clientRouterMongodb.put('/:id', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            throw new ApiError(400, 'Invalid id format')
+        }
         const clientToValidate: ClientInterface = {
             full_name: req.body.full_name.trim(),
             email: req.body.email.trim().toLowerCase(),
@@ -232,12 +238,15 @@ clientRouterMongodb.put('/:id', async (req: Request, res: Response, next: NextFu
         res.status(200).json(allNewData)
     }
     catch (error) {
-        next(error)
+        return next(error)
     }
 })
 
 clientRouterMongodb.delete('/:id', adminOnly, async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            throw new ApiError(400, 'Invalid id format')
+        }
         const clientId = req.params.id
         const allNewData = await clientServiceMongodb.delete(clientId)
         if (!allNewData) {
@@ -247,6 +256,6 @@ clientRouterMongodb.delete('/:id', adminOnly, async (req: Request, res: Response
         res.status(200).json(allNewData)
     }
     catch (error) {
-        next(error)
+        return next(error)
     }
 })

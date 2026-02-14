@@ -1,6 +1,9 @@
 
-import { Request, Response } from 'express'
+import { Request, Response, NextFunction } from 'express'
 import Router from 'express'
+import mongoose from 'mongoose'
+
+import { ApiError } from '../../errors/ApiError'
 import { authMiddleware } from '../../middleware/authMiddleware'
 import { adminOnly } from '../../middleware/adminOnly'
 import { BookingServiceMongodb } from '../../services/mongodb/bookingServiceMongodb'
@@ -145,55 +148,50 @@ bookingRouterMongodb.use(authMiddleware)
  *         description: Reserva no encontrada
  */
 
-bookingRouterMongodb.get('/', async (req: Request, res: Response) => {
+bookingRouterMongodb.get('/', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const bookingList = await bookingServiceMongodb.fetchAll()
         res.json(bookingList)
     }
     catch (error) {
-        console.error("Error in get (all) of bookingController:", error)
-        res.status(500).json({ message: "Internal server error" })
+        return next(error)
     }
 })
 
-bookingRouterMongodb.get('/:id', async (req: Request, res: Response) => {
+bookingRouterMongodb.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
     try {
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            throw new ApiError(400, 'Invalid id format')
+        }
         const booking = await bookingServiceMongodb.fetchById(req.params.id)
         if (booking !== null) {
             res.json(booking)
         }
         else {
-            res.status(404).json({ message: `Booking #${req.params.id} not found` })
+            throw new ApiError(404, `Booking #${req.params.id} not found`)
         }
     }
     catch (error) {
-        console.error("Error in get (by id) of bookingController:", error)
-        res.status(500).json({ message: "Internal server error" })
+        return next(error)
     }
 })
 
-bookingRouterMongodb.post('/', async (req: Request, res: Response) => {
-
+bookingRouterMongodb.post('/', async (req: Request, res: Response, next: NextFunction) => {
     // Calculo del precio total de la booking antes de validarla
     const roomIds: string[] = Array.isArray(req.body.room_id_list) ? req.body.room_id_list.map(String) : []
     let bookingPrice: number
     try {
         if (roomIds.length === 0) {
-            console.error('Error fetching rooms for creating this booking, no rooms found')
-            res.status(500).json({ message: 'Error fetching rooms for creating this booking, no rooms found' })
-            return
+            throw new ApiError(404, 'Error fetching rooms for creating this booking, no rooms found')
         }
         else {
             const prices = await roomServiceMongodb.fetchPricesAndDiscounts(roomIds)
-
             // Si algún ID falta o archivado calcular cuáles faltan para el mensaje de error
             if (prices.length !== roomIds.length) {
                 const foundSet = new Set(prices.map((r: any) => String(r._id)))
                 const missing = roomIds.filter(id => !foundSet.has(id))
-                res.status(400).json({ message: `Some room IDs do not exist or are archived: ${missing.join(', ')}` })
-                return
+                throw new ApiError(400, `Some room IDs do not exist or are archived: ${missing.join(', ')}`)
             }
-
             // Aplicar descuento a cada habitación y sumar
             const total = prices.reduce((total: number, room: any) => {
                 const price = Number(room.price ?? 0)
@@ -205,19 +203,8 @@ bookingRouterMongodb.post('/', async (req: Request, res: Response) => {
             bookingPrice = Number(total.toFixed(2))
         }
     }
-    catch (error: any) {
-        const msg = String(error?.message ?? '')
-        if (msg.toLowerCase().includes('some room ids do not exist')) {
-            res.status(400).json({ message: msg })
-            return
-        }
-        if (msg.toLowerCase().includes('replica set') || msg.toLowerCase().includes('transactions')) {
-            res.status(500).json({ message: `Transaction error: ${msg}. Ensure MongoDB supports transactions (replica set / Atlas).` })
-            return
-        }
-        console.error('Error creating booking:', error)
-        res.status(500).json({ message: (error && error.message) ? error.message : 'Internal server error' })
-        return
+    catch (error) {
+        return next(error)
     }
 
     const bookingToValidate: BookingInterface = {
@@ -244,38 +231,23 @@ bookingRouterMongodb.post('/', async (req: Request, res: Response) => {
         clientID,
         allClientIdsNotArchived)
     if (totalErrors.length > 0) {
-        res.status(400).json({ message: totalErrors.join(', ') })
-        return
+        throw new ApiError(400, totalErrors.join(', '))
     }
 
     try {
         const allNewData = await bookingServiceMongodb.create(bookingToValidate)
         res.status(201).json(allNewData)
-        return
     }
-    catch (error: any) {
-        const msg = String(error?.message ?? '')
-
-        if (msg.toLowerCase().includes('some room ids do not exist')) {
-            res.status(400).json({ message: msg })
-            return
-        }
-
-        if (msg.toLowerCase().includes('replica set') || msg.toLowerCase().includes('transactions')) {
-            res.status(500).json({
-                message: `Transaction error: ${msg}. Ensure MongoDB supports transactions (replica set / Atlas).`
-            })
-            return
-        }
-
-        console.error('Error creating booking:', error)
-        res.status(500).json({ message: msg || 'Internal server error' })
-        return
+    catch (error) {
+        return next(error)
     }
 })
 
-bookingRouterMongodb.put('/:id', async (req: Request, res: Response) => {
+bookingRouterMongodb.put('/:id', async (req: Request, res: Response, next: NextFunction) => {
 
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+        throw new ApiError(400, 'Invalid id format')
+    }
     // Calculo del precio total de la booking antes de validarla
     const roomIds: string[] = Array.isArray(req.body.room_id_list) ? req.body.room_id_list.map(String) : []
     let bookingPrice: number
@@ -377,25 +349,20 @@ bookingRouterMongodb.put('/:id', async (req: Request, res: Response) => {
     }
 })
 
-bookingRouterMongodb.delete('/:id', adminOnly, async (req: Request, res: Response) => {
-    const id = req.params.id
+bookingRouterMongodb.delete('/:id', adminOnly, async (req: Request, res: Response, next: NextFunction) => {
     try {
+        const id = req.params.id
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            throw new ApiError(400, 'Invalid id format')
+        }
         const allNewData = await bookingServiceMongodb.delete(id)
         if (!allNewData || !allNewData.bookingIsDeleted) {
-            res.status(404).json({ message: `Booking #${id} not found` })
-            return
+            throw new ApiError(404, `Booking #${id} not found`)
         }
+
         res.status(200).json(allNewData)
-        return
     }
-    catch (error: any) {
-        const msg = String(error?.message ?? '')
-        if (msg.toLowerCase().includes('replica set') || msg.toLowerCase().includes('transactions') || msg.toLowerCase().includes('withtransaction')) {
-            res.status(500).json({ message: `Transaction error: ${msg}. Ensure MongoDB supports transactions (replica set / Atlas).` })
-            return
-        }
-        console.error('Error in delete of bookingController:', error)
-        res.status(500).json({ message: (error && error.message) ? error.message : 'Internal server error' })
-        return
+    catch (error) {
+        return next(error)
     }
 })

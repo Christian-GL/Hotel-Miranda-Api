@@ -156,7 +156,7 @@ roomRouterMongodb.get('/', async (req: Request, res: Response, next: NextFunctio
         res.json(roomList)
     }
     catch (error) {
-        next(error)
+        return next(error)
     }
 })
 
@@ -174,7 +174,7 @@ roomRouterMongodb.get('/:id', async (req: Request, res: Response, next: NextFunc
         }
     }
     catch (error) {
-        next(error)
+        return next(error)
     }
 })
 /* === THROW NEW API ERROR TEST ===*/
@@ -182,7 +182,7 @@ roomRouterMongodb.get('/:id', async (req: Request, res: Response, next: NextFunc
 //     try {
 //         throw new ApiError(404, 'Test error with throw')
 //     } catch (error) {
-//         next(error)
+//         return next(error)
 //     }
 // })
 /* === NEXT TEST ===*/
@@ -219,16 +219,19 @@ roomRouterMongodb.post('/', async (req: Request, res: Response, next: NextFuncti
             if (error?.code === 11000) {
                 throw new ApiError(409, `Room number "${roomToValidate.number}" already exists`)
             }
-            next(error)
+            return next(error)
         }
     }
     catch (error) {
-        next(error)
+        return next(error)
     }
 })
 
 roomRouterMongodb.put('/:id', async (req: Request, res: Response, next: NextFunction) => {
     try {
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            throw new ApiError(400, 'Invalid id format')
+        }
         // ROOM validaciones
         const roomID = req.params.id
         const actualRoom = await roomServiceMongodb.fetchById(roomID)
@@ -311,12 +314,15 @@ roomRouterMongodb.put('/:id', async (req: Request, res: Response, next: NextFunc
         }
     }
     catch (error: any) {
-        next(error)
+        return next(error)
     }
 })
 
 roomRouterMongodb.delete('/:id', adminOnly, async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            throw new ApiError(400, 'Invalid id format')
+        }
         const roomId = req.params.id
         const allNewData = await roomServiceMongodb.delete(roomId)
         if (!allNewData) {
@@ -325,6 +331,6 @@ roomRouterMongodb.delete('/:id', adminOnly, async (req: Request, res: Response, 
         res.status(200).json(allNewData)
     }
     catch (error) {
-        next(error)
+        return next(error)
     }
 })
