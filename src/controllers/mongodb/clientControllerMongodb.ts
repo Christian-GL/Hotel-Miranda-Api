@@ -1,6 +1,9 @@
 
-import { Request, Response } from 'express'
+import { Request, Response, NextFunction } from 'express'
 import Router from 'express'
+import mongoose from 'mongoose'
+
+import { ApiError } from '../../errors/ApiError'
 import { authMiddleware } from '../../middleware/authMiddleware'
 import { adminOnly } from '../../middleware/adminOnly'
 import { ClientInterface } from '../../interfaces/mongodb/clientInterfaceMongodb'
@@ -136,77 +139,73 @@ clientRouterMongodb.use(authMiddleware)
  *         description: Cliento no encontrado
  */
 
-clientRouterMongodb.get('/', async (req: Request, res: Response) => {
+clientRouterMongodb.get('/', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const clientList = await clientServiceMongodb.fetchAll()
         res.json(clientList)
     }
     catch (error) {
-        console.error("Error in get (all) of clientController:", error)
-        res.status(500).json({ message: "Internal server error" })
+        next(error)
     }
 })
 
-clientRouterMongodb.get('/:id', async (req: Request, res: Response) => {
+clientRouterMongodb.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const client = await clientServiceMongodb.fetchById(req.params.id)
         if (client !== null) {
             res.json(client)
-        } else {
-            res.status(404).json({ message: `Client #${req.params.id} not found` })
+        }
+        else {
+            throw new ApiError(404, `Client #${req.params.id} not found`)
         }
     }
     catch (error) {
-        console.error("Error in get (by id) of clientController:", error)
-        res.status(500).json({ message: "Internal server error" })
+        next(error)
     }
 })
 
-clientRouterMongodb.post('/', async (req: Request, res: Response) => {
-
-    const clientToValidate: ClientInterface = {
-        full_name: req.body.full_name.trim(),
-        email: req.body.email.trim().toLowerCase(),
-        phone_number: req.body.phone_number.trim(),
-        isArchived: OptionYesNo.no,
-        booking_id_list: []
-    }
-    const clientValidator = new ClientValidator()
-    const totalErrors = clientValidator.validateNewClient(clientToValidate)
-    if (totalErrors.length === 0) {
-        try {
-            const newClient = await clientServiceMongodb.create(clientToValidate)
-            res.status(201).json(newClient)
-        }
-        catch (error) {
-            console.error("Error in post of clientController:", error)
-            res.status(500).json({ message: "Internal server error" })
-        }
-    }
-    else {
-        res.status(400).json({
-            message: totalErrors.join(', ')
-        })
-    }
-})
-
-clientRouterMongodb.put('/:id', async (req: Request, res: Response): Promise<void> => {
-
-    const clientToValidate: ClientInterface = {
-        full_name: req.body.full_name.trim(),
-        email: req.body.email.trim().toLowerCase(),
-        phone_number: req.body.phone_number.trim(),
-        isArchived: req.body.isArchived.trim(),
-        booking_id_list: req.body.booking_id_list
-    }
-
+clientRouterMongodb.post('/', async (req: Request, res: Response, next: NextFunction) => {
     try {
+        const clientToValidate: ClientInterface = {
+            full_name: req.body.full_name.trim(),
+            email: req.body.email.trim().toLowerCase(),
+            phone_number: req.body.phone_number.trim(),
+            isArchived: OptionYesNo.no,
+            booking_id_list: []
+        }
+        const clientValidator = new ClientValidator()
+        const totalErrors = clientValidator.validateNewClient(clientToValidate)
+        if (totalErrors.length === 0) {
+            try {
+                const newClient = await clientServiceMongodb.create(clientToValidate)
+                res.status(201).json(newClient)
+            }
+            catch (error) {
+                next(error)
+            }
+        }
+        else {
+            throw new ApiError(400, totalErrors.join(', '))
+        }
+    }
+    catch (error) {
+        next(error)
+    }
+})
+
+clientRouterMongodb.put('/:id', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+        const clientToValidate: ClientInterface = {
+            full_name: req.body.full_name.trim(),
+            email: req.body.email.trim().toLowerCase(),
+            phone_number: req.body.phone_number.trim(),
+            isArchived: req.body.isArchived.trim(),
+            booking_id_list: req.body.booking_id_list
+        }
         const bookingList = await bookingServiceMongodb.fetchAll()
         const bookingIdList = bookingList.map(b => b._id.toString())
-
         const clientValidator = new ClientValidator()
-
-        // 🔴 NO validar booking_id_list si el client se está DESARCHIVANDO
+        // NO validar booking_id_list si el client se está DESARCHIVANDO
         const totalErrors =
             req.body.isArchived === OptionYesNo.no
                 ? clientValidator.validateExistingClient(
@@ -219,68 +218,35 @@ clientRouterMongodb.put('/:id', async (req: Request, res: Response): Promise<voi
                 )
 
         if (totalErrors.length > 0) {
-            res.status(400).json({ message: totalErrors.join(', ') })
-            return
+            throw new ApiError(400, totalErrors.join(', '))
         }
-
         const allNewData =
             await clientServiceMongodb.update(
                 req.params.id,
                 clientToValidate
             )
-
         if (!allNewData.clientUpdated) {
-            res.status(404).json({ message: `Client #${req.params.id} not found` })
-            return
+            throw new ApiError(404, `Client #${req.params.id} not found`)
         }
 
         res.status(200).json(allNewData)
-        return
     }
-    catch (error: any) {
-        const msg = String(error?.message ?? '')
-        if (
-            msg.toLowerCase().includes('replica set')
-            || msg.toLowerCase().includes('transactions')
-            || msg.toLowerCase().includes('withtransaction')
-        ) {
-            res.status(500).json({
-                message: `Transaction error: ${msg}. Ensure MongoDB supports transactions (replica set / Atlas).`
-            })
-            return
-        }
-        res.status(500).json({ message: 'Internal server error' })
-        return
+    catch (error) {
+        next(error)
     }
 })
 
-clientRouterMongodb.delete('/:id', adminOnly, async (req: Request, res: Response): Promise<void> => {
-    const clientId = req.params.id
-
+clientRouterMongodb.delete('/:id', adminOnly, async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
+        const clientId = req.params.id
         const allNewData = await clientServiceMongodb.delete(clientId)
         if (!allNewData) {
-            res.status(404).json({ message: `Client #${clientId} not found` })
-            return
+            throw new ApiError(404, `Client #${clientId} not found`)
         }
+
         res.status(200).json(allNewData)
-        return
     }
-    catch (error: any) {
-        const msg = String(error?.message ?? '')
-        if (
-            msg.toLowerCase().includes('replica set') ||
-            msg.toLowerCase().includes('transactions') ||
-            msg.toLowerCase().includes('withtransaction')
-        ) {
-            res.status(500).json({
-                message: `Transaction error: ${msg}. Ensure MongoDB supports transactions (replica set / Atlas).`
-            })
-            return
-        }
-        res.status(500).json({
-            message: error?.message ?? 'Internal server error'
-        })
-        return
+    catch (error) {
+        next(error)
     }
 })

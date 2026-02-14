@@ -3,7 +3,6 @@ import { Request, Response, NextFunction } from 'express'
 import Router from 'express'
 import mongoose from 'mongoose'
 
-
 import { ApiError } from '../../errors/ApiError'
 import { BookingModelMongodb } from '../../models/mongodb/bookingModelMongodb'
 import { authMiddleware } from '../../middleware/authMiddleware'
@@ -163,6 +162,9 @@ roomRouterMongodb.get('/', async (req: Request, res: Response, next: NextFunctio
 
 roomRouterMongodb.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
     try {
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            throw new ApiError(400, 'Invalid id format')
+        }
         const room = await roomServiceMongodb.fetchById(req.params.id)
         if (room !== null) {
             res.json(room)
@@ -175,11 +177,18 @@ roomRouterMongodb.get('/:id', async (req: Request, res: Response, next: NextFunc
         next(error)
     }
 })
-
+/* === THROW NEW API ERROR TEST ===*/
+// roomRouterMongodb.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
+//     try {
+//         throw new ApiError(404, 'Test error with throw')
+//     } catch (error) {
+//         next(error)
+//     }
+// })
+/* === NEXT TEST ===*/
 // roomRouterMongodb.get('/:id', (req: Request, res: Response, next: NextFunction) => {
 //     next(new ApiError(400, 'Test error with next'))
 // })
-
 
 roomRouterMongodb.post('/', async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -204,7 +213,6 @@ roomRouterMongodb.post('/', async (req: Request, res: Response, next: NextFuncti
         try {
             const newRoom = await roomServiceMongodb.create(roomToValidate)
             res.status(201).json(newRoom)
-            return
         }
         catch (error: any) {
             // Key duplicada (número de habitación)
@@ -290,7 +298,6 @@ roomRouterMongodb.put('/:id', async (req: Request, res: Response, next: NextFunc
                 updatedBookings,
                 updatedClients
             })
-            return
         }
         catch (error: any) {
             const message = error?.message ?? 'Transaction failed'
@@ -309,22 +316,15 @@ roomRouterMongodb.put('/:id', async (req: Request, res: Response, next: NextFunc
 })
 
 roomRouterMongodb.delete('/:id', adminOnly, async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const roomId = req.params.id
     try {
+        const roomId = req.params.id
         const allNewData = await roomServiceMongodb.delete(roomId)
         if (!allNewData) {
             throw new ApiError(404, `Room #${roomId} not found`)
         }
         res.status(200).json(allNewData)
-        return
     }
-    catch (error: any) {
-        const msg = String(error?.message ?? '')
-        if (msg.toLowerCase().includes('replica set') ||
-            msg.toLowerCase().includes('transactions') ||
-            msg.toLowerCase().includes('withtransaction')) {
-            return next(new ApiError(500, `Transaction error: ${msg}. Ensure MongoDB supports transactions (replica set / Atlas).`))
-        }
-        return next(new ApiError(500, msg || 'Internal unknow server error'))
+    catch (error) {
+        next(error)
     }
 })

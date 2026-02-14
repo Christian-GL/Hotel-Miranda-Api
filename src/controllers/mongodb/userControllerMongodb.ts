@@ -1,6 +1,9 @@
 
-import { Request, Response } from 'express'
+import { Request, Response, NextFunction } from 'express'
 import Router from 'express'
+import mongoose from 'mongoose'
+
+import { ApiError } from '../../errors/ApiError'
 import { authMiddleware } from '../../middleware/authMiddleware'
 import { adminOnly } from '../../middleware/adminOnly'
 import { UserInterface } from '../../interfaces/mongodb/userInterfaceMongodb'
@@ -139,71 +142,82 @@ userRouterMongodb.use(authMiddleware)
  *         description: Usuario no encontrado
  */
 
-userRouterMongodb.get('/', async (req: Request, res: Response) => {
+userRouterMongodb.get('/', async (req: Request, res: Response, next: NextFunction) => {
     try {
         const userList = await userServiceMongodb.fetchAll()
         res.json(userList)
     }
     catch (error) {
-        console.error("Error in get (all) of userController:", error)
-        res.status(500).json({ message: "Internal server error" })
+        next(error)
     }
 })
 
-userRouterMongodb.get('/:id', async (req: Request, res: Response) => {
+userRouterMongodb.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
     try {
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            throw new ApiError(400, 'Invalid id format')
+        }
         const user = await userServiceMongodb.fetchById(req.params.id)
         if (user !== null) {
             res.json(user)
-        } else {
-            res.status(404).json({ message: `User #${req.params.id} not found` })
+        }
+        else {
+            throw new ApiError(404, `User #${req.params.id} not found`)
         }
     }
     catch (error) {
-        console.error("Error in get (by id) of userController:", error)
-        res.status(500).json({ message: "Internal server error" })
+        next(error)
     }
 })
 
-userRouterMongodb.post('/', adminOnly, async (req: Request, res: Response) => {
-
-    const userToValidate: UserInterface = {
-        photo: req.body.photo == null ? null : String(req.body.photo).trim(),
-        full_name: req.body.full_name.trim(),
-        email: req.body.email.trim().toLowerCase(),
-        phone_number: req.body.phone_number.trim(),
-        start_date: new Date(req.body.start_date),
-        end_date: new Date(req.body.end_date),
-        job_position: req.body.job_position.trim(),
-        role: req.body.role.trim(),
-        password: req.body.password,
-        isArchived: OptionYesNo.no
-    }
-    const userValidator = new UserValidator()
-    const totalErrors = userValidator.validateUser(userToValidate)
-    if (totalErrors.length === 0) {
-        try {
-            const createdUser = await userServiceMongodb.create(userToValidate)
-            res.status(201).json(createdUser)
+userRouterMongodb.post('/', adminOnly, async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const userToValidate: UserInterface = {
+            photo: req.body.photo == null ? null : String(req.body.photo).trim(),
+            full_name: req.body.full_name.trim(),
+            email: req.body.email.trim().toLowerCase(),
+            phone_number: req.body.phone_number.trim(),
+            start_date: new Date(req.body.start_date),
+            end_date: new Date(req.body.end_date),
+            job_position: req.body.job_position.trim(),
+            role: req.body.role.trim(),
+            password: req.body.password,
+            isArchived: OptionYesNo.no
         }
-        catch (error) {
-            console.error("Error in post of userController:", error)
-            res.status(500).json({ message: "Internal server error" })
+        const userValidator = new UserValidator()
+        const totalErrors = userValidator.validateUser(userToValidate)
+        if (totalErrors.length === 0) {
+            try {
+                const createdUser = await userServiceMongodb.create(userToValidate)
+                res.status(201).json(createdUser)
+            }
+            catch (error) {
+                next(error)
+            }
+        }
+        else {
+            throw new ApiError(400, totalErrors.join(', '))
         }
     }
-    else {
-        res.status(400).json({
-            message: totalErrors.join(', ')
-        })
+    catch (error) {
+        next(error)
     }
 })
 
-userRouterMongodb.put('/:id', adminOnly, async (req: Request, res: Response) => {
-
-    const existingUser = await UserModelMongodb.findById(req.body._id).select("password")
+userRouterMongodb.put('/:id', adminOnly, async (req: Request, res: Response, next: NextFunction) => {
     let passwordHasChanged = false
-    if (existingUser !== null) {
+    try {
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            throw new ApiError(400, 'Invalid id format')
+        }
+        const existingUser = await UserModelMongodb.findById(req.body._id).select("password")
+        if (existingUser === null) {
+            throw new ApiError(404, `User #${req.body._id} not found`)
+        }
         if (req.body.password !== existingUser.password) passwordHasChanged = true
+    }
+    catch (error) {
+        next(error)
     }
 
     const userToValidate: UserInterface = {
@@ -227,31 +241,28 @@ userRouterMongodb.put('/:id', adminOnly, async (req: Request, res: Response) => 
                 res.status(200).json(updatedUser)
             }
             else {
-                res.status(404).json({ message: `User #${req.params.id} not found` })
+                throw new ApiError(404, `User #${req.params.id} not found`)
             }
         }
         catch (error) {
-            console.error("Error in put of userController:", error)
-            res.status(500).json({ message: "Internal server error" })
+            next(error)
         }
     }
     else {
-        console.error(totalErrors.join(', '))
-        res.status(400).json({ message: totalErrors.join(', ') })
+        throw new ApiError(400, totalErrors.join(', '))
     }
 })
 
-userRouterMongodb.delete('/:id', adminOnly, async (req: Request, res: Response) => {
+userRouterMongodb.delete('/:id', adminOnly, async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const deletedUser = await userServiceMongodb.delete(req.params.id)
-        if (deletedUser) {
-            res.status(204).json()
-        } else {
-            res.status(404).json({ message: `User #${req.params.id} not found` })
+        const userId = req.params.id
+        const deletedUser = await userServiceMongodb.delete(userId)
+        if (!deletedUser) {
+            throw new ApiError(404, `User #${userId} not found`)
         }
+        res.status(204).json()
     }
     catch (error) {
-        console.error("Error in delete of userController:", error)
-        res.status(500).json({ message: "Internal server error" })
+        next(error)
     }
 })
