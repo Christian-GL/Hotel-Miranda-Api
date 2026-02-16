@@ -99,13 +99,13 @@ export class UserValidator {
         return allErrorMessages
     }
 
-    validateExistingUser(user: UserInterface, isPasswordChanged: boolean): string[] {
+    validateExistingUser(user: UserInterface, isSamePassword: boolean): string[] {
         const allErrorMessages: string[] = []
 
         this.validateUser(user).map(
             error => allErrorMessages.push(error)
         )
-        if (isPasswordChanged) {
+        if (!isSamePassword) {
             validateNewPassword(user.password).map(
                 error => allErrorMessages.push(error)
             )

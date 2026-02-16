@@ -6,7 +6,7 @@ import mongoose from 'mongoose'
 import { ApiError } from '../../errors/ApiError'
 import { authMiddleware } from '../../middleware/authMiddleware'
 import { adminOnly } from '../../middleware/adminOnly'
-import { comparePasswords } from '../../utils/hashPassword'
+import { comparePasswords, hashPassword } from '../../utils/hashPassword'
 import { UserInterface } from '../../interfaces/mongodb/userInterfaceMongodb'
 import { UserModelMongodb } from '../../models/mongodb/userModelMongodb'
 import { UserServiceMongodb } from '../../services/mongodb/userServiceMongodb'
@@ -223,9 +223,6 @@ userRouterMongodb.put('/:id', adminOnly, async (req: Request, res: Response, nex
             throw new ApiError(400, newPasswordErrors.join(', '))
         }
 
-        let isPasswordChanged: boolean = false
-        const isSamePassword = await comparePasswords(newPassword, existingUser.password)
-        isPasswordChanged = !isSamePassword
         const userToValidate: UserInterface = {
             photo: req.body.photo === null ? null : String(req.body.photo).trim(),
             full_name: req.body.full_name.trim(),
@@ -235,20 +232,25 @@ userRouterMongodb.put('/:id', adminOnly, async (req: Request, res: Response, nex
             end_date: new Date(req.body.end_date),
             job_position: req.body.job_position.trim(),
             role: req.body.role.trim(),
-            password: req.body.password,
+            password: newPassword,
             isArchived: req.body.isArchived.trim()
         }
+
+        const isSamePassword: boolean = await comparePasswords(newPassword, existingUser.password)
         const userValidator = new UserValidator()
-        const totalErrors = userValidator.validateExistingUser(userToValidate, isPasswordChanged)
+        const totalErrors = userValidator.validateExistingUser(userToValidate)
         if (totalErrors.length > 0) {
             throw new ApiError(400, totalErrors.join(', '))
         }
 
-        const updatedUser = await userServiceMongodb.update(userId, userToValidate, isPasswordChanged)
+        const updatedUser = await userServiceMongodb.update(userId, userToValidate)
         if (!updatedUser) {
             throw new ApiError(404, `User #${userId} not found`)
         }
 
+        if (!isSamePassword) {
+            userToValidate.password = await hashPassword(newPassword)
+        }
         res.status(200).json(updatedUser)
     }
     catch (error) {

@@ -41,12 +41,8 @@ export class UserServiceMongodb implements ServiceInterfaceMongodb<UserInterface
         }
     }
 
-    async update(id: string, user: UserInterface, passwordHasChanged: boolean = false): Promise<UserInterfaceIdMongodb | null> {
+    async update(id: string, user: UserInterface): Promise<UserInterfaceIdMongodb | null> {
         try {
-            if (passwordHasChanged) {
-                user.password = await hashPassword(user.password)
-            }
-
             const updatedUser: UserInterfaceIdMongodb | null = await UserModelMongodb.findOneAndUpdate(
                 { _id: id },
                 { $set: user },
