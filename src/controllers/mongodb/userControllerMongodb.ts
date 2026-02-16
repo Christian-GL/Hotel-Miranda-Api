@@ -6,13 +6,12 @@ import mongoose from 'mongoose'
 import { ApiError } from '../../errors/ApiError'
 import { authMiddleware } from '../../middleware/authMiddleware'
 import { adminOnly } from '../../middleware/adminOnly'
-import { comparePasswords, hashPassword } from '../../utils/hashPassword'
+import { hashPassword } from '../../utils/hashPassword'
 import { UserInterface } from '../../interfaces/mongodb/userInterfaceMongodb'
 import { UserModelMongodb } from '../../models/mongodb/userModelMongodb'
 import { UserServiceMongodb } from '../../services/mongodb/userServiceMongodb'
 import { UserValidator } from '../../validators/userValidator'
 import { CommonValidators } from "../../validators/commonValidators"
-import { validateNewPassword } from '../../validators/validators'
 import { OptionYesNo } from '../../enums/optionYesNo'
 
 
@@ -218,11 +217,7 @@ userRouterMongodb.put('/:id', adminOnly, async (req: Request, res: Response, nex
         }
 
         const newPassword = req.body.password
-        const newPasswordErrors = validateNewPassword(newPassword)
-        if (newPasswordErrors.length > 0) {
-            throw new ApiError(400, newPasswordErrors.join(', '))
-        }
-
+        const isSamePassword: boolean = (newPassword === existingUser.password)
         const userToValidate: UserInterface = {
             photo: req.body.photo === null ? null : String(req.body.photo).trim(),
             full_name: req.body.full_name.trim(),
@@ -232,13 +227,11 @@ userRouterMongodb.put('/:id', adminOnly, async (req: Request, res: Response, nex
             end_date: new Date(req.body.end_date),
             job_position: req.body.job_position.trim(),
             role: req.body.role.trim(),
-            password: newPassword,
+            password: isSamePassword ? existingUser.password : newPassword,
             isArchived: req.body.isArchived.trim()
         }
-
-        const isSamePassword: boolean = await comparePasswords(newPassword, existingUser.password)
         const userValidator = new UserValidator()
-        const totalErrors = userValidator.validateExistingUser(userToValidate)
+        const totalErrors = userValidator.validateExistingUser(userToValidate, isSamePassword)
         if (totalErrors.length > 0) {
             throw new ApiError(400, totalErrors.join(', '))
         }

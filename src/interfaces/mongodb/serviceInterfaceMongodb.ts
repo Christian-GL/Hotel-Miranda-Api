@@ -21,6 +21,6 @@ export interface ServiceInterfaceMongodb<
     fetchById(id: string): Promise<TEntity | null>
     create(item: TEntity): Promise<TCreateResponse>
     update(id: string, item: TEntity): Promise<TUpdateResponse>
-    archive(id: string, newArchivedValue: OptionYesNo): Promise<TArchiveResponse>
+    archive(id: string, isArchived: OptionYesNo): Promise<TArchiveResponse>
     delete(id: string): Promise<TDeleteResponse>
 }

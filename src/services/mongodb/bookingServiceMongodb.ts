@@ -1,7 +1,7 @@
 
 import { ServiceInterfaceMongodb } from '../../interfaces/mongodb/serviceInterfaceMongodb'
 import { BookingModelMongodb } from '../../models/mongodb/bookingModelMongodb'
-import { BookingInterfaceCheckInOutId, BookingInterfaceCheckInOut, BookingInterface, BookingInterfaceIdMongodb } from '../../interfaces/mongodb/bookingInterfaceMongodb'
+import { BookingInterfaceCheckInOutId, BookingInterfaceCheckInOut, BookingInterface, BookingInterfaceIdMongodb, BookingInterfaceId } from '../../interfaces/mongodb/bookingInterfaceMongodb'
 import { OptionYesNo } from '../../enums/optionYesNo'
 import mongoose from 'mongoose'
 import { RoomModelMongodb } from '../../models/mongodb/roomModelMongodb'
@@ -17,6 +17,7 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<
     BookingInterface,
     BookingCreateResponseInterface,
     BookingUpdateResponseInterface,
+    BookingInterfaceIdMongodb | null,   // !!! <---
     BookingDeleteResponseInterface
 > {
 
@@ -383,6 +384,17 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<
         }
         finally {
             session.endSession()
+        }
+    }
+
+    async archive(id: string, isArchived: OptionYesNo): Promise<BookingInterfaceIdMongodb | null> {
+        try {
+            const BookingdUser = await BookingModelMongodb.findByIdAndUpdate(id, { $set: { isArchived: isArchived } }, { new: true })
+            if (BookingdUser) return BookingdUser
+            return null
+        }
+        catch (error) {
+            throw error
         }
     }
 

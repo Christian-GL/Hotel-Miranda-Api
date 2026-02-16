@@ -16,6 +16,7 @@ export class RoomServiceMongodb implements ServiceInterfaceMongodb<
     RoomInterface,
     RoomInterfaceIdMongodb,
     RoomUpdateResponseInterface,
+    RoomInterfaceIdMongodb | null,   // !!! <---
     RoomDeleteResponseInterface
 > {
 
@@ -229,6 +230,17 @@ export class RoomServiceMongodb implements ServiceInterfaceMongodb<
         }
         finally {
             session.endSession()
+        }
+    }
+
+    async archive(id: string, isArchived: OptionYesNo): Promise<RoomInterfaceIdMongodb | null> {
+        try {
+            const updatedRoom = await RoomModelMongodb.findByIdAndUpdate(id, { $set: { isArchived: isArchived } }, { new: true })
+            if (updatedRoom) return updatedRoom
+            return null
+        }
+        catch (error) {
+            throw error
         }
     }
 

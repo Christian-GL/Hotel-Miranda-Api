@@ -14,6 +14,7 @@ export class ClientServiceMongodb implements ServiceInterfaceMongodb<
     ClientInterface,
     ClientInterfaceIdMongodb,
     ClientUpdateResponseInterface,
+    ClientInterfaceIdMongodb | null,    // !!! <--
     ClientDeleteResponseInterface
 > {
 
@@ -146,6 +147,17 @@ export class ClientServiceMongodb implements ServiceInterfaceMongodb<
         }
         finally {
             session.endSession()
+        }
+    }
+
+    async archive(id: string, isArchived: OptionYesNo): Promise<ClientInterfaceIdMongodb | null> {
+        try {
+            const updatedClient = await ClientModelMongodb.findByIdAndUpdate(id, { $set: { isArchived: isArchived } }, { new: true })
+            if (updatedClient) return updatedClient
+            return null
+        }
+        catch (error) {
+            throw error
         }
     }
 
