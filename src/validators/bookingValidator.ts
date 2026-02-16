@@ -4,50 +4,51 @@ import {
     validateCheckInCheckOutNewBooking, validateDateIsOccupied,
     validateDateIsOccupiedIfBookingExists, validateTextArea, validateStringList,
     validateCheckInCheckOutExistingBooking
-} from "./commonValidator"
+} from "./validators"
 import { BookingInterfaceCheckInOutId, BookingInterfaceCheckInOut, BookingInterface, BookingInterfaceId } from "../interfaces/mongodb/bookingInterfaceMongodb"
 
 
 export class BookingValidator {
 
     private validatePropertyTypes(booking: BookingInterface): string[] {
-        const errorMessages: string[] = []
-
-        validateDate(booking.order_date, 'order_date').map(
-            error => errorMessages.push(error)
-        )
-        validateDate(booking.check_in_date, 'check_in_date').map(
-            error => errorMessages.push(error)
-        )
-        validateDate(booking.check_out_date, 'check_out_date').map(
-            error => errorMessages.push(error)
-        )
-        validateNumber(booking.price, 'price').map(
-            error => errorMessages.push(error)
-        )
-        validateString(booking.special_request, 'special_request').map(
-            error => errorMessages.push(error)
-        )
-        validateOptionYesNo(booking.isArchived, 'isArchived').map(
-            error => errorMessages.push(error)
-        )
-        validateStringList(booking.room_id_list, 'room_id_list').map(
-            error => errorMessages.push(error)
-        )
-        validateString(booking.client_id, 'client_id').map(
-            error => errorMessages.push(error)
-        )
-
-        return errorMessages
-    }
-
-    private validateBooking(booking: BookingInterface, allRoomIdsNotArchived: string[], clientId: string, allClientIdsNotArchived: string[]): string[] {
         const allErrorMessages: string[] = []
 
         if (booking === undefined || Object.keys(booking).length === 0) {
             allErrorMessages.push('Room is undefined or empty')
             return allErrorMessages
         }
+
+        validateDate(booking.order_date, 'order_date').map(
+            error => allErrorMessages.push(error)
+        )
+        validateDate(booking.check_in_date, 'check_in_date').map(
+            error => allErrorMessages.push(error)
+        )
+        validateDate(booking.check_out_date, 'check_out_date').map(
+            error => allErrorMessages.push(error)
+        )
+        validateNumber(booking.price, 'price').map(
+            error => allErrorMessages.push(error)
+        )
+        validateString(booking.special_request, 'special_request').map(
+            error => allErrorMessages.push(error)
+        )
+        validateOptionYesNo(booking.isArchived, 'isArchived').map(
+            error => allErrorMessages.push(error)
+        )
+        validateStringList(booking.room_id_list, 'room_id_list').map(
+            error => allErrorMessages.push(error)
+        )
+        validateString(booking.client_id, 'client_id').map(
+            error => allErrorMessages.push(error)
+        )
+
+        return allErrorMessages
+    }
+
+    private validateBooking(booking: BookingInterface, allRoomIdsNotArchived: string[], clientId: string, allClientIdsNotArchived: string[]): string[] {
+        const allErrorMessages: string[] = []
+
         const errorsCheckingProperties = this.validatePropertyTypes(booking)
         if (errorsCheckingProperties.length > 0) {
             return errorsCheckingProperties
@@ -82,11 +83,6 @@ export class BookingValidator {
     validateNewBooking(booking: BookingInterface, allBookingDatesByRoomsNotArchived: BookingInterfaceCheckInOut[], allRoomIdsNotArchived: string[], clientID: string, allClientIdsNotArchived: string[]): string[] {
         const allErrorMessages: string[] = []
 
-        if (booking === undefined || Object.keys(booking).length === 0) {
-            allErrorMessages.push('Booking is undefined or empty')
-            return allErrorMessages
-        }
-
         this.validateBooking(booking, allRoomIdsNotArchived, clientID, allClientIdsNotArchived).map(
             error => allErrorMessages.push(error)
         )
@@ -102,11 +98,6 @@ export class BookingValidator {
 
     validateExistingBooking(booking: BookingInterfaceId, allBookingDatesAndIdByRoomsNotArchived: BookingInterfaceCheckInOutId[], allRoomIdsNotArchived: string[], clientID: string, allClientIdsNotArchived: string[]): string[] {
         const allErrorMessages: string[] = []
-
-        if (booking === undefined || Object.keys(booking).length === 0) {
-            allErrorMessages.push('Booking is undefined or empty')
-            return allErrorMessages
-        }
 
         this.validateBooking(booking, allRoomIdsNotArchived, clientID, allClientIdsNotArchived).map(
             error => allErrorMessages.push(error)

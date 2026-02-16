@@ -3,53 +3,54 @@ import {
     validateString, validateStringList, validateNumber, validateRoomPhotoList,
     validateRoomNumber, validateRoomType, validateAmenities, validateRoomPrice,
     validateRoomDiscount, validateOptionYesNo, validateMongoDBObjectIdList
-} from "./commonValidator"
+} from "./validators"
 import { RoomInterface } from "../interfaces/mongodb/roomInterfaceMongodb"
 
 
 export class RoomValidator {
 
     private validatePropertyTypes(room: RoomInterface): string[] {
-        const errorMessages: string[] = []
-
-        validateStringList(room.photos, 'photos').map(
-            error => errorMessages.push(error)
-        )
-        validateString(room.number, 'number').map(
-            error => errorMessages.push(error)
-        )
-        validateString(room.type, 'type').map(
-            error => errorMessages.push(error)
-        )
-        validateStringList(room.amenities, 'amenities').map(
-            error => errorMessages.push(error)
-        )
-        validateNumber(room.price, 'price').map(
-            error => errorMessages.push(error)
-        )
-        validateNumber(room.discount, 'discount').map(
-            error => errorMessages.push(error)
-        )
-        validateString(room.isActive, 'isActive').map(
-            error => errorMessages.push(error)
-        )
-        validateString(room.isArchived, 'isArchived').map(
-            error => errorMessages.push(error)
-        )
-        validateStringList(room.booking_id_list, 'booking_id_list').map(
-            error => errorMessages.push(error)
-        )
-
-        return errorMessages
-    }
-
-    private validateRoom(room: RoomInterface): string[] {
         const allErrorMessages: string[] = []
 
         if (room === undefined || Object.keys(room).length === 0) {
             allErrorMessages.push('Room is undefined or empty')
             return allErrorMessages
         }
+
+        validateStringList(room.photos, 'photos').map(
+            error => allErrorMessages.push(error)
+        )
+        validateString(room.number, 'number').map(
+            error => allErrorMessages.push(error)
+        )
+        validateString(room.type, 'type').map(
+            error => allErrorMessages.push(error)
+        )
+        validateStringList(room.amenities, 'amenities').map(
+            error => allErrorMessages.push(error)
+        )
+        validateNumber(room.price, 'price').map(
+            error => allErrorMessages.push(error)
+        )
+        validateNumber(room.discount, 'discount').map(
+            error => allErrorMessages.push(error)
+        )
+        validateString(room.isActive, 'isActive').map(
+            error => allErrorMessages.push(error)
+        )
+        validateString(room.isArchived, 'isArchived').map(
+            error => allErrorMessages.push(error)
+        )
+        validateStringList(room.booking_id_list, 'booking_id_list').map(
+            error => allErrorMessages.push(error)
+        )
+
+        return allErrorMessages
+    }
+
+    private validateRoom(room: RoomInterface): string[] {
+        const allErrorMessages: string[] = []
+
         const errorsCheckingProperties = this.validatePropertyTypes(room)
         if (errorsCheckingProperties.length > 0) {
             return errorsCheckingProperties
@@ -89,11 +90,6 @@ export class RoomValidator {
     validateNewRoom(room: RoomInterface, allRoomNumbers: string[]): string[] {
         const allErrorMessages: string[] = []
 
-        if (room === undefined || Object.keys(room).length === 0) {
-            allErrorMessages.push('Room is undefined or empty')
-            return allErrorMessages
-        }
-
         this.validateRoom(room).map(
             error => allErrorMessages.push(error)
         )
@@ -106,11 +102,6 @@ export class RoomValidator {
 
     validateExistingRoom(room: RoomInterface, oldRoomNumber: string, allRoomNumbers: string[]): string[] {
         const allErrorMessages: string[] = []
-
-        if (room === undefined || Object.keys(room).length === 0) {
-            allErrorMessages.push('Room is undefined or empty')
-            return allErrorMessages
-        }
 
         this.validateRoom(room).map(
             error => allErrorMessages.push(error)

@@ -3,52 +3,57 @@ import {
     validateString, validateDate, validatePhoto, validateFullName,
     validateEmail, validatePhoneNumber, validateDateRelativeToAnother,
     validateTextArea, validateRole, validateNewPassword, validateOptionYesNo
-} from './commonValidator'
+} from './validators'
 import { UserInterface } from '../interfaces/mongodb/userInterfaceMongodb'
 
 
 export class UserValidator {
 
     private validatePropertyTypes(user: UserInterface): string[] {
-        const errorMessages: string[] = []
+        const allErrorMessages: string[] = []
+
+        if (user === undefined || Object.keys(user).length === 0) {
+            allErrorMessages.push('User is undefined or empty')
+            return allErrorMessages
+        }
 
         if (user.photo !== null) {
             validateString(user.photo, 'photo').map(
-                error => errorMessages.push(error)
+                error => allErrorMessages.push(error)
             )
         }
         validateString(user.full_name, 'full_name').map(
-            error => errorMessages.push(error)
+            error => allErrorMessages.push(error)
         )
         validateString(user.email, 'email').map(
-            error => errorMessages.push(error)
+            error => allErrorMessages.push(error)
         )
         validateString(user.phone_number, 'phone_number').map(
-            error => errorMessages.push(error)
+            error => allErrorMessages.push(error)
         )
         validateDate(user.start_date, 'start_date').map(
-            error => errorMessages.push(error)
+            error => allErrorMessages.push(error)
         )
         validateDate(user.end_date, 'end_date').map(
-            error => errorMessages.push(error)
+            error => allErrorMessages.push(error)
         )
         validateString(user.job_position, 'job_position').map(
-            error => errorMessages.push(error)
+            error => allErrorMessages.push(error)
         )
         validateString(user.role, 'role').map(
-            error => errorMessages.push(error)
+            error => allErrorMessages.push(error)
         )
         validateString(user.password, 'password').map(
-            error => errorMessages.push(error)
+            error => allErrorMessages.push(error)
         )
         validateString(user.isArchived, 'isArchived').map(
-            error => errorMessages.push(error)
+            error => allErrorMessages.push(error)
         )
 
-        return errorMessages
+        return allErrorMessages
     }
 
-    validateUser(user: UserInterface, passwordHasChanged: boolean = false): string[] {
+    private validateUser(user: UserInterface): string[] {
         const allErrorMessages: string[] = []
 
         const errorsCheckingProperties = this.validatePropertyTypes(user)
@@ -77,14 +82,34 @@ export class UserValidator {
         validateRole(user.role, 'Role').map(
             error => allErrorMessages.push(error)
         )
-        if (passwordHasChanged) {
+        validateOptionYesNo(user.isArchived, 'User isArchived').map(
+            error => allErrorMessages.push(error)
+        )
+
+        return allErrorMessages
+    }
+
+    validateNewUser(user: UserInterface): string[] {
+        const allErrorMessages: string[] = []
+
+        this.validateUser(user).map(
+            error => allErrorMessages.push(error)
+        )
+
+        return allErrorMessages
+    }
+
+    validateExistingUser(user: UserInterface, isPasswordChanged: boolean): string[] {
+        const allErrorMessages: string[] = []
+
+        this.validateUser(user).map(
+            error => allErrorMessages.push(error)
+        )
+        if (isPasswordChanged) {
             validateNewPassword(user.password).map(
                 error => allErrorMessages.push(error)
             )
         }
-        validateOptionYesNo(user.isArchived, 'User isArchived').map(
-            error => allErrorMessages.push(error)
-        )
 
         return allErrorMessages
     }

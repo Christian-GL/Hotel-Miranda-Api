@@ -6,10 +6,13 @@ import mongoose from 'mongoose'
 import { ApiError } from '../../errors/ApiError'
 import { authMiddleware } from '../../middleware/authMiddleware'
 import { adminOnly } from '../../middleware/adminOnly'
+import { comparePasswords } from '../../utils/hashPassword'
 import { UserInterface } from '../../interfaces/mongodb/userInterfaceMongodb'
 import { UserModelMongodb } from '../../models/mongodb/userModelMongodb'
 import { UserServiceMongodb } from '../../services/mongodb/userServiceMongodb'
 import { UserValidator } from '../../validators/userValidator'
+import { CommonValidators } from "../../validators/commonValidators"
+import { validateNewPassword } from '../../validators/validators'
 import { OptionYesNo } from '../../enums/optionYesNo'
 
 
@@ -157,13 +160,13 @@ userRouterMongodb.get('/:id', async (req: Request, res: Response, next: NextFunc
         if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
             throw new ApiError(400, 'Invalid id format')
         }
+
         const user = await userServiceMongodb.fetchById(req.params.id)
-        if (user !== null) {
-            res.json(user)
-        }
-        else {
+        if (user === null) {
             throw new ApiError(404, `User #${req.params.id} not found`)
         }
+
+        res.json(user)
     }
     catch (error) {
         return next(error)
@@ -185,19 +188,17 @@ userRouterMongodb.post('/', adminOnly, async (req: Request, res: Response, next:
             isArchived: OptionYesNo.no
         }
         const userValidator = new UserValidator()
-        const totalErrors = userValidator.validateUser(userToValidate)
-        if (totalErrors.length === 0) {
-            try {
-                const createdUser = await userServiceMongodb.create(userToValidate)
-                res.status(201).json(createdUser)
-            }
-            catch (error) {
-                return next(error)
-            }
-        }
-        else {
+        const totalErrors = userValidator.validateNewUser(userToValidate)
+        if (totalErrors.length > 0) {
             throw new ApiError(400, totalErrors.join(', '))
         }
+
+        const createdUser = await userServiceMongodb.create(userToValidate)
+        if (!createdUser) {
+            throw new ApiError(500, 'Error creating user')
+        }
+
+        res.status(201).json(createdUser)
     }
     catch (error) {
         return next(error)
@@ -205,64 +206,94 @@ userRouterMongodb.post('/', adminOnly, async (req: Request, res: Response, next:
 })
 
 userRouterMongodb.put('/:id', adminOnly, async (req: Request, res: Response, next: NextFunction) => {
-    let passwordHasChanged = false
     try {
-        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+        const userId = req.params.id
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
             throw new ApiError(400, 'Invalid id format')
         }
-        const existingUser = await UserModelMongodb.findById(req.body._id).select("password")
-        if (existingUser === null) {
-            throw new ApiError(404, `User #${req.body._id} not found`)
+
+        const existingUser = await UserModelMongodb.findById(userId).select('password')
+        if (!existingUser) {
+            throw new ApiError(404, `User #${userId} not found`)
         }
-        if (req.body.password !== existingUser.password) passwordHasChanged = true
+
+        const newPassword = req.body.password
+        const newPasswordErrors = validateNewPassword(newPassword)
+        if (newPasswordErrors.length > 0) {
+            throw new ApiError(400, newPasswordErrors.join(', '))
+        }
+
+        let isPasswordChanged: boolean = false
+        const isSamePassword = await comparePasswords(newPassword, existingUser.password)
+        isPasswordChanged = !isSamePassword
+        const userToValidate: UserInterface = {
+            photo: req.body.photo === null ? null : String(req.body.photo).trim(),
+            full_name: req.body.full_name.trim(),
+            email: req.body.email.trim().toLowerCase(),
+            phone_number: req.body.phone_number.trim(),
+            start_date: new Date(req.body.start_date),
+            end_date: new Date(req.body.end_date),
+            job_position: req.body.job_position.trim(),
+            role: req.body.role.trim(),
+            password: req.body.password,
+            isArchived: req.body.isArchived.trim()
+        }
+        const userValidator = new UserValidator()
+        const totalErrors = userValidator.validateExistingUser(userToValidate, isPasswordChanged)
+        if (totalErrors.length > 0) {
+            throw new ApiError(400, totalErrors.join(', '))
+        }
+
+        const updatedUser = await userServiceMongodb.update(userId, userToValidate, isPasswordChanged)
+        if (!updatedUser) {
+            throw new ApiError(404, `User #${userId} not found`)
+        }
+
+        res.status(200).json(updatedUser)
     }
     catch (error) {
         return next(error)
     }
+})
 
-    const userToValidate: UserInterface = {
-        photo: req.body.photo == null ? null : String(req.body.photo).trim(),
-        full_name: req.body.full_name.trim(),
-        email: req.body.email.trim().toLowerCase(),
-        phone_number: req.body.phone_number.trim(),
-        start_date: new Date(req.body.start_date),
-        end_date: new Date(req.body.end_date),
-        job_position: req.body.job_position.trim(),
-        role: req.body.role.trim(),
-        password: req.body.password,
-        isArchived: req.body.isArchived.trim()
-    }
-    const userValidator = new UserValidator()
-    const totalErrors = userValidator.validateUser(userToValidate, passwordHasChanged)
-    if (totalErrors.length === 0) {
-        try {
-            const updatedUser = await userServiceMongodb.update(req.params.id, userToValidate, passwordHasChanged)
-            if (updatedUser !== null) {
-                res.status(200).json(updatedUser)
-            }
-            else {
-                throw new ApiError(404, `User #${req.params.id} not found`)
-            }
+userRouterMongodb.patch('/archive/:id', adminOnly, async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const userId = req.params.id
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            throw new ApiError(400, 'Invalid id format')
         }
-        catch (error) {
-            return next(error)
+
+        const newArchivedValue: OptionYesNo = req.body.isArchived
+        const commonValidator = new CommonValidators()
+        const totalErrors = commonValidator.validateArchivedOption(newArchivedValue)
+        if (totalErrors.length > 0) {
+            throw new ApiError(400, totalErrors.join(', '))
         }
+
+        const result = await userServiceMongodb.archive(userId, newArchivedValue)
+        if (!result) {
+            throw new ApiError(404, `User #${userId} not found`)
+        }
+
+        res.status(200).json(result)
     }
-    else {
-        throw new ApiError(400, totalErrors.join(', '))
+    catch (error) {
+        return next(error)
     }
 })
 
 userRouterMongodb.delete('/:id', adminOnly, async (req: Request, res: Response, next: NextFunction) => {
     try {
+        const userId = req.params.id
         if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
             throw new ApiError(400, 'Invalid id format')
         }
-        const userId = req.params.id
+
         const deletedUser = await userServiceMongodb.delete(userId)
         if (!deletedUser) {
             throw new ApiError(404, `User #${userId} not found`)
         }
+
         res.status(204).json()
     }
     catch (error) {

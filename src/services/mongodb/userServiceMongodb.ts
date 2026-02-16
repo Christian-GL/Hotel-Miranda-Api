@@ -3,6 +3,7 @@ import { ServiceInterfaceMongodb } from '../../interfaces/mongodb/serviceInterfa
 import { UserModelMongodb } from '../../models/mongodb/userModelMongodb'
 import { UserInterface, UserInterfaceIdMongodb } from '../../interfaces/mongodb/userInterfaceMongodb'
 import { hashPassword } from '../../utils/hashPassword'
+import { OptionYesNo } from '../../enums/optionYesNo'
 
 
 export class UserServiceMongodb implements ServiceInterfaceMongodb<UserInterfaceIdMongodb> {
@@ -13,7 +14,6 @@ export class UserServiceMongodb implements ServiceInterfaceMongodb<UserInterface
             return users
         }
         catch (error) {
-            console.error('Error in fetchAll of userService', error)
             throw error
         }
     }
@@ -25,7 +25,6 @@ export class UserServiceMongodb implements ServiceInterfaceMongodb<UserInterface
             else throw new Error('User not found')
         }
         catch (error) {
-            console.error('Error in fetchById of userService', error)
             return null
         }
     }
@@ -38,7 +37,6 @@ export class UserServiceMongodb implements ServiceInterfaceMongodb<UserInterface
             return newUser
         }
         catch (error) {
-            console.error('Error in create of userService', error)
             throw error
         }
     }
@@ -51,14 +49,24 @@ export class UserServiceMongodb implements ServiceInterfaceMongodb<UserInterface
 
             const updatedUser: UserInterfaceIdMongodb | null = await UserModelMongodb.findOneAndUpdate(
                 { _id: id },
-                user,
+                { $set: user },
                 { new: true }
             )
             if (updatedUser) return updatedUser
             else return null
         }
         catch (error) {
-            console.error('Error in update of userService', error)
+            throw error
+        }
+    }
+
+    async archive(id: string, newArchivedValue: OptionYesNo): Promise<UserInterfaceIdMongodb | null> {
+        try {
+            const updatedUser = await UserModelMongodb.findByIdAndUpdate(id, { $set: { isArchived: newArchivedValue } }, { new: true })
+            if (updatedUser) return updatedUser
+            return null
+        }
+        catch (error) {
             throw error
         }
     }
@@ -70,7 +78,6 @@ export class UserServiceMongodb implements ServiceInterfaceMongodb<UserInterface
             else return false
         }
         catch (error) {
-            console.error('Error in delete of userService', error)
             throw error
         }
     }

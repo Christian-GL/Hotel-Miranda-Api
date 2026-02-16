@@ -4,32 +4,37 @@ import {
     validateFullName, validateEmail, validatePhoneNumber,
     validateOptionYesNo, validateMongoDBObjectIdList,
     validateExistingListItemsInAnotherList
-} from "./commonValidator"
+} from "./validators"
 import { ClientInterface } from "../interfaces/mongodb/clientInterfaceMongodb"
 
 
 export class ClientValidator {
 
     private validatePropertyTypes(client: ClientInterface): string[] {
-        const errorMessages: string[] = []
+        const allErrorMessages: string[] = []
+
+        if (client === undefined || Object.keys(client).length === 0) {
+            allErrorMessages.push('Client is undefined or empty')
+            return allErrorMessages
+        }
 
         validateString(client.full_name, 'full_name').map(
-            error => errorMessages.push(error)
+            error => allErrorMessages.push(error)
         )
         validateString(client.email, 'email').map(
-            error => errorMessages.push(error)
+            error => allErrorMessages.push(error)
         )
         validateString(client.phone_number, 'phone_number').map(
-            error => errorMessages.push(error)
+            error => allErrorMessages.push(error)
         )
         validateString(client.isArchived, 'isArchived').map(
-            error => errorMessages.push(error)
+            error => allErrorMessages.push(error)
         )
         validateStringList(client.booking_id_list, 'booking_id_list').map(
-            error => errorMessages.push(error)
+            error => allErrorMessages.push(error)
         )
 
-        return errorMessages
+        return allErrorMessages
     }
 
     private validateClient(client: ClientInterface): string[] {
@@ -62,11 +67,6 @@ export class ClientValidator {
     validateNewClient(client: ClientInterface): string[] {
         const allErrorMessages: string[] = []
 
-        if (client === undefined || Object.keys(client).length === 0) {
-            allErrorMessages.push('Client is undefined or empty')
-            return allErrorMessages
-        }
-
         this.validateClient(client).map(
             error => allErrorMessages.push(error)
         )
@@ -76,16 +76,6 @@ export class ClientValidator {
 
     validateExistingClient(client: ClientInterface, bookingIdList: string[]): string[] {
         const allErrorMessages: string[] = []
-
-        if (client === undefined || Object.keys(client).length === 0) {
-            allErrorMessages.push('Client is undefined or empty')
-            return allErrorMessages
-        }
-        const errorsCheckingProperties = this.validatePropertyTypes(client)
-        if (errorsCheckingProperties.length > 0) {
-            return errorsCheckingProperties
-        }
-
 
         this.validateClient(client).map(
             error => allErrorMessages.push(error)
