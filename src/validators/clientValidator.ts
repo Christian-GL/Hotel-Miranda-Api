@@ -57,7 +57,7 @@ export class ClientValidator {
         validateOptionYesNo(client.isArchived, 'isArchived').map(
             error => allErrorMessages.push(error)
         )
-        validateMongoDBObjectIdList(client.booking_id_list, 'Client Booking ID List').map(
+        validateMongoDBObjectIdList(client.booking_id_list, 'Client booking ID list').map(
             error => allErrorMessages.push(error)
         )
 
@@ -74,17 +74,13 @@ export class ClientValidator {
         return allErrorMessages
     }
 
-    validateExistingClient(client: ClientInterface, bookingIdList: string[]): string[] {
+    validateExistingClient(client: ClientInterface): string[] {
         const allErrorMessages: string[] = []
 
         this.validateClient(client).map(
             error => allErrorMessages.push(error)
         )
-        validateMongoDBObjectIdList(bookingIdList, 'Storaged Booking ID List').map(
-            error => allErrorMessages.push(error)
-        )
-        // Se valida que las reservas existan:
-        validateExistingListItemsInAnotherList(client.booking_id_list, bookingIdList, 'Storaged Booking ID List').map(
+        validateMongoDBObjectIdList(client.booking_id_list, 'Client booking ID list').map(
             error => allErrorMessages.push(error)
         )
 

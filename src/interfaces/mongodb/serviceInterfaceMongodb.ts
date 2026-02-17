@@ -11,16 +11,16 @@ import { OptionYesNo } from "../../enums/optionYesNo"
 // }
 
 export interface ServiceInterfaceMongodb<
-    TEntity,
-    TCreateResponse = TEntity,
-    TUpdateResponse = TEntity | null,
-    TArchiveResponse = TEntity | null,
+    T,
+    TCreateResponse = T,
+    TUpdateResponse = T | null,
+    TArchiveResponse = T | null,
     TDeleteResponse = boolean
 > {
-    fetchAll(): Promise<TEntity[]>
-    fetchById(id: string): Promise<TEntity | null>
-    create(item: TEntity): Promise<TCreateResponse>
-    update(id: string, item: TEntity): Promise<TUpdateResponse>
-    archive(id: string, isArchived: OptionYesNo): Promise<TArchiveResponse>
+    fetchAll(): Promise<T[]>
+    fetchById(id: string): Promise<T | null>
+    create(item: T): Promise<TCreateResponse>
+    update(id: string, item: T): Promise<TUpdateResponse>
+    setArchiveStatus(id: string, isArchived: OptionYesNo): Promise<TArchiveResponse>
     delete(id: string): Promise<TDeleteResponse>
 }

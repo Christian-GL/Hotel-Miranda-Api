@@ -6,8 +6,10 @@ import { OptionYesNo } from '../../enums/optionYesNo'
 import mongoose from 'mongoose'
 import { BookingInterfaceIdMongodb } from '../../interfaces/mongodb/bookingInterfaceMongodb'
 import { BookingModelMongodb } from '../../models/mongodb/bookingModelMongodb'
-import { ClientDeleteResponseInterface } from '../../interfaces/mongodb/response/client/clientDeleteResponseInterface'
+import { BookingServiceMongodb } from './bookingServiceMongodb'
 import { ClientUpdateResponseInterface } from '../../interfaces/mongodb/response/client/clientUpdateResponseInterface'
+import { ClientArchiveResponseInterface } from '../../interfaces/mongodb/response/client/clientArchiveResponseInterface'
+import { ClientDeleteResponseInterface } from '../../interfaces/mongodb/response/client/clientDeleteResponseInterface'
 
 
 export class ClientServiceMongodb implements ServiceInterfaceMongodb<
@@ -24,7 +26,6 @@ export class ClientServiceMongodb implements ServiceInterfaceMongodb<
             return clients
         }
         catch (error) {
-            console.error('Error in fetchAll of clientService', error)
             throw error
         }
     }
@@ -38,7 +39,6 @@ export class ClientServiceMongodb implements ServiceInterfaceMongodb<
             return clients
         }
         catch (error) {
-            console.error('Error in fetchAllNotArchived of clientService', error)
             throw error
         }
     }
@@ -52,7 +52,6 @@ export class ClientServiceMongodb implements ServiceInterfaceMongodb<
             return clientIds.map((client: any) => String(client._id))
         }
         catch (error) {
-            console.error('Error in fetchAllIdsNotArchived of roomService', error)
             throw error
         }
     }
@@ -64,7 +63,6 @@ export class ClientServiceMongodb implements ServiceInterfaceMongodb<
             else throw new Error('Client not found')
         }
         catch (error) {
-            console.error('Error in fetchById of clientService', error)
             return null
         }
     }
@@ -76,90 +74,141 @@ export class ClientServiceMongodb implements ServiceInterfaceMongodb<
             return newClient
         }
         catch (error) {
-            console.error('Error in create of clientService', error)
             throw error
         }
     }
 
+    // async update(clientId: string, clientToUpdate: ClientInterface): Promise<ClientUpdateResponseInterface> {
+    //     // Actualiza el cliente y si es necesario archiva las bookings asociadas.
+    //     const session = await mongoose.startSession()
+    //     let updatedBookings: BookingInterfaceIdMongodb[] = []
+
+    //     try {
+    //         await session.withTransaction(async () => {
+
+    //             // Si se va a desarchivar un cliente, vacia su "booking_id_list" (ya que las bookings asociadas siguen archivadas)
+    //             const oldClient = await ClientModelMongodb
+    //                 .findById(clientId)
+    //                 .session(session)
+    //                 .lean() as ClientInterfaceIdMongodb | null
+
+    //             if (!oldClient) {
+    //                 throw new Error(`Client #${clientId} not found`)
+    //             }
+    //             if (
+    //                 oldClient.isArchived === OptionYesNo.yes &&
+    //                 clientToUpdate.isArchived === OptionYesNo.no
+    //             ) {
+    //                 clientToUpdate.booking_id_list = []
+    //             }
+    //             const updatedClient = await ClientModelMongodb.findOneAndUpdate(
+    //                 { _id: clientId },
+    //                 clientToUpdate,
+    //                 { new: true, session }
+    //             ).exec()
+
+    //             if (!updatedClient) {
+    //                 throw new Error(`Client #${clientId} not found`)
+    //             }
+
+    //             // Si el client se archiva, archivar sus bookings
+    //             if (
+    //                 clientToUpdate.isArchived === OptionYesNo.yes &&
+    //                 clientToUpdate.booking_id_list &&
+    //                 clientToUpdate.booking_id_list.length > 0
+    //             ) {
+    //                 await BookingModelMongodb.updateMany(
+    //                     {
+    //                         _id: { $in: clientToUpdate.booking_id_list },
+    //                         isArchived: OptionYesNo.no
+    //                     },
+    //                     { $set: { isArchived: OptionYesNo.yes } },
+    //                     { session }
+    //                 ).exec()
+
+    //                 updatedBookings = await BookingModelMongodb.find(
+    //                     { _id: { $in: clientToUpdate.booking_id_list } }
+    //                 )
+    //                     .session(session)
+    //                     .lean() as BookingInterfaceIdMongodb[]
+    //             }
+    //         })
+    //         const finalClientFresh = await ClientModelMongodb.findById(clientId).lean()
+    //         return {
+    //             clientUpdated: finalClientFresh as ClientInterfaceIdMongodb,
+    //             updatedBookings
+    //         }
+    //     }
+    //     catch (error) {
+    //         throw error
+    //     }
+    //     finally {
+    //         session.endSession()
+    //     }
+    // }
+
     async update(clientId: string, clientToUpdate: ClientInterface): Promise<ClientUpdateResponseInterface> {
-        // Actualiza el cliente y si es necesario archiva las bookings asociadas.
-        const session = await mongoose.startSession()
-        let updatedBookings: BookingInterfaceIdMongodb[] = []
-
         try {
-            await session.withTransaction(async () => {
+            const updatedClient = await ClientModelMongodb.findOneAndUpdate(
+                { _id: clientId },
+                { $set: clientToUpdate },
+                { new: true, runValidators: true, context: 'query' }
+            ).lean() as ClientInterfaceIdMongodb | null
 
-                // Si se va a desarchivar un cliente, vacia su "booking_id_list" (ya que las bookings asociadas siguen archivadas)
-                const oldClient = await ClientModelMongodb
-                    .findById(clientId)
-                    .session(session)
-                    .lean() as ClientInterfaceIdMongodb | null
-
-                if (!oldClient) {
-                    throw new Error(`Client #${clientId} not found`)
-                }
-                if (
-                    oldClient.isArchived === OptionYesNo.yes &&
-                    clientToUpdate.isArchived === OptionYesNo.no
-                ) {
-                    clientToUpdate.booking_id_list = []
-                }
-                const updatedClient = await ClientModelMongodb.findOneAndUpdate(
-                    { _id: clientId },
-                    clientToUpdate,
-                    { new: true, session }
-                ).exec()
-
-                if (!updatedClient) {
-                    throw new Error(`Client #${clientId} not found`)
-                }
-
-                // Si el client se archiva, archivar sus bookings
-                if (
-                    clientToUpdate.isArchived === OptionYesNo.yes &&
-                    clientToUpdate.booking_id_list &&
-                    clientToUpdate.booking_id_list.length > 0
-                ) {
-                    await BookingModelMongodb.updateMany(
-                        {
-                            _id: { $in: clientToUpdate.booking_id_list },
-                            isArchived: OptionYesNo.no
-                        },
-                        { $set: { isArchived: OptionYesNo.yes } },
-                        { session }
-                    ).exec()
-
-                    updatedBookings = await BookingModelMongodb.find(
-                        { _id: { $in: clientToUpdate.booking_id_list } }
-                    )
-                        .session(session)
-                        .lean() as BookingInterfaceIdMongodb[]
-                }
-            })
-            const finalClientFresh = await ClientModelMongodb.findById(clientId).lean()
             return {
-                clientUpdated: finalClientFresh as ClientInterfaceIdMongodb,
+                clientUpdated: updatedClient as ClientInterfaceIdMongodb,
+                updatedBookings: []
+            }
+        }
+        catch (error) {
+            throw error
+        }
+    }
+
+    async setArchiveStatus(id: string, isArchived: OptionYesNo): Promise<ClientInterfaceIdMongodb | null> {
+        try {
+            const updatedClient = await ClientModelMongodb.findByIdAndUpdate(
+                id,
+                { $set: { isArchived: isArchived } },
+                { new: true }
+            )
+            if (updatedClient === null) { return null }
+
+            return updatedClient
+        }
+        catch (error) {
+            throw error
+        }
+    }
+
+    async archive(id: string, isArchived: OptionYesNo): Promise<ClientArchiveResponseInterface | null> {
+        try {
+            const bookingServiceMongodb = new BookingServiceMongodb()
+            const updatedClient = await this.setArchiveStatus(id, isArchived)
+            if (!updatedClient) return null
+
+            let updatedBookings: BookingInterfaceIdMongodb[] = []
+            // Si se está archivando:
+            if (isArchived === OptionYesNo.yes && updatedClient.booking_id_list?.length) {
+                const bookingPromises = updatedClient.booking_id_list.map(bookingId =>
+                    bookingServiceMongodb.setArchiveStatus(
+                        bookingId.toString(),
+                        OptionYesNo.yes
+                    )
+                )
+                updatedBookings = (await Promise.all(bookingPromises)).filter(Boolean) as BookingInterfaceIdMongodb[]
+            }
+
+            return {
+                clientUpdated: updatedClient,
                 updatedBookings
             }
         }
         catch (error) {
             throw error
         }
-        finally {
-            session.endSession()
-        }
     }
 
-    async archive(id: string, isArchived: OptionYesNo): Promise<ClientInterfaceIdMongodb | null> {
-        try {
-            const updatedClient = await ClientModelMongodb.findByIdAndUpdate(id, { $set: { isArchived: isArchived } }, { new: true })
-            if (updatedClient) return updatedClient
-            return null
-        }
-        catch (error) {
-            throw error
-        }
-    }
 
     async delete(id: string): Promise<ClientDeleteResponseInterface> {
         // Elimina el cliente y si es necesario archiva las bookings asociadas.

@@ -146,8 +146,8 @@ userRouterMongodb.use(authMiddleware)
 
 userRouterMongodb.get('/', async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const userList = await userServiceMongodb.fetchAll()
-        res.json(userList)
+        const response = await userServiceMongodb.fetchAll()
+        res.json(response)
     }
     catch (error) {
         return next(error)
@@ -156,16 +156,17 @@ userRouterMongodb.get('/', async (req: Request, res: Response, next: NextFunctio
 
 userRouterMongodb.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
     try {
-        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+        const userId = req.params.id
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
             throw new ApiError(400, 'Invalid id format')
         }
 
-        const user = await userServiceMongodb.fetchById(req.params.id)
-        if (user === null) {
-            throw new ApiError(404, `User #${req.params.id} not found`)
+        const response = await userServiceMongodb.fetchById(userId)
+        if (response === null) {
+            throw new ApiError(404, `User #${userId} not found`)
         }
 
-        res.json(user)
+        res.json(response)
     }
     catch (error) {
         return next(error)
@@ -192,12 +193,12 @@ userRouterMongodb.post('/', adminOnly, async (req: Request, res: Response, next:
             throw new ApiError(400, totalErrors.join(', '))
         }
 
-        const createdUser = await userServiceMongodb.create(userToValidate)
-        if (!createdUser) {
+        const response = await userServiceMongodb.create(userToValidate)
+        if (!response) {
             throw new ApiError(500, 'Error creating user')
         }
 
-        res.status(201).json(createdUser)
+        res.status(201).json(response)
     }
     catch (error) {
         return next(error)
@@ -228,7 +229,7 @@ userRouterMongodb.put('/:id', adminOnly, async (req: Request, res: Response, nex
             job_position: req.body.job_position.trim(),
             role: req.body.role.trim(),
             password: isSamePassword ? existingUser.password : newPassword,
-            isArchived: req.body.isArchived.trim()
+            isArchived: existingUser.isArchived
         }
         const userValidator = new UserValidator()
         const totalErrors = userValidator.validateExistingUser(userToValidate, isSamePassword)
@@ -236,15 +237,16 @@ userRouterMongodb.put('/:id', adminOnly, async (req: Request, res: Response, nex
             throw new ApiError(400, totalErrors.join(', '))
         }
 
-        const updatedUser = await userServiceMongodb.update(userId, userToValidate)
-        if (!updatedUser) {
+        const response = await userServiceMongodb.update(userId, userToValidate)
+        if (!response) {
             throw new ApiError(404, `User #${userId} not found`)
         }
 
         if (!isSamePassword) {
             userToValidate.password = await hashPassword(newPassword)
         }
-        res.status(200).json(updatedUser)
+
+        res.status(200).json(response)
     }
     catch (error) {
         return next(error)
@@ -258,19 +260,19 @@ userRouterMongodb.patch('/archive/:id', adminOnly, async (req: Request, res: Res
             throw new ApiError(400, 'Invalid id format')
         }
 
-        const newArchivedValue: OptionYesNo = req.body.isArchived
+        const newArchivedValue = req.body.isArchived
         const commonValidator = new CommonValidators()
         const totalErrors = commonValidator.validateArchivedOption(newArchivedValue)
         if (totalErrors.length > 0) {
             throw new ApiError(400, totalErrors.join(', '))
         }
 
-        const result = await userServiceMongodb.archive(userId, newArchivedValue)
-        if (!result) {
+        const response = await userServiceMongodb.archive(userId, newArchivedValue)
+        if (!response) {
             throw new ApiError(404, `User #${userId} not found`)
         }
 
-        res.status(200).json(result)
+        res.status(200).json(response)
     }
     catch (error) {
         return next(error)
@@ -280,12 +282,12 @@ userRouterMongodb.patch('/archive/:id', adminOnly, async (req: Request, res: Res
 userRouterMongodb.delete('/:id', adminOnly, async (req: Request, res: Response, next: NextFunction) => {
     try {
         const userId = req.params.id
-        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
             throw new ApiError(400, 'Invalid id format')
         }
 
-        const deletedUser = await userServiceMongodb.delete(userId)
-        if (!deletedUser) {
+        const response = await userServiceMongodb.delete(userId)
+        if (!response) {
             throw new ApiError(404, `User #${userId} not found`)
         }
 

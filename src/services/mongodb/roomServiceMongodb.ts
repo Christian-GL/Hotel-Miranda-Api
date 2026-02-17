@@ -233,11 +233,16 @@ export class RoomServiceMongodb implements ServiceInterfaceMongodb<
         }
     }
 
-    async archive(id: string, isArchived: OptionYesNo): Promise<RoomInterfaceIdMongodb | null> {
+    async setArchiveStatus(id: string, isArchived: OptionYesNo): Promise<RoomInterfaceIdMongodb | null> {
         try {
-            const updatedRoom = await RoomModelMongodb.findByIdAndUpdate(id, { $set: { isArchived: isArchived } }, { new: true })
-            if (updatedRoom) return updatedRoom
-            return null
+            const updatedRoom = await RoomModelMongodb.findByIdAndUpdate(
+                id,
+                { $set: { isArchived: isArchived } },
+                { new: true }
+            )
+            if (updatedRoom === null) { return null }
+
+            return updatedRoom
         }
         catch (error) {
             throw error

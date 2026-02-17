@@ -387,7 +387,7 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<
         }
     }
 
-    async archive(id: string, isArchived: OptionYesNo): Promise<BookingInterfaceIdMongodb | null> {
+    async setArchiveStatus(id: string, isArchived: OptionYesNo): Promise<BookingInterfaceIdMongodb | null> {
         try {
             const BookingdUser = await BookingModelMongodb.findByIdAndUpdate(id, { $set: { isArchived: isArchived } }, { new: true })
             if (BookingdUser) return BookingdUser

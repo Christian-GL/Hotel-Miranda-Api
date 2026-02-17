@@ -7,15 +7,16 @@ import { ApiError } from '../../errors/ApiError'
 import { authMiddleware } from '../../middleware/authMiddleware'
 import { adminOnly } from '../../middleware/adminOnly'
 import { ClientInterface } from '../../interfaces/mongodb/clientInterfaceMongodb'
+import { ClientModelMongodb } from '../../models/mongodb/clientModelMongodb'
 import { ClientServiceMongodb } from '../../services/mongodb/clientServiceMongodb'
 import { ClientValidator } from '../../validators/clientValidator'
-import { BookingServiceMongodb } from '../../services/mongodb/bookingServiceMongodb'
+import { CommonValidators } from "../../validators/commonValidators"
 import { OptionYesNo } from '../../enums/optionYesNo'
+import { BookingModelMongodb } from '../../models/mongodb/bookingModelMongodb'
 
 
 export const clientRouterMongodb = Router()
 const clientServiceMongodb = new ClientServiceMongodb()
-const bookingServiceMongodb = new BookingServiceMongodb()
 
 clientRouterMongodb.use(authMiddleware)
 
@@ -141,8 +142,8 @@ clientRouterMongodb.use(authMiddleware)
 
 clientRouterMongodb.get('/', async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const clientList = await clientServiceMongodb.fetchAll()
-        res.json(clientList)
+        const response = await clientServiceMongodb.fetchAll()
+        res.json(response)
     }
     catch (error) {
         return next(error)
@@ -151,16 +152,17 @@ clientRouterMongodb.get('/', async (req: Request, res: Response, next: NextFunct
 
 clientRouterMongodb.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
     try {
-        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+        const clientId = req.params.id
+        if (!mongoose.Types.ObjectId.isValid(clientId)) {
             throw new ApiError(400, 'Invalid id format')
         }
-        const client = await clientServiceMongodb.fetchById(req.params.id)
-        if (client !== null) {
-            res.json(client)
+
+        const response = await clientServiceMongodb.fetchById(clientId)
+        if (response === null) {
+            throw new ApiError(404, `Client #${clientId} not found`)
         }
-        else {
-            throw new ApiError(404, `Client #${req.params.id} not found`)
-        }
+
+        res.json(response)
     }
     catch (error) {
         return next(error)
@@ -178,18 +180,16 @@ clientRouterMongodb.post('/', async (req: Request, res: Response, next: NextFunc
         }
         const clientValidator = new ClientValidator()
         const totalErrors = clientValidator.validateNewClient(clientToValidate)
-        if (totalErrors.length === 0) {
-            try {
-                const newClient = await clientServiceMongodb.create(clientToValidate)
-                res.status(201).json(newClient)
-            }
-            catch (error) {
-                return next(error)
-            }
-        }
-        else {
+        if (totalErrors.length > 0) {
             throw new ApiError(400, totalErrors.join(', '))
         }
+
+        const response = await clientServiceMongodb.create(clientToValidate)
+        if (!response) {
+            throw new ApiError(500, 'Error creating Client')
+        }
+
+        res.status(201).json(response)
     }
     catch (error) {
         return next(error)
@@ -198,44 +198,70 @@ clientRouterMongodb.post('/', async (req: Request, res: Response, next: NextFunc
 
 clientRouterMongodb.put('/:id', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+        const clientId = req.params.id
+        if (!mongoose.Types.ObjectId.isValid(clientId)) {
             throw new ApiError(400, 'Invalid id format')
         }
+
+        const existingClient = await ClientModelMongodb.findById(clientId).select('password')
+        if (!existingClient) {
+            throw new ApiError(404, `Client #${clientId} not found`)
+        }
+
         const clientToValidate: ClientInterface = {
             full_name: req.body.full_name.trim(),
             email: req.body.email.trim().toLowerCase(),
             phone_number: req.body.phone_number.trim(),
-            isArchived: req.body.isArchived.trim(),
+            isArchived: existingClient.isArchived,
             booking_id_list: req.body.booking_id_list
         }
-        const bookingList = await bookingServiceMongodb.fetchAll()
-        const bookingIdList = bookingList.map(b => b._id.toString())
         const clientValidator = new ClientValidator()
-        // NO validar booking_id_list si el client se está DESARCHIVANDO
-        const totalErrors =
-            req.body.isArchived === OptionYesNo.no
-                ? clientValidator.validateExistingClient(
-                    { ...clientToValidate, booking_id_list: [] },
-                    bookingIdList
-                )
-                : clientValidator.validateExistingClient(
-                    clientToValidate,
-                    bookingIdList
-                )
-
+        const totalErrors = clientValidator.validateExistingClient(clientToValidate)
         if (totalErrors.length > 0) {
             throw new ApiError(400, totalErrors.join(', '))
         }
-        const allNewData =
-            await clientServiceMongodb.update(
-                req.params.id,
-                clientToValidate
-            )
-        if (!allNewData.clientUpdated) {
-            throw new ApiError(404, `Client #${req.params.id} not found`)
+
+        // Validamos la existencia en BD de las bookings asociadas al cliente:
+        const bookingIds = clientToValidate.booking_id_list.map(id => id.toString())
+        const existingBookings = await BookingModelMongodb.find({ _id: { $in: bookingIds } }).select('_id').lean()
+        if (existingBookings.length !== bookingIds.length) {
+            const foundIds = existingBookings.map(booking => booking._id.toString())
+            const missingIds = bookingIds.filter(id => !foundIds.includes(id))
+            throw new ApiError(404, `Bookings not found: ${missingIds.join(', ')}`)
         }
 
-        res.status(200).json(allNewData)
+        const response = await clientServiceMongodb.update(clientId, clientToValidate)
+        if (!response.clientUpdated) {
+            throw new ApiError(404, `Client #${clientId} not found`)
+        }
+
+        res.status(200).json(response)
+    }
+    catch (error) {
+        return next(error)
+    }
+})
+
+clientRouterMongodb.patch('/archive/:id', adminOnly, async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const clientId = req.params.id
+        if (!mongoose.Types.ObjectId.isValid(clientId)) {
+            throw new ApiError(400, 'Invalid id format')
+        }
+
+        const newArchivedValue = req.body.isArchived
+        const commonValidator = new CommonValidators()
+        const totalErrorsArchived = commonValidator.validateArchivedOption(newArchivedValue)
+        if (totalErrorsArchived.length > 0) {
+            throw new ApiError(400, totalErrorsArchived.join(', '))
+        }
+
+        const response = await clientServiceMongodb.archive(clientId, newArchivedValue)
+        if (!response) {
+            throw new ApiError(404, `Client #${clientId} not found`)
+        }
+
+        res.status(200).json(response)
     }
     catch (error) {
         return next(error)
@@ -244,16 +270,17 @@ clientRouterMongodb.put('/:id', async (req: Request, res: Response, next: NextFu
 
 clientRouterMongodb.delete('/:id', adminOnly, async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+        const clientId = req.params.id
+        if (!mongoose.Types.ObjectId.isValid(clientId)) {
             throw new ApiError(400, 'Invalid id format')
         }
-        const clientId = req.params.id
-        const allNewData = await clientServiceMongodb.delete(clientId)
-        if (!allNewData) {
+
+        const response = await clientServiceMongodb.delete(clientId)
+        if (!response) {
             throw new ApiError(404, `Client #${clientId} not found`)
         }
 
-        res.status(200).json(allNewData)
+        res.status(200).json(response)
     }
     catch (error) {
         return next(error)

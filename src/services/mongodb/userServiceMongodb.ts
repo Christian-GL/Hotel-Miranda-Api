@@ -56,11 +56,28 @@ export class UserServiceMongodb implements ServiceInterfaceMongodb<UserInterface
         }
     }
 
+    async setArchiveStatus(id: string, isArchived: OptionYesNo): Promise<UserInterfaceIdMongodb | null> {
+        try {
+            const updatedUser = await UserModelMongodb.findByIdAndUpdate(
+                id,
+                { $set: { isArchived: isArchived } },
+                { new: true }
+            )
+            if (updatedUser === null) { return null }
+
+            return updatedUser
+        }
+        catch (error) {
+            throw error
+        }
+    }
+
     async archive(id: string, isArchived: OptionYesNo): Promise<UserInterfaceIdMongodb | null> {
         try {
-            const updatedUser = await UserModelMongodb.findByIdAndUpdate(id, { $set: { isArchived: isArchived } }, { new: true })
-            if (updatedUser) return updatedUser
-            return null
+            const updatedUser = await this.setArchiveStatus(id, isArchived)
+            if (!updatedUser) return null
+
+            return updatedUser
         }
         catch (error) {
             throw error
