@@ -3,7 +3,7 @@ import { ServiceInterfaceMongodb } from '../../interfaces/mongodb/serviceInterfa
 import { BookingModelMongodb } from '../../models/mongodb/bookingModelMongodb'
 import { BookingInterfaceCheckInOutId, BookingInterfaceCheckInOut, BookingInterface, BookingInterfaceIdMongodb, BookingInterfaceId } from '../../interfaces/mongodb/bookingInterfaceMongodb'
 import { OptionYesNo } from '../../enums/optionYesNo'
-import mongoose from 'mongoose'
+import mongoose, { ClientSession } from 'mongoose'
 import { RoomModelMongodb } from '../../models/mongodb/roomModelMongodb'
 import { ClientModelMongodb } from '../../models/mongodb/clientModelMongodb'
 import { ClientInterfaceIdMongodb } from '../../interfaces/mongodb/clientInterfaceMongodb'
@@ -387,15 +387,15 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<
         }
     }
 
-    async updateArchiveState(id: string, isArchived: OptionYesNo): Promise<BookingInterfaceIdMongodb | null> {
+    async updateArchiveState(id: string, isArchived: OptionYesNo, session?: ClientSession): Promise<BookingInterfaceIdMongodb | null> {
         try {
             const updatedBooking = await BookingModelMongodb.findByIdAndUpdate(
                 id,
                 { $set: { isArchived: isArchived } },
                 { new: true }
             )
-            if (updatedBooking === null) { return null }
 
+            if (updatedBooking === null) return null
             return updatedBooking
         }
         catch (error) {

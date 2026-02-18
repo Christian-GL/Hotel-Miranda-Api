@@ -4,6 +4,7 @@ import { UserModelMongodb } from '../../models/mongodb/userModelMongodb'
 import { UserInterface, UserInterfaceIdMongodb } from '../../interfaces/mongodb/userInterfaceMongodb'
 import { hashPassword } from '../../utils/hashPassword'
 import { OptionYesNo } from '../../enums/optionYesNo'
+import { ClientSession } from 'mongoose'
 
 
 export class UserServiceMongodb implements ServiceInterfaceMongodb<UserInterfaceIdMongodb> {
@@ -49,22 +50,20 @@ export class UserServiceMongodb implements ServiceInterfaceMongodb<UserInterface
                 { new: true }
             ).lean() as UserInterfaceIdMongodb | null
 
-            if (updatedUser) return updatedUser
-            else return null
+            return updatedUser
         }
         catch (error) {
             throw error
         }
     }
 
-    async updateArchiveState(id: string, isArchived: OptionYesNo): Promise<UserInterfaceIdMongodb | null> {
+    async updateArchiveState(id: string, isArchived: OptionYesNo, session?: ClientSession): Promise<UserInterfaceIdMongodb | null> {
         try {
             const updatedUser = await UserModelMongodb.findByIdAndUpdate(
                 id,
                 { $set: { isArchived: isArchived } },
-                { new: true }
+                { new: true, session }
             )
-            if (updatedUser === null) { return null }
 
             return updatedUser
         }

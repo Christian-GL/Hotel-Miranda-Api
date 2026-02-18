@@ -4,7 +4,7 @@ import { RoomInterfaceIdMongodb } from "../../roomInterfaceMongodb"
 import { ClientInterfaceIdMongodb } from "../../clientInterfaceMongodb"
 
 
-export interface RoomUpdateResponseInterface {
+export interface RoomArchiveResponseInterface {
     roomUpdated: RoomInterfaceIdMongodb
     updatedBookings: BookingInterfaceIdMongodb[]
     updatedClients: ClientInterfaceIdMongodb[]
