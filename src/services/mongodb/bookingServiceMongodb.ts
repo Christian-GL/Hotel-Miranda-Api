@@ -17,7 +17,7 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<
     BookingInterface,
     BookingCreateResponseInterface,
     BookingUpdateResponseInterface,
-    BookingInterfaceIdMongodb | null,   // !!! <---
+    // BookingArchiveResponseInterface,
     BookingDeleteResponseInterface
 > {
 
@@ -387,16 +387,24 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<
         }
     }
 
-    async setArchiveStatus(id: string, isArchived: OptionYesNo): Promise<BookingInterfaceIdMongodb | null> {
+    async updateArchiveState(id: string, isArchived: OptionYesNo): Promise<BookingInterfaceIdMongodb | null> {
         try {
-            const BookingdUser = await BookingModelMongodb.findByIdAndUpdate(id, { $set: { isArchived: isArchived } }, { new: true })
-            if (BookingdUser) return BookingdUser
-            return null
+            const updatedBooking = await BookingModelMongodb.findByIdAndUpdate(
+                id,
+                { $set: { isArchived: isArchived } },
+                { new: true }
+            )
+            if (updatedBooking === null) { return null }
+
+            return updatedBooking
         }
         catch (error) {
             throw error
         }
     }
+
+    // async archive(id: string, isArchived: OptionYesNo): Promise<BookingArchiveResponseInterface | null> {
+    // }
 
     async delete(id: string): Promise<BookingDeleteResponseInterface> {
         // Elimina la booking y elimina su id de referencia en las rooms y en el client asociados

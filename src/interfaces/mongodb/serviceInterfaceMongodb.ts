@@ -14,13 +14,14 @@ export interface ServiceInterfaceMongodb<
     T,
     TCreateResponse = T,
     TUpdateResponse = T | null,
-    TArchiveResponse = T | null,
+    // TArchiveResponse = T | null,
     TDeleteResponse = boolean
 > {
     fetchAll(): Promise<T[]>
     fetchById(id: string): Promise<T | null>
     create(item: T): Promise<TCreateResponse>
     update(id: string, item: T): Promise<TUpdateResponse>
-    setArchiveStatus(id: string, isArchived: OptionYesNo): Promise<TArchiveResponse>
+    updateArchiveState(id: string, isArchived: OptionYesNo): Promise<T | null>
+    // archive(id: string, isArchived: OptionYesNo): Promise<TArchiveResponse | null>
     delete(id: string): Promise<TDeleteResponse>
 }

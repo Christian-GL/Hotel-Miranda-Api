@@ -7,7 +7,6 @@ import mongoose from 'mongoose'
 import { BookingInterfaceIdMongodb } from '../../interfaces/mongodb/bookingInterfaceMongodb'
 import { BookingModelMongodb } from '../../models/mongodb/bookingModelMongodb'
 import { BookingServiceMongodb } from './bookingServiceMongodb'
-import { ClientUpdateResponseInterface } from '../../interfaces/mongodb/response/client/clientUpdateResponseInterface'
 import { ClientArchiveResponseInterface } from '../../interfaces/mongodb/response/client/clientArchiveResponseInterface'
 import { ClientDeleteResponseInterface } from '../../interfaces/mongodb/response/client/clientDeleteResponseInterface'
 
@@ -15,8 +14,8 @@ import { ClientDeleteResponseInterface } from '../../interfaces/mongodb/response
 export class ClientServiceMongodb implements ServiceInterfaceMongodb<
     ClientInterface,
     ClientInterfaceIdMongodb,
-    ClientUpdateResponseInterface,
-    ClientInterfaceIdMongodb | null,    // !!! <--
+    ClientInterfaceIdMongodb | null,
+    // ClientArchiveResponseInterface,  // !!! DESCOMENTAR
     ClientDeleteResponseInterface
 > {
 
@@ -147,7 +146,7 @@ export class ClientServiceMongodb implements ServiceInterfaceMongodb<
     //     }
     // }
 
-    async update(clientId: string, clientToUpdate: ClientInterface): Promise<ClientUpdateResponseInterface> {
+    async update(clientId: string, clientToUpdate: ClientInterface): Promise<ClientInterfaceIdMongodb | null> {
         try {
             const updatedClient = await ClientModelMongodb.findOneAndUpdate(
                 { _id: clientId },
@@ -155,17 +154,15 @@ export class ClientServiceMongodb implements ServiceInterfaceMongodb<
                 { new: true, runValidators: true, context: 'query' }
             ).lean() as ClientInterfaceIdMongodb | null
 
-            return {
-                clientUpdated: updatedClient as ClientInterfaceIdMongodb,
-                updatedBookings: []
-            }
+            if (updatedClient) return updatedClient
+            else return null
         }
         catch (error) {
             throw error
         }
     }
 
-    async setArchiveStatus(id: string, isArchived: OptionYesNo): Promise<ClientInterfaceIdMongodb | null> {
+    async updateArchiveState(id: string, isArchived: OptionYesNo): Promise<ClientInterfaceIdMongodb | null> {
         try {
             const updatedClient = await ClientModelMongodb.findByIdAndUpdate(
                 id,
@@ -184,14 +181,14 @@ export class ClientServiceMongodb implements ServiceInterfaceMongodb<
     async archive(id: string, isArchived: OptionYesNo): Promise<ClientArchiveResponseInterface | null> {
         try {
             const bookingServiceMongodb = new BookingServiceMongodb()
-            const updatedClient = await this.setArchiveStatus(id, isArchived)
+            const updatedClient = await this.updateArchiveState(id, isArchived)
             if (!updatedClient) return null
 
             let updatedBookings: BookingInterfaceIdMongodb[] = []
             // Si se está archivando:
             if (isArchived === OptionYesNo.yes && updatedClient.booking_id_list?.length) {
                 const bookingPromises = updatedClient.booking_id_list.map(bookingId =>
-                    bookingServiceMongodb.setArchiveStatus(
+                    bookingServiceMongodb.updateArchiveState(
                         bookingId.toString(),
                         OptionYesNo.yes
                     )
@@ -208,7 +205,6 @@ export class ClientServiceMongodb implements ServiceInterfaceMongodb<
             throw error
         }
     }
-
 
     async delete(id: string): Promise<ClientDeleteResponseInterface> {
         // Elimina el cliente y si es necesario archiva las bookings asociadas.

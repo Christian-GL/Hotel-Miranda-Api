@@ -47,7 +47,8 @@ export class UserServiceMongodb implements ServiceInterfaceMongodb<UserInterface
                 { _id: id },
                 { $set: user },
                 { new: true }
-            )
+            ).lean() as UserInterfaceIdMongodb | null
+
             if (updatedUser) return updatedUser
             else return null
         }
@@ -56,7 +57,7 @@ export class UserServiceMongodb implements ServiceInterfaceMongodb<UserInterface
         }
     }
 
-    async setArchiveStatus(id: string, isArchived: OptionYesNo): Promise<UserInterfaceIdMongodb | null> {
+    async updateArchiveState(id: string, isArchived: OptionYesNo): Promise<UserInterfaceIdMongodb | null> {
         try {
             const updatedUser = await UserModelMongodb.findByIdAndUpdate(
                 id,
@@ -74,7 +75,7 @@ export class UserServiceMongodb implements ServiceInterfaceMongodb<UserInterface
 
     async archive(id: string, isArchived: OptionYesNo): Promise<UserInterfaceIdMongodb | null> {
         try {
-            const updatedUser = await this.setArchiveStatus(id, isArchived)
+            const updatedUser = await this.updateArchiveState(id, isArchived)
             if (!updatedUser) return null
 
             return updatedUser

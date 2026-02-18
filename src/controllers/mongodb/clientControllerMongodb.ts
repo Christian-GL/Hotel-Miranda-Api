@@ -231,7 +231,7 @@ clientRouterMongodb.put('/:id', async (req: Request, res: Response, next: NextFu
         }
 
         const response = await clientServiceMongodb.update(clientId, clientToValidate)
-        if (!response.clientUpdated) {
+        if (response === null) {
             throw new ApiError(404, `Client #${clientId} not found`)
         }
 
@@ -257,7 +257,7 @@ clientRouterMongodb.patch('/archive/:id', adminOnly, async (req: Request, res: R
         }
 
         const response = await clientServiceMongodb.archive(clientId, newArchivedValue)
-        if (!response) {
+        if (response === null) {
             throw new ApiError(404, `Client #${clientId} not found`)
         }
 

@@ -238,7 +238,7 @@ userRouterMongodb.put('/:id', adminOnly, async (req: Request, res: Response, nex
         }
 
         const response = await userServiceMongodb.update(userId, userToValidate)
-        if (!response) {
+        if (response === null) {
             throw new ApiError(404, `User #${userId} not found`)
         }
 
@@ -268,7 +268,7 @@ userRouterMongodb.patch('/archive/:id', adminOnly, async (req: Request, res: Res
         }
 
         const response = await userServiceMongodb.archive(userId, newArchivedValue)
-        if (!response) {
+        if (response === null) {
             throw new ApiError(404, `User #${userId} not found`)
         }
 
