@@ -267,6 +267,7 @@ export class RoomServiceMongodb implements ServiceInterfaceMongodb<
     }
 
     async archive(id: string, isArchived: OptionYesNo): Promise<RoomArchiveResponseInterface | null> {
+        // Archiva la room y si es necesario archiva las bookings y los clientes asociados.
         const session = await mongoose.startSession()
         let updatedBookings: BookingInterfaceIdMongodb[] = []
         let updatedClients: ClientInterfaceIdMongodb[] = []
