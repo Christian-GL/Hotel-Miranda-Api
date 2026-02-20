@@ -10,8 +10,9 @@ import { BookingServiceMongodb } from '../../services/mongodb/bookingServiceMong
 import { BookingValidator } from '../../validators/bookingValidator'
 import { BookingInterface } from '../../interfaces/mongodb/bookingInterfaceMongodb'
 import { RoomServiceMongodb } from '../../services/mongodb/roomServiceMongodb'
-import { OptionYesNo } from '../../enums/optionYesNo'
 import { ClientServiceMongodb } from '../../services/mongodb/clientServiceMongodb'
+import { CommonValidators } from '../../validators/commonValidators'
+import { OptionYesNo } from '../../enums/optionYesNo'
 
 
 export const bookingRouterMongodb = Router()
@@ -150,8 +151,8 @@ bookingRouterMongodb.use(authMiddleware)
 
 bookingRouterMongodb.get('/', async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const bookingList = await bookingServiceMongodb.fetchAll()
-        res.json(bookingList)
+        const response = await bookingServiceMongodb.fetchAll()
+        res.json(response)
     }
     catch (error) {
         return next(error)
@@ -160,16 +161,17 @@ bookingRouterMongodb.get('/', async (req: Request, res: Response, next: NextFunc
 
 bookingRouterMongodb.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
     try {
-        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+        const bookingId = req.params.id
+        if (!mongoose.Types.ObjectId.isValid(bookingId)) {
             throw new ApiError(400, 'Invalid id format')
         }
-        const booking = await bookingServiceMongodb.fetchById(req.params.id)
-        if (booking !== null) {
-            res.json(booking)
-        }
-        else {
+
+        const booking = await bookingServiceMongodb.fetchById(bookingId)
+        if (booking === null) {
             throw new ApiError(404, `Booking #${req.params.id} not found`)
         }
+
+        res.json(booking)
     }
     catch (error) {
         return next(error)
@@ -177,66 +179,63 @@ bookingRouterMongodb.get('/:id', async (req: Request, res: Response, next: NextF
 })
 
 bookingRouterMongodb.post('/', async (req: Request, res: Response, next: NextFunction) => {
-    // Calculo del precio total de la booking antes de validarla
-    const roomIds: string[] = Array.isArray(req.body.room_id_list) ? req.body.room_id_list.map(String) : []
-    let bookingPrice: number
     try {
+        // Cálculo del precio total de la booking antes de validarla
+        const roomIds: string[] = Array.isArray(req.body.room_id_list) ? req.body.room_id_list.map(String) : []
+        let bookingPrice: number
         if (roomIds.length === 0) {
             throw new ApiError(404, 'Error fetching rooms for creating this booking, no rooms found')
         }
-        else {
-            const prices = await roomServiceMongodb.fetchPricesAndDiscounts(roomIds)
-            // Si algún ID falta o archivado calcular cuáles faltan para el mensaje de error
-            if (prices.length !== roomIds.length) {
-                const foundSet = new Set(prices.map((r: any) => String(r._id)))
-                const missing = roomIds.filter(id => !foundSet.has(id))
-                throw new ApiError(400, `Some room IDs do not exist or are archived: ${missing.join(', ')}`)
-            }
-            // Aplicar descuento a cada habitación y sumar
-            const total = prices.reduce((total: number, room: any) => {
-                const price = Number(room.price ?? 0)
-                const discount = Number(room.discount ?? 0)
-                const effective = price * (1 - (discount / 100))
-                return total + effective
-            }, 0)
 
-            bookingPrice = Number(total.toFixed(2))
+        // Si algún ID falta o archivado calcular cuáles faltan para el mensaje de error
+        const prices = await roomServiceMongodb.fetchPricesAndDiscounts(roomIds)
+        if (prices.length !== roomIds.length) {
+            const foundSet = new Set(prices.map((r: any) => String(r._id)))
+            const missing = roomIds.filter(id => !foundSet.has(id))
+            throw new ApiError(400, `Some room IDs do not exist or are archived: ${missing.join(', ')}`)
         }
-    }
-    catch (error) {
-        return next(error)
-    }
 
-    const bookingToValidate: BookingInterface = {
-        order_date: new Date(req.body.order_date),
-        check_in_date: new Date(req.body.check_in_date),
-        check_out_date: new Date(req.body.check_out_date),
-        price: bookingPrice,
-        special_request: req.body.special_request.trim(),
-        isArchived: OptionYesNo.no,
-        room_id_list: roomIds,
-        client_id: req.body.client_id.trim()
-    }
-    const allBookingDatesNotArchived = await bookingServiceMongodb.fetchAllDatesByRoomsNotArchived(bookingToValidate.room_id_list)
-    const allRoomIdsNotArchived = await roomServiceMongodb.fetchAllIdsNotArchived()
-    const allClientIdsNotArchived = await clientServiceMongodb.fetchAllIdsNotArchived()
-    const client = await clientServiceMongodb.fetchById(bookingToValidate.client_id)
-    const clientID: string = client ? String(client._id) : ''
+        // Aplicar descuento a cada habitación y sumar
+        const total = prices.reduce((total: number, room: any) => {
+            const price = Number(room.price ?? 0)
+            const discount = Number(room.discount ?? 0)
+            const effective = price * (1 - (discount / 100))
+            return total + effective
+        }, 0)
+        bookingPrice = Number(total.toFixed(2))
 
-    const bookingValidator = new BookingValidator()
-    const totalErrors = bookingValidator.validateNewBooking(
-        bookingToValidate,
-        allBookingDatesNotArchived,
-        allRoomIdsNotArchived,
-        clientID,
-        allClientIdsNotArchived)
-    if (totalErrors.length > 0) {
-        throw new ApiError(400, totalErrors.join(', '))
-    }
+        const bookingToValidate: BookingInterface = {
+            order_date: new Date(req.body.order_date),
+            check_in_date: new Date(req.body.check_in_date),
+            check_out_date: new Date(req.body.check_out_date),
+            price: bookingPrice,
+            special_request: req.body.special_request.trim(),
+            isArchived: OptionYesNo.no,
+            room_id_list: roomIds,
+            client_id: req.body.client_id.trim()
+        }
+        const allBookingDatesNotArchived = await bookingServiceMongodb.fetchAllDatesByRoomsNotArchived(bookingToValidate.room_id_list)
+        const allRoomIdsNotArchived = await roomServiceMongodb.fetchAllIdsNotArchived()
+        const allClientIdsNotArchived = await clientServiceMongodb.fetchAllIdsNotArchived()
+        const client = await clientServiceMongodb.fetchById(bookingToValidate.client_id)
+        const clientID: string = client ? String(client._id) : ''
+        const bookingValidator = new BookingValidator()
+        const totalErrors = bookingValidator.validateNewBooking(
+            bookingToValidate,
+            allBookingDatesNotArchived,
+            allRoomIdsNotArchived,
+            clientID,
+            allClientIdsNotArchived)
+        if (totalErrors.length > 0) {
+            throw new ApiError(400, totalErrors.join(', '))
+        }
 
-    try {
-        const allNewData = await bookingServiceMongodb.create(bookingToValidate)
-        res.status(201).json(allNewData)
+        const response = await bookingServiceMongodb.create(bookingToValidate)
+        if (!response) {
+            throw new ApiError(500, 'Error creating Booking')
+        }
+
+        res.status(201).json(response)
     }
     catch (error) {
         return next(error)
@@ -244,108 +243,104 @@ bookingRouterMongodb.post('/', async (req: Request, res: Response, next: NextFun
 })
 
 bookingRouterMongodb.put('/:id', async (req: Request, res: Response, next: NextFunction) => {
-
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-        throw new ApiError(400, 'Invalid id format')
-    }
-    // Calculo del precio total de la booking antes de validarla
-    const roomIds: string[] = Array.isArray(req.body.room_id_list) ? req.body.room_id_list.map(String) : []
-    let bookingPrice: number
     try {
+        const bookingId = req.params.id
+        if (!mongoose.Types.ObjectId.isValid(bookingId)) {
+            throw new ApiError(400, 'Invalid id format')
+        }
+
+        const existingBooking = await roomServiceMongodb.fetchById(bookingId)
+        if (!existingBooking) {
+            throw new ApiError(404, `Booking #${bookingId} not found`)
+        }
+
+        // Calculo del precio total de la booking antes de validarla
+        const roomIds: string[] = Array.isArray(req.body.room_id_list) ? req.body.room_id_list.map(String) : []
+        let bookingPrice: number
         if (roomIds.length === 0) {
-            console.error('Error fetching rooms for creating this booking, no rooms found')
-            res.status(500).json({ message: 'Error fetching rooms for creating this booking, no rooms found' })
-            return
+            throw new ApiError(500, 'Error fetching rooms for creating this booking, no rooms found')
         }
-        else {
-            const prices = await roomServiceMongodb.fetchPricesAndDiscounts(roomIds)
 
-            // Si algún ID falta o archivado calcular cuáles faltan para el mensaje de error
-            if (prices.length !== roomIds.length) {
-                const foundSet = new Set(prices.map((r: any) => String(r._id)))
-                const missing = roomIds.filter(id => !foundSet.has(id))
-                res.status(400).json({ message: `Some room IDs do not exist or are archived: ${missing.join(', ')}` })
-                return
-            }
-
-            // Aplicar descuento a cada habitación y sumar
-            const total = prices.reduce((total: number, room: any) => {
-                const price = Number(room.price ?? 0)
-                const discount = Number(room.discount ?? 0)
-                const effective = price * (1 - (discount / 100))
-                return total + effective
-            }, 0)
-
-            bookingPrice = Number(total.toFixed(2))
+        // Si algún ID falta o archivado calcular cuáles faltan para el mensaje de error
+        const prices = await roomServiceMongodb.fetchPricesAndDiscounts(roomIds)
+        if (prices.length !== roomIds.length) {
+            const foundSet = new Set(prices.map((r: any) => String(r._id)))
+            const missing = roomIds.filter(id => !foundSet.has(id))
+            throw new ApiError(400, `Some room IDs do not exist or are archived: ${missing.join(', ')}`)
         }
+
+        // Aplicar descuento a cada habitación y sumar
+        const total = prices.reduce((total: number, room: any) => {
+            const price = Number(room.price ?? 0)
+            const discount = Number(room.discount ?? 0)
+            const effective = price * (1 - (discount / 100))
+            return total + effective
+        }, 0)
+        bookingPrice = Number(total.toFixed(2))
+
+        const bookingToValidate: BookingInterface = {
+            order_date: new Date(req.body.order_date),
+            check_in_date: new Date(req.body.check_in_date),
+            check_out_date: new Date(req.body.check_out_date),
+            price: bookingPrice,
+            special_request: req.body.special_request.trim(),
+            isArchived: existingBooking.isArchived,
+            room_id_list: roomIds,
+            client_id: req.body.client_id.trim()
+        }
+        const allBookingDatesAndIdNotArchived = await bookingServiceMongodb.fetchAllDatesAndIdByRoomsNotArchived(bookingToValidate.room_id_list)
+        const allRoomIdsNotArchived = await roomServiceMongodb.fetchAllIdsNotArchived()
+        const allClientIdsNotArchived = await clientServiceMongodb.fetchAllIdsNotArchived()
+        const client = await clientServiceMongodb.fetchById(bookingToValidate.client_id)
+        const clientID: string = client ? String(client._id) : ''
+        const bookingValidator = new BookingValidator()
+        const totalErrors = bookingValidator.validateExistingBooking(
+            { _id: bookingId, ...bookingToValidate } as any,
+            allBookingDatesAndIdNotArchived,
+            allRoomIdsNotArchived,
+            clientID,
+            allClientIdsNotArchived
+        )
+        if (totalErrors.length > 0) {
+            throw new ApiError(400, totalErrors.join(', '))
+        }
+
+        const response = await bookingServiceMongodb.update(bookingId, bookingToValidate)
+        if (response === null) {
+            throw new ApiError(404, `Booking #${bookingId} not found`)
+        }
+
+        res.status(200).json(response)
     }
-    catch (error: any) {
-        const msg = String(error?.message ?? '')
-        if (msg.toLowerCase().includes('some room ids do not exist')) {
-            res.status(400).json({ message: msg })
-            return
-        }
-        if (msg.toLowerCase().includes('replica set') || msg.toLowerCase().includes('transactions')) {
-            res.status(500).json({ message: `Transaction error: ${msg}. Ensure MongoDB supports transactions (replica set / Atlas).` })
-            return
-        }
-        console.error('Error creating booking:', error)
-        res.status(500).json({ message: (error && error.message) ? error.message : 'Internal server error' })
-        return
-    }
-
-    const bookingId = req.params.id
-    const bookingToValidate: BookingInterface = {
-        order_date: new Date(req.body.order_date),
-        check_in_date: new Date(req.body.check_in_date),
-        check_out_date: new Date(req.body.check_out_date),
-        price: bookingPrice,
-        special_request: req.body.special_request.trim(),
-        isArchived: req.body.isArchived ?? OptionYesNo.no,
-        room_id_list: roomIds,
-        client_id: req.body.client_id.trim()
-    }
-    const allBookingDatesAndIdNotArchived = await bookingServiceMongodb.fetchAllDatesAndIdByRoomsNotArchived(bookingToValidate.room_id_list)
-    const allRoomIdsNotArchived = await roomServiceMongodb.fetchAllIdsNotArchived()
-    const allClientIdsNotArchived = await clientServiceMongodb.fetchAllIdsNotArchived()
-    const client = await clientServiceMongodb.fetchById(bookingToValidate.client_id)
-    const clientID: string = client ? String(client._id) : ''
-
-    const bookingValidator = new BookingValidator()
-    const totalErrors = bookingValidator.validateExistingBooking(
-        { _id: bookingId, ...bookingToValidate } as any,
-        allBookingDatesAndIdNotArchived,
-        allRoomIdsNotArchived,
-        clientID,
-        allClientIdsNotArchived
-    )
-    if (totalErrors.length > 0) {
-        res.status(400).json({ message: totalErrors.join(', ') })
-        return
+    catch (error) {
+        next(error)
     }
 
+})
+
+bookingRouterMongodb.patch('/archive/:id', adminOnly, async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const allNewData = await bookingServiceMongodb.update(bookingId, bookingToValidate)
-        if (!allNewData || !allNewData.booking) {
-            res.status(404).json({ message: `Booking #${bookingId} not found` })
-            return
+        const bookingId = req.params.id
+        if (!mongoose.Types.ObjectId.isValid(bookingId)) {
+            throw new ApiError(400, 'Invalid id format')
         }
-        res.status(200).json(allNewData)
-        return
+
+        const newArchivedValue = req.body.isArchived
+        const commonValidator = new CommonValidators()
+        const totalErrorsArchived = commonValidator.validateArchivedOption(newArchivedValue)
+        if (totalErrorsArchived.length > 0) {
+            throw new ApiError(400, totalErrorsArchived.join(', '))
+        }
+
+        const response = await bookingServiceMongodb.archive(bookingId, newArchivedValue)
+        if (response === null) {
+            throw new ApiError(404, `Booking #${bookingId} not found`)
+        }
+
+        res.status(200).json(response)
     }
-    catch (error: any) {
-        const msg = String(error?.message ?? '')
-        if (msg.toLowerCase().includes('some room ids do not exist')) {
-            res.status(400).json({ message: msg })
-            return
-        }
-        if (msg.toLowerCase().includes('replica set') || msg.toLowerCase().includes('transactions')) {
-            res.status(500).json({ message: `Transaction error: ${msg}. Ensure MongoDB supports transactions (replica set / Atlas).` })
-            return
-        }
-        console.error('Error updating booking:', error)
-        res.status(500).json({ message: msg || 'Internal server error' })
-        return
+    catch (error) {
+        return next(error)
     }
 })
 
@@ -355,12 +350,13 @@ bookingRouterMongodb.delete('/:id', adminOnly, async (req: Request, res: Respons
         if (!mongoose.Types.ObjectId.isValid(id)) {
             throw new ApiError(400, 'Invalid id format')
         }
-        const allNewData = await bookingServiceMongodb.delete(id)
-        if (!allNewData || !allNewData.bookingIsDeleted) {
+
+        const response = await bookingServiceMongodb.delete(id)
+        if (!response || !response.bookingIsDeleted) {
             throw new ApiError(404, `Booking #${id} not found`)
         }
 
-        res.status(200).json(allNewData)
+        res.status(200).json(response)
     }
     catch (error) {
         return next(error)

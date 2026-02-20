@@ -275,8 +275,8 @@ export class RoomServiceMongodb implements ServiceInterfaceMongodb<
 
         try {
             await session.withTransaction(async () => {
-                const oldRoom = await RoomModelMongodb.findById(id).session(session).lean() as RoomInterfaceIdMongodb | null
-                if (!oldRoom) {
+                const roomBefore = await RoomModelMongodb.findById(id).session(session).lean() as RoomInterfaceIdMongodb | null
+                if (!roomBefore) {
                     throw new Error(`Room #${id} not found`)
                 }
 

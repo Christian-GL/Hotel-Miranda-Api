@@ -7,16 +7,17 @@ import mongoose, { ClientSession } from 'mongoose'
 import { RoomModelMongodb } from '../../models/mongodb/roomModelMongodb'
 import { ClientModelMongodb } from '../../models/mongodb/clientModelMongodb'
 import { ClientInterfaceIdMongodb } from '../../interfaces/mongodb/clientInterfaceMongodb'
+import { ClientServiceMongodb } from '../../services/mongodb/clientServiceMongodb'
 import { RoomInterfaceIdMongodb } from '../../interfaces/mongodb/roomInterfaceMongodb'
 import { BookingCreateResponseInterface } from '../../interfaces/mongodb/response/booking/bookingCreateResponseInterface'
-import { BookingUpdateResponseInterface } from '../../interfaces/mongodb/response/booking/bookingUpdateResponseInterface'
+import { BookingArchiveResponseInterface } from '../../interfaces/mongodb/response/booking/bookingArchiveResponseInterface'
 import { BookingDeleteResponseInterface } from '../../interfaces/mongodb/response/booking/bookingDeleteResponseInterface'
 
 
 export class BookingServiceMongodb implements ServiceInterfaceMongodb<
     BookingInterface,
     BookingCreateResponseInterface,
-    BookingUpdateResponseInterface,
+    BookingInterfaceIdMongodb | null,
     // BookingArchiveResponseInterface,
     BookingDeleteResponseInterface
 > {
@@ -212,171 +213,287 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<
         }
     }
 
-    async update(id: string, bookingDTO: BookingInterface): Promise<BookingUpdateResponseInterface> {
-        // Actualiza la booking y si es necesario actualiza las rooms y el cliente asociados.
-        const session = await mongoose.startSession()
-        let affectedClientId: string | null = null
+    // async update(id: string, bookingDTO: BookingInterface): Promise<BookingUpdateResponseInterface> {
+    //     // Actualiza la booking y si es necesario actualiza las rooms y el cliente asociados.
+    //     const session = await mongoose.startSession()
+    //     let affectedClientId: string | null = null
 
+    //     try {
+
+    //         await session.withTransaction(async () => {
+    //             const bookingToUpdate = await BookingModelMongodb.findOne({ _id: id }).session(session).lean()
+    //             if (!bookingToUpdate) {
+    //                 throw new Error(`Booking #${id} not found`)
+    //             }
+
+    //             const oldRoomIds: string[] = Array.isArray(bookingToUpdate.room_id_list)
+    //                 ? Array.from(new Set(bookingToUpdate.room_id_list.map(String)))
+    //                 : []
+    //             const newRoomIds: string[] = Array.isArray(bookingDTO.room_id_list)
+    //                 ? Array.from(new Set(bookingDTO.room_id_list.map(String)))
+    //                 : []
+    //             const IdsToAdd = newRoomIds.filter(rid => !(new Set(oldRoomIds)).has(rid))
+    //             const IdsToRemove = oldRoomIds.filter(rid => !(new Set(newRoomIds)).has(rid))
+
+    //             // --- Validar existencia de rooms que vamos a AÑADIR (IdsToAdd) ---
+    //             if (IdsToAdd.length > 0) {
+    //                 const found = await RoomModelMongodb.find({ _id: { $in: IdsToAdd } }).select('_id').session(session).lean()
+    //                 const foundSet = new Set(found.map((r: any) => String(r._id)))
+    //                 const missing = IdsToAdd.filter(id => !foundSet.has(id))
+    //                 if (missing.length > 0) {
+    //                     throw new Error(`Some room IDs do not exist: ${missing.join(', ')}`)
+    //                 }
+    //             }
+
+    //             // --- Validar existencia de rooms que vamos a AÑADIR (IdsToAdd) ---
+    //             const oldClientId = String(bookingToUpdate.client_id ?? '')
+    //             const newClientId = String(bookingDTO.client_id ?? '')
+
+    //             if (newClientId && oldClientId !== newClientId) {
+    //                 const foundClient = await ClientModelMongodb.findById(newClientId).select('_id').session(session).lean()
+    //                 if (!foundClient) {
+    //                     throw new Error(`Client #${newClientId} not found`)
+    //                 }
+    //             }
+
+    //             // --- Actualizar la booking dentro de la sesión ---
+    //             const updatedBookingDoc = await BookingModelMongodb.findOneAndUpdate(
+    //                 { _id: id },
+    //                 bookingDTO,
+    //                 { new: true, session }
+    //             ).exec()
+    //             if (!updatedBookingDoc) {
+    //                 throw new Error(`Booking #${id} not found`)
+    //             }
+
+    //             // --- ROOMS: lógica sobre isArchived y diferencias entre listas ---
+    //             const oldArchived = String(bookingToUpdate.isArchived ?? '').toLowerCase()
+    //             const newArchived = String(bookingDTO.isArchived ?? '').toLowerCase()
+
+    //             if (oldArchived !== newArchived) {
+    //                 if (newArchived === String(OptionYesNo.yes)) {
+    //                     // Booking pasó a archivada: quitar referencia de todas las oldRoomIds
+    //                     if (oldRoomIds.length > 0) {
+    //                         await RoomModelMongodb.updateMany(
+    //                             { _id: { $in: oldRoomIds }, booking_id_list: updatedBookingDoc._id },
+    //                             { $pull: { booking_id_list: updatedBookingDoc._id } },
+    //                             { session }
+    //                         ).exec()
+    //                     }
+    //                 } else {
+    //                     // Booking dejó de estar archivada: añadir referencia a newRoomIds (validando existencia)
+    //                     if (newRoomIds.length > 0) {
+    //                         const found = await RoomModelMongodb.find({ _id: { $in: newRoomIds } }).select('_id').session(session).lean()
+    //                         const foundSet = new Set(found.map((r: any) => String(r._id)))
+    //                         const missing = newRoomIds.filter(id => !foundSet.has(id))
+    //                         if (missing.length > 0) {
+    //                             throw new Error(`Some room IDs do not exist: ${missing.join(', ')}`)
+    //                         }
+    //                         await RoomModelMongodb.updateMany(
+    //                             { _id: { $in: newRoomIds } },
+    //                             { $addToSet: { booking_id_list: updatedBookingDoc._id } },
+    //                             { session }
+    //                         ).exec()
+    //                     }
+    //                 }
+    //             }
+    //             else {
+    //                 // Si no hubo cambio en isArchived: aplicar diferencias normales entre listas
+    //                 if (IdsToAdd.length > 0) {
+    //                     await RoomModelMongodb.updateMany(
+    //                         { _id: { $in: IdsToAdd } },
+    //                         { $addToSet: { booking_id_list: updatedBookingDoc._id } },
+    //                         { session }
+    //                     ).exec()
+    //                 }
+    //                 if (IdsToRemove.length > 0) {
+    //                     await RoomModelMongodb.updateMany(
+    //                         { _id: { $in: IdsToRemove } },
+    //                         { $pull: { booking_id_list: updatedBookingDoc._id } },
+    //                         { session }
+    //                     ).exec()
+    //                 }
+    //             }
+
+    //             // CLIENT: lógica de archivado / cambio de client (Si cambió la propiedad isArchived en la booking)
+    //             if (oldArchived !== newArchived) {
+    //                 if (newArchived === String(OptionYesNo.yes)) {
+    //                     // Booking pasó a archivada -> quitar referencia del client actual (oldClientId o newClientId según cambio)
+    //                     // Si client cambió junto con archivado, quitamos de oldClientId (si existe).
+    //                     const targetClientForPull = oldClientId || newClientId
+    //                     if (targetClientForPull) {
+    //                         affectedClientId = targetClientForPull
+    //                         await ClientModelMongodb.updateOne(
+    //                             { _id: targetClientForPull, booking_id_list: updatedBookingDoc._id },
+    //                             { $pull: { booking_id_list: updatedBookingDoc._id } },
+    //                             { session }
+    //                         ).exec()
+    //                     }
+    //                 }
+    //                 else {
+    //                     // booking dejó de estar archivada: asegurarnos de que está en el client nuevo (newClientId)
+    //                     if (newClientId) {
+    //                         affectedClientId = newClientId
+    //                         const foundClient = await ClientModelMongodb.findById(newClientId).select('_id').session(session).lean()
+    //                         if (!foundClient) {
+    //                             throw new Error(`Client #${newClientId} not found`)
+    //                         }
+    //                         await ClientModelMongodb.updateOne(
+    //                             { _id: newClientId },
+    //                             { $addToSet: { booking_id_list: updatedBookingDoc._id } },
+    //                             { session }
+    //                         ).exec()
+    //                     }
+    //                 }
+    //             }
+    //             else {
+    //                 // Si no cambió isArchived, pero cambió el client: mover referencia de oldClientId a newClientId
+    //                 if (newClientId && oldClientId !== newClientId) {
+    //                     if (oldClientId) {
+    //                         affectedClientId = oldClientId
+    //                         await ClientModelMongodb.updateOne(
+    //                             { _id: oldClientId, booking_id_list: updatedBookingDoc._id },
+    //                             { $pull: { booking_id_list: updatedBookingDoc._id } },
+    //                             { session }
+    //                         ).exec()
+    //                     }
+    //                     affectedClientId = oldClientId
+    //                     await ClientModelMongodb.updateOne(
+    //                         { _id: newClientId },
+    //                         { $addToSet: { booking_id_list: updatedBookingDoc._id } },
+    //                         { session }
+    //                     ).exec()
+    //                 }
+    //             }
+    //         })
+    //         const finalFresh = await BookingModelMongodb.findById(id).lean()
+    //         const updatedRooms = await RoomModelMongodb.find({ booking_id_list: id }).lean()
+    //         // const updatedClient = await ClientModelMongodb.findOne({ booking_id_list: id }).lean()
+    //         let updatedClient = null
+    //         if (affectedClientId) {
+    //             updatedClient = await ClientModelMongodb.findById(affectedClientId).lean()
+    //         }
+
+    //         return {
+    //             booking: finalFresh as BookingInterfaceIdMongodb | null,
+    //             updatedRooms: updatedRooms as RoomInterfaceIdMongodb[],
+    //             updatedClient: updatedClient as ClientInterfaceIdMongodb | null
+    //         }
+    //     }
+    //     catch (error) {
+    //         throw error
+    //     }
+    //     finally {
+    //         session.endSession()
+    //     }
+    // }
+
+    async update(bookingId: string, bookingToUpdate: BookingInterface): Promise<BookingInterfaceIdMongodb | null> {
         try {
+            const updatedBooking = await BookingModelMongodb.findOneAndUpdate(
+                { _id: bookingId },
+                { $set: bookingToUpdate },
+                { new: true, runValidators: true, context: 'query' }
+            ).lean() as BookingInterfaceIdMongodb | null
+
+            return updatedBooking
+        }
+        catch (error) {
+            throw error
+        }
+    }
+
+    async updateArchiveState(id: string, isArchived: OptionYesNo, session?: ClientSession): Promise<BookingInterfaceIdMongodb | null> {
+        try {
+            const updatedBooking = await BookingModelMongodb.findByIdAndUpdate(
+                id,
+                { $set: { isArchived: isArchived } },
+                { new: true, session }
+            )
+
+            return updatedBooking
+        }
+        catch (error) {
+            throw error
+        }
+    }
+
+    async archive(id: string, isArchived: OptionYesNo): Promise<BookingArchiveResponseInterface | null> {
+        // Archiva la booking y si es necesario actualiza la lista de bookings de la room y del cliente asociados.
+        const session = await mongoose.startSession()
+        try {
+            let updatedRooms: RoomInterfaceIdMongodb[] = []
+            let updatedClient: ClientInterfaceIdMongodb | null = null
 
             await session.withTransaction(async () => {
-                const bookingToUpdate = await BookingModelMongodb.findOne({ _id: id }).session(session).lean()
-                if (!bookingToUpdate) {
+                const bookingBefore = await BookingModelMongodb.findById(id).session(session).lean() as BookingInterfaceIdMongodb | null
+                if (!bookingBefore) {
                     throw new Error(`Booking #${id} not found`)
                 }
 
-                const oldRoomIds: string[] = Array.isArray(bookingToUpdate.room_id_list)
-                    ? Array.from(new Set(bookingToUpdate.room_id_list.map(String)))
-                    : []
-                const newRoomIds: string[] = Array.isArray(bookingDTO.room_id_list)
-                    ? Array.from(new Set(bookingDTO.room_id_list.map(String)))
-                    : []
-                const IdsToAdd = newRoomIds.filter(rid => !(new Set(oldRoomIds)).has(rid))
-                const IdsToRemove = oldRoomIds.filter(rid => !(new Set(newRoomIds)).has(rid))
-
-                // --- Validar existencia de rooms que vamos a AÑADIR (IdsToAdd) ---
-                if (IdsToAdd.length > 0) {
-                    const found = await RoomModelMongodb.find({ _id: { $in: IdsToAdd } }).select('_id').session(session).lean()
-                    const foundSet = new Set(found.map((r: any) => String(r._id)))
-                    const missing = IdsToAdd.filter(id => !foundSet.has(id))
-                    if (missing.length > 0) {
-                        throw new Error(`Some room IDs do not exist: ${missing.join(', ')}`)
-                    }
-                }
-
-                // --- Validar existencia de rooms que vamos a AÑADIR (IdsToAdd) ---
-                const oldClientId = String(bookingToUpdate.client_id ?? '')
-                const newClientId = String(bookingDTO.client_id ?? '')
-
-                if (newClientId && oldClientId !== newClientId) {
-                    const foundClient = await ClientModelMongodb.findById(newClientId).select('_id').session(session).lean()
-                    if (!foundClient) {
-                        throw new Error(`Client #${newClientId} not found`)
-                    }
-                }
-
-                // --- Actualizar la booking dentro de la sesión ---
-                const updatedBookingDoc = await BookingModelMongodb.findOneAndUpdate(
-                    { _id: id },
-                    bookingDTO,
-                    { new: true, session }
-                ).exec()
-                if (!updatedBookingDoc) {
+                const updatedBooking = await this.updateArchiveState(id, isArchived, session)
+                if (!updatedBooking) {
                     throw new Error(`Booking #${id} not found`)
                 }
 
-                // --- ROOMS: lógica sobre isArchived y diferencias entre listas ---
-                const oldArchived = String(bookingToUpdate.isArchived ?? '').toLowerCase()
-                const newArchived = String(bookingDTO.isArchived ?? '').toLowerCase()
-
-                if (oldArchived !== newArchived) {
-                    if (newArchived === String(OptionYesNo.yes)) {
-                        // Booking pasó a archivada: quitar referencia de todas las oldRoomIds
-                        if (oldRoomIds.length > 0) {
-                            await RoomModelMongodb.updateMany(
-                                { _id: { $in: oldRoomIds }, booking_id_list: updatedBookingDoc._id },
-                                { $pull: { booking_id_list: updatedBookingDoc._id } },
-                                { session }
-                            ).exec()
-                        }
-                    } else {
-                        // Booking dejó de estar archivada: añadir referencia a newRoomIds (validando existencia)
-                        if (newRoomIds.length > 0) {
-                            const found = await RoomModelMongodb.find({ _id: { $in: newRoomIds } }).select('_id').session(session).lean()
-                            const foundSet = new Set(found.map((r: any) => String(r._id)))
-                            const missing = newRoomIds.filter(id => !foundSet.has(id))
-                            if (missing.length > 0) {
-                                throw new Error(`Some room IDs do not exist: ${missing.join(', ')}`)
-                            }
-                            await RoomModelMongodb.updateMany(
-                                { _id: { $in: newRoomIds } },
-                                { $addToSet: { booking_id_list: updatedBookingDoc._id } },
-                                { session }
-                            ).exec()
-                        }
-                    }
-                }
-                else {
-                    // Si no hubo cambio en isArchived: aplicar diferencias normales entre listas
-                    if (IdsToAdd.length > 0) {
+                const roomIds = Array.isArray(updatedBooking.room_id_list) ? updatedBooking.room_id_list.map(String) : []
+                if (isArchived === OptionYesNo.yes) {
+                    if (roomIds.length > 0) {
                         await RoomModelMongodb.updateMany(
-                            { _id: { $in: IdsToAdd } },
-                            { $addToSet: { booking_id_list: updatedBookingDoc._id } },
+                            { _id: { $in: roomIds }, booking_id_list: updatedBooking._id },
+                            { $pull: { booking_id_list: updatedBooking._id } },
                             { session }
                         ).exec()
-                    }
-                    if (IdsToRemove.length > 0) {
-                        await RoomModelMongodb.updateMany(
-                            { _id: { $in: IdsToRemove } },
-                            { $pull: { booking_id_list: updatedBookingDoc._id } },
-                            { session }
-                        ).exec()
-                    }
-                }
-
-                // CLIENT: lógica de archivado / cambio de client (Si cambió la propiedad isArchived en la booking)
-                if (oldArchived !== newArchived) {
-                    if (newArchived === String(OptionYesNo.yes)) {
-                        // Booking pasó a archivada -> quitar referencia del client actual (oldClientId o newClientId según cambio)
-                        // Si client cambió junto con archivado, quitamos de oldClientId (si existe).
-                        const targetClientForPull = oldClientId || newClientId
-                        if (targetClientForPull) {
-                            affectedClientId = targetClientForPull
-                            await ClientModelMongodb.updateOne(
-                                { _id: targetClientForPull, booking_id_list: updatedBookingDoc._id },
-                                { $pull: { booking_id_list: updatedBookingDoc._id } },
-                                { session }
-                            ).exec()
-                        }
                     }
                     else {
-                        // booking dejó de estar archivada: asegurarnos de que está en el client nuevo (newClientId)
-                        if (newClientId) {
-                            affectedClientId = newClientId
-                            const foundClient = await ClientModelMongodb.findById(newClientId).select('_id').session(session).lean()
-                            if (!foundClient) {
-                                throw new Error(`Client #${newClientId} not found`)
-                            }
-                            await ClientModelMongodb.updateOne(
-                                { _id: newClientId },
-                                { $addToSet: { booking_id_list: updatedBookingDoc._id } },
-                                { session }
-                            ).exec()
-                        }
+                        await RoomModelMongodb.updateMany(
+                            { booking_id_list: updatedBooking._id },
+                            { $pull: { booking_id_list: updatedBooking._id } },
+                            { session }
+                        ).exec()
+                    }
+                    if (updatedBooking.client_id) {
+                        const clientService = new ClientServiceMongodb()
+                        await clientService.removeBookingIdsFromClient(String(updatedBooking.client_id), [String(updatedBooking._id)], session)
                     }
                 }
                 else {
-                    // Si no cambió isArchived, pero cambió el client: mover referencia de oldClientId a newClientId
-                    if (newClientId && oldClientId !== newClientId) {
-                        if (oldClientId) {
-                            affectedClientId = oldClientId
-                            await ClientModelMongodb.updateOne(
-                                { _id: oldClientId, booking_id_list: updatedBookingDoc._id },
-                                { $pull: { booking_id_list: updatedBookingDoc._id } },
-                                { session }
-                            ).exec()
-                        }
-                        affectedClientId = oldClientId
+                    if (roomIds.length > 0) {
+                        await RoomModelMongodb.updateMany(
+                            { _id: { $in: roomIds } },
+                            { $addToSet: { booking_id_list: updatedBooking._id } },
+                            { session }
+                        ).exec()
+                    }
+                    if (updatedBooking.client_id) {
                         await ClientModelMongodb.updateOne(
-                            { _id: newClientId },
-                            { $addToSet: { booking_id_list: updatedBookingDoc._id } },
+                            { _id: updatedBooking.client_id },
+                            { $addToSet: { booking_id_list: updatedBooking._id } },
                             { session }
                         ).exec()
                     }
                 }
-            })
-            const finalFresh = await BookingModelMongodb.findById(id).lean()
-            const updatedRooms = await RoomModelMongodb.find({ booking_id_list: id }).lean()
-            // const updatedClient = await ClientModelMongodb.findOne({ booking_id_list: id }).lean()
-            let updatedClient = null
-            if (affectedClientId) {
-                updatedClient = await ClientModelMongodb.findById(affectedClientId).lean()
-            }
 
+                if (roomIds.length > 0) {
+                    updatedRooms = await RoomModelMongodb.find({ _id: { $in: roomIds } }).session(session).lean() as RoomInterfaceIdMongodb[]
+                }
+                else {
+                    updatedRooms = await RoomModelMongodb.find({ booking_id_list: updatedBooking._id }).session(session).lean() as RoomInterfaceIdMongodb[]
+                }
+
+                if (updatedBooking.client_id) {
+                    updatedClient = await ClientModelMongodb.findById(updatedBooking.client_id).session(session).lean() as ClientInterfaceIdMongodb | null
+                }
+                else {
+                    updatedClient = null
+                }
+            })
+
+            const finalBooking = await BookingModelMongodb.findById(id).lean() as BookingInterfaceIdMongodb | null
             return {
-                booking: finalFresh as BookingInterfaceIdMongodb | null,
-                updatedRooms: updatedRooms as RoomInterfaceIdMongodb[],
-                updatedClient: updatedClient as ClientInterfaceIdMongodb | null
+                booking: finalBooking,
+                updatedRooms,
+                updatedClient
             }
         }
         catch (error) {
@@ -386,25 +503,6 @@ export class BookingServiceMongodb implements ServiceInterfaceMongodb<
             session.endSession()
         }
     }
-
-    async updateArchiveState(id: string, isArchived: OptionYesNo, session?: ClientSession): Promise<BookingInterfaceIdMongodb | null> {
-        try {
-            const updatedBooking = await BookingModelMongodb.findByIdAndUpdate(
-                id,
-                { $set: { isArchived: isArchived } },
-                { new: true }
-            )
-
-            if (updatedBooking === null) return null
-            return updatedBooking
-        }
-        catch (error) {
-            throw error
-        }
-    }
-
-    // async archive(id: string, isArchived: OptionYesNo): Promise<BookingArchiveResponseInterface | null> {
-    // }
 
     async delete(id: string): Promise<BookingDeleteResponseInterface> {
         // Elimina la booking y elimina su id de referencia en las rooms y en el client asociados
