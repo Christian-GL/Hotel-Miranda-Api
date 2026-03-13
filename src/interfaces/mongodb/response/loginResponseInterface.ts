@@ -1,5 +1,5 @@
 
-import { Role } from "user/enums/role"
+import { Role } from "../../../enums/role"
 
 
 export interface LoginResponseInterface {
