@@ -6,6 +6,7 @@ import jwt from 'jsonwebtoken'
 import { ApiError } from '../../errors/ApiError'
 import { UserInterfaceIdMongodb } from "../../interfaces/mongodb/userInterfaceMongodb"
 import { UserServiceMongodb } from "../../services/mongodb/userServiceMongodb"
+import { LoginRequestInterface } from "../../interfaces/mongodb/request/loginRequestInterface"
 
 
 export const loginRouterMongodb = Router()
@@ -53,7 +54,8 @@ export const loginRouterMongodb = Router()
 
 
 loginRouterMongodb.post('/', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const { email, password } = req.body
+
+    const { email, password }: LoginRequestInterface = req.body
     const userService = new UserServiceMongodb()
 
     try {
@@ -67,19 +69,21 @@ loginRouterMongodb.post('/', async (req: Request, res: Response, next: NextFunct
         }
 
         if (!user) {
-            throw new ApiError(404, 'Email or password wrong')
+            throw new ApiError(401, 'Email or password wrong')
         }
-        if (!process.env.TOKEN_SECRET) {
-            throw new ApiError(500, 'Server error: TOKEN_SECRET is not defined')
+
+        const passwordMatches = await bcrypt.compare(password, user.password)
+        if (!passwordMatches) {
+            throw new ApiError(401, 'Email or password wrong')
         }
+
         const now = new Date()
         if (now < new Date(user.start_date) || now > new Date(user.end_date)) {
             throw new ApiError(403, 'Access denied: The user is not active in the allowed date range, contact an administrator')
         }
 
-        const passwordMatches = await bcrypt.compare(password, user.password)
-        if (!passwordMatches) {
-            throw new ApiError(400, 'Email or password wrong')
+        if (!process.env.TOKEN_SECRET) {
+            throw new ApiError(500, 'Server error: TOKEN_SECRET is not defined')
         }
 
         const payload = {
