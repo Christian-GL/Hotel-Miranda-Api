@@ -7,9 +7,7 @@ import { ApiError } from 'errors/ApiError'
 import { UserInterface } from 'interfaces/mongodb/userInterfaceMongodb'
 import { adminOnly } from 'middleware/adminOnly'
 import { authMiddleware } from 'middleware/authMiddleware'
-import { UserModelMongodb } from 'models/mongodb/userModelMongodb'
 import { UserServiceMongodb } from 'services/mongodb/userServiceMongodb'
-import { hashPassword } from 'utils/hashPassword'
 import { CommonValidators } from "validators/commonValidators"
 import { UserValidator } from 'validators/userValidator'
 
@@ -211,14 +209,11 @@ userRouterMongodb.put('/:id', adminOnly, async (req: Request, res: Response, nex
             throw new ApiError(400, 'Invalid id format')
         }
 
-        const existingUser = await UserModelMongodb.findById(userId).select('password')
+        const existingUser = await userServiceMongodb.fetchById(userId)
         if (!existingUser) {
             throw new ApiError(404, `User #${userId} not found`)
         }
 
-        // !!! QUE TRAIGA TODO EL USER NO SOLO _id y password (el existingUser) PARA PODER USAR EN isArchived existingUser.isArchived (se mantiene valor).
-        const newPassword = req.body.password
-        const isSamePassword: boolean = (newPassword === existingUser.password)
         const userToValidate: UserInterface = {
             photo: req.body.photo === null ? null : String(req.body.photo).trim(),
             full_name: req.body.full_name.trim(),
@@ -228,12 +223,15 @@ userRouterMongodb.put('/:id', adminOnly, async (req: Request, res: Response, nex
             end_date: new Date(req.body.end_date),
             job_position: req.body.job_position.trim(),
             role: req.body.role.trim(),
-            password: isSamePassword ? existingUser.password : newPassword,
-            isArchived: req.body.isArchived
+            password: req.body.password,
+            isArchived: existingUser.isArchived
         }
-        
+
         const userValidator = new UserValidator()
-        const totalErrors = userValidator.validateExistingUser(userToValidate, isSamePassword)
+        const totalErrors: string[] = []
+        userToValidate.password === ""
+            ? userValidator.validateExistingUser(userToValidate)
+            : userValidator.validateExistingUserNewPassword(userToValidate, existingUser.password)
         if (totalErrors.length > 0) {
             throw new ApiError(400, totalErrors.join(', '))
         }
@@ -241,10 +239,6 @@ userRouterMongodb.put('/:id', adminOnly, async (req: Request, res: Response, nex
         const response = await userServiceMongodb.update(userId, userToValidate)
         if (response === null) {
             throw new ApiError(404, `User #${userId} not found`)
-        }
-
-        if (!isSamePassword) {
-            userToValidate.password = await hashPassword(newPassword)
         }
 
         res.status(200).json(response)

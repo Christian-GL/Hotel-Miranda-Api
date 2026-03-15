@@ -248,7 +248,7 @@ bookingRouterMongodb.put('/:id', async (req: Request, res: Response, next: NextF
             throw new ApiError(400, 'Invalid id format')
         }
 
-        const existingBooking = await roomServiceMongodb.fetchById(bookingId)
+        const existingBooking = await bookingServiceMongodb.fetchById(bookingId)
         if (!existingBooking) {
             throw new ApiError(404, `Booking #${bookingId} not found`)
         }

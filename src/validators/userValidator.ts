@@ -1,5 +1,6 @@
 
- import { UserInterface } from 'interfaces/mongodb/userInterfaceMongodb'
+import { UserInterface } from 'interfaces/mongodb/userInterfaceMongodb'
+import { comparePasswords } from 'utils/hashPassword'
 import {
     validateDate,
     validateDateRelativeToAnother,
@@ -104,20 +105,36 @@ export class UserValidator {
             error => allErrorMessages.push(error)
         )
 
+        validateNewPassword(user.password).map(
+            error => allErrorMessages.push(error)
+        )
+
         return allErrorMessages
     }
 
-    validateExistingUser(user: UserInterface, isSamePassword: boolean): string[] {
+    validateExistingUserNewPassword(user: UserInterface, actualPasswordHashed: string): string[] {
         const allErrorMessages: string[] = []
 
         this.validateUser(user).map(
             error => allErrorMessages.push(error)
         )
+
+        const isSamePassword = comparePasswords(user.password, actualPasswordHashed)
         if (!isSamePassword) {
             validateNewPassword(user.password).map(
                 error => allErrorMessages.push(error)
             )
         }
+
+        return allErrorMessages
+    }
+
+    validateExistingUser(user: UserInterface): string[] {
+        const allErrorMessages: string[] = []
+
+        this.validateUser(user).map(
+            error => allErrorMessages.push(error)
+        )
 
         return allErrorMessages
     }
