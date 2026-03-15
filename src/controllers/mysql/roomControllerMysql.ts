@@ -1,12 +1,11 @@
 
-import { Request, Response } from 'express'
-import Router from 'express'
-import { authMiddleware } from '../../middleware/authMiddleware'
-import { RoomServiceMysql } from '../../services/mysql/roomServiceMysql'
-import { BookingServiceMysql } from '../../services/mysql/bookingServiceMysql'
-import { RoomValidator } from '../../validators/roomValidator'
-import { BookingInterfaceMysql } from '../../interfaces/mysql/bookingInterfaceMysql'
-import { RoomInterfaceMysqlWithBookingData } from '../../interfaces/mysql/roomInterfaceMysql'
+import Router, { Request, Response } from 'express'
+import { BookingInterfaceMysql } from 'interfaces/mysql/bookingInterfaceMysql'
+import { RoomInterfaceMysqlWithBookingData } from 'interfaces/mysql/roomInterfaceMysql'
+import { authMiddleware } from 'middleware/authMiddleware'
+import { BookingServiceMysql } from 'services/mysql/bookingServiceMysql'
+import { RoomServiceMysql } from 'services/mysql/roomServiceMysql'
+import { RoomValidator } from 'validators/roomValidator'
 
 
 export const roomRouterMysql = Router()

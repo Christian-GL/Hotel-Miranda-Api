@@ -1,8 +1,8 @@
 
-import { ServiceInterfaceMysql } from '../../interfaces/mysql/serviceInterfaceMysql'
-import { UserModelMysql } from '../../models/mysql/userModelMysql'
-import { UserInterfaceMysql } from '../../interfaces/mysql/userInterfaceMysql'
-import { hashPassword } from '../../utils/hashPassword'
+import { ServiceInterfaceMysql } from 'interfaces/mysql/serviceInterfaceMysql'
+import { UserInterfaceMysql } from 'interfaces/mysql/userInterfaceMysql'
+import { UserModelMysql } from 'models/mysql/userModelMysql'
+import { hashPassword } from 'utils/hashPassword'
 
 
 export class UserServiceMysql implements ServiceInterfaceMysql<UserInterfaceMysql> {

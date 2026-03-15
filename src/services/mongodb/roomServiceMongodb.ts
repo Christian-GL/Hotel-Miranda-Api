@@ -1,18 +1,18 @@
 
 import mongoose, { ClientSession } from 'mongoose'
 
-import { ServiceInterfaceMongodb } from '../../interfaces/mongodb/serviceInterfaceMongodb'
-import { RoomModelMongodb } from '../../models/mongodb/roomModelMongodb'
-import { RoomInterface, RoomInterfaceIdMongodb, RoomInterfacePriceAndDiscount } from '../../interfaces/mongodb/roomInterfaceMongodb'
-import { OptionYesNo } from '../../enums/optionYesNo'
-import { BookingModelMongodb } from '../../models/mongodb/bookingModelMongodb'
-import { BookingInterfaceIdMongodb } from '../../interfaces/mongodb/bookingInterfaceMongodb'
-import { BookingServiceMongodb } from '../../services/mongodb/bookingServiceMongodb'
-import { ClientModelMongodb } from '../../models/mongodb/clientModelMongodb'
-import { ClientInterfaceIdMongodb } from '../../interfaces/mongodb/clientInterfaceMongodb'
-import { ClientServiceMongodb } from '../../services/mongodb/clientServiceMongodb'
-import { RoomDeleteResponseInterface } from '../../interfaces/mongodb/response/room/roomDeleteResponseInterface'
-import { RoomArchiveResponseInterface } from '../../interfaces/mongodb/response/room/roomArchiveResponseInterface'
+import { OptionYesNo } from 'enums/optionYesNo'
+import { BookingInterfaceIdMongodb } from 'interfaces/mongodb/bookingInterfaceMongodb'
+import { ClientInterfaceIdMongodb } from 'interfaces/mongodb/clientInterfaceMongodb'
+import { RoomArchiveResponseInterface } from 'interfaces/mongodb/response/room/roomArchiveResponseInterface'
+import { RoomDeleteResponseInterface } from 'interfaces/mongodb/response/room/roomDeleteResponseInterface'
+import { RoomInterface, RoomInterfaceIdMongodb, RoomInterfacePriceAndDiscount } from 'interfaces/mongodb/roomInterfaceMongodb'
+import { ServiceInterfaceMongodb } from 'interfaces/mongodb/serviceInterfaceMongodb'
+import { BookingModelMongodb } from 'models/mongodb/bookingModelMongodb'
+import { ClientModelMongodb } from 'models/mongodb/clientModelMongodb'
+import { RoomModelMongodb } from 'models/mongodb/roomModelMongodb'
+import { BookingServiceMongodb } from 'services/mongodb/bookingServiceMongodb'
+import { ClientServiceMongodb } from 'services/mongodb/clientServiceMongodb'
 
 
 export class RoomServiceMongodb implements ServiceInterfaceMongodb<

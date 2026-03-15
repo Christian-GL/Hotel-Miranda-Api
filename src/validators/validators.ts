@@ -1,9 +1,9 @@
 
-import { BookingInterfaceCheckInOutId, BookingInterfaceCheckInOut, BookingInterface, BookingInterfaceId } from "../interfaces/mongodb/bookingInterfaceMongodb"
-import { RoomType } from "../enums/roomType"
-import { Role } from "../enums/role"
-import { RoomAmenities } from "../enums/roomAmenities"
-import { OptionYesNo } from "../enums/optionYesNo"
+import { OptionYesNo } from "enums/optionYesNo"
+import { Role } from "enums/role"
+import { RoomAmenities } from "enums/roomAmenities"
+import { RoomType } from "enums/roomType"
+import { BookingInterface, BookingInterfaceCheckInOut, BookingInterfaceCheckInOutId, BookingInterfaceId } from "interfaces/mongodb/bookingInterfaceMongodb"
 
 
 /* TYPE VALIDATORS */

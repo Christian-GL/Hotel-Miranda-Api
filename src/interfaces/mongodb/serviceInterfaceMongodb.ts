@@ -1,5 +1,5 @@
 
-import { OptionYesNo } from "../../enums/optionYesNo"
+import { OptionYesNo } from "enums/optionYesNo"
 
 
 // export interface ServiceInterfaceMongodb<T> {

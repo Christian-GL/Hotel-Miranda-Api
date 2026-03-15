@@ -1,8 +1,8 @@
 
+import { UserStatus } from "enums/userStatus"
+import { UserInterfaceMysql } from "interfaces/mysql/userInterfaceMysql"
 import { DataTypes, Model } from "sequelize"
-import { sequelize } from '../../utils/databaseMysql'
-import { UserInterfaceMysql } from "../../interfaces/mysql/userInterfaceMysql"
-import { UserStatus } from "../../enums/userStatus"
+import { sequelize } from 'utils/databaseMysql'
 
 
 export class UserModelMysql extends Model<UserInterfaceMysql> {

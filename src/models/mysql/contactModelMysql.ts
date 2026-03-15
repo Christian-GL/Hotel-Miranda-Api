@@ -1,8 +1,8 @@
 
+import { ContactArchived } from "enums/contactArchived"
+import { ContactInterfaceMysql } from "interfaces/mysql/contactInterfaceMysql"
 import { DataTypes, Model } from "sequelize"
-import { sequelize } from '../../utils/databaseMysql'
-import { ContactInterfaceMysql } from "../../interfaces/mysql/contactInterfaceMysql"
-import { ContactArchived } from "../../enums/contactArchived"
+import { sequelize } from 'utils/databaseMysql'
 
 
 export class ContactModelMysql extends Model<ContactInterfaceMysql> {

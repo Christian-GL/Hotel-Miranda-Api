@@ -1,14 +1,13 @@
 
-import express from "express"
 import cors from "cors"
+import express from "express"
 
-import { loginRouterMongodb } from "../controllers/mongodb/loginControllerMongodb"
-import { bookingRouterMongodb } from "../controllers/mongodb/bookingControllerMongodb"
-import { roomRouterMongodb } from "../controllers/mongodb/roomControllerMongodb"
-import { clientRouterMongodb } from "../controllers/mongodb/clientControllerMongodb"
-import { userRouterMongodb } from "../controllers/mongodb/userControllerMongodb"
-
-import { errorMiddleware } from "../errors/errorMiddleware"
+import { bookingRouterMongodb } from "controllers/mongodb/bookingControllerMongodb"
+import { clientRouterMongodb } from "controllers/mongodb/clientControllerMongodb"
+import { loginRouterMongodb } from "controllers/mongodb/loginControllerMongodb"
+import { roomRouterMongodb } from "controllers/mongodb/roomControllerMongodb"
+import { userRouterMongodb } from "controllers/mongodb/userControllerMongodb"
+import { errorMiddleware } from "errors/errorMiddleware"
 
 
 export const appForTest = express()

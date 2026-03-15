@@ -1,6 +1,6 @@
 
-import { RoomType } from "../../enums/roomType"
-import { RoomAmenities } from "../../enums/roomAmenities"
+import { RoomAmenities } from "enums/roomAmenities"
+import { RoomType } from "enums/roomType"
 import { BookingInterfaceMysql } from "./bookingInterfaceMysql"
 
 

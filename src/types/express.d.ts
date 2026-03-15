@@ -1,5 +1,5 @@
 
-import type { DecodedUser } from '../interfaces/common/decodedUser'
+import type { DecodedUser } from 'interfaces/common/decodedUser'
 
 
 declare global {

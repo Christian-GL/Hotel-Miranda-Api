@@ -1,7 +1,8 @@
 
 import { Schema, model } from "mongoose"
-import { ClientInterfaceIdMongodb } from "../../interfaces/mongodb/clientInterfaceMongodb"
-import { OptionYesNo } from "../../enums/optionYesNo"
+
+import { OptionYesNo } from "enums/optionYesNo"
+import { ClientInterfaceIdMongodb } from "interfaces/mongodb/clientInterfaceMongodb"
 
 
 const ClientSchemaMongodb = new Schema<ClientInterfaceIdMongodb>

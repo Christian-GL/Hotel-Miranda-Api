@@ -1,15 +1,15 @@
 
 import mongoose, { ClientSession } from 'mongoose'
 
-import { ServiceInterfaceMongodb } from '../../interfaces/mongodb/serviceInterfaceMongodb'
-import { ClientModelMongodb } from '../../models/mongodb/clientModelMongodb'
-import { ClientInterface, ClientInterfaceIdMongodb } from '../../interfaces/mongodb/clientInterfaceMongodb'
-import { OptionYesNo } from '../../enums/optionYesNo'
-import { BookingInterfaceIdMongodb } from '../../interfaces/mongodb/bookingInterfaceMongodb'
-import { BookingModelMongodb } from '../../models/mongodb/bookingModelMongodb'
-import { BookingServiceMongodb } from './bookingServiceMongodb'
-import { ClientArchiveResponseInterface } from '../../interfaces/mongodb/response/client/clientArchiveResponseInterface'
-import { ClientDeleteResponseInterface } from '../../interfaces/mongodb/response/client/clientDeleteResponseInterface'
+import { OptionYesNo } from 'enums/optionYesNo'
+import { BookingInterfaceIdMongodb } from 'interfaces/mongodb/bookingInterfaceMongodb'
+import { ClientInterface, ClientInterfaceIdMongodb } from 'interfaces/mongodb/clientInterfaceMongodb'
+import { ClientArchiveResponseInterface } from 'interfaces/mongodb/response/client/clientArchiveResponseInterface'
+import { ClientDeleteResponseInterface } from 'interfaces/mongodb/response/client/clientDeleteResponseInterface'
+import { ServiceInterfaceMongodb } from 'interfaces/mongodb/serviceInterfaceMongodb'
+import { BookingModelMongodb } from 'models/mongodb/bookingModelMongodb'
+import { ClientModelMongodb } from 'models/mongodb/clientModelMongodb'
+import { BookingServiceMongodb } from 'services/mongodb/bookingServiceMongodb'
 
 
 export class ClientServiceMongodb implements ServiceInterfaceMongodb<

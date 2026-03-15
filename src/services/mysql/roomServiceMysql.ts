@@ -1,7 +1,7 @@
 
-import { ServiceInterfaceMysql } from '../../interfaces/mysql/serviceInterfaceMysql'
-import { RoomModelMysql } from '../../models/mysql/roomModelMysql'
-import { RoomInterfaceMysql } from '../../interfaces/mysql/roomInterfaceMysql'
+import { RoomInterfaceMysql } from 'interfaces/mysql/roomInterfaceMysql'
+import { ServiceInterfaceMysql } from 'interfaces/mysql/serviceInterfaceMysql'
+import { RoomModelMysql } from 'models/mysql/roomModelMysql'
 
 
 export class RoomServiceMysql implements ServiceInterfaceMysql<RoomInterfaceMysql> {

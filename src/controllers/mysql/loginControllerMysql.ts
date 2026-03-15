@@ -1,9 +1,9 @@
 
-import { Request, Response, Router } from "express"
 import bcrypt from 'bcryptjs'
+import { Request, Response, Router } from "express"
+import { UserInterfaceMysql } from "interfaces/mysql/userInterfaceMysql"
 import jwt from 'jsonwebtoken'
-import { UserInterfaceMysql } from "../../interfaces/mysql/userInterfaceMysql"
-import { UserServiceMysql } from '../../services/mysql/userServiceMysql'
+import { UserServiceMysql } from 'services/mysql/userServiceMysql'
 
 
 export const loginRouterMysql = Router()

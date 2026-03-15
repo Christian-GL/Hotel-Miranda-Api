@@ -1,7 +1,7 @@
 
+import { BookingInterfaceMysql } from "interfaces/mysql/bookingInterfaceMysql"
 import { DataTypes, Model } from "sequelize"
-import { sequelize } from '../../utils/databaseMysql'
-import { BookingInterfaceMysql } from "../../interfaces/mysql/bookingInterfaceMysql"
+import { sequelize } from 'utils/databaseMysql'
 import { RoomModelMysql } from "./roomModelMysql"
 
 

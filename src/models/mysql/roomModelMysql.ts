@@ -1,9 +1,9 @@
 
+import { RoomAmenities } from "enums/roomAmenities"
+import { RoomType } from "enums/roomType"
+import { RoomInterfaceMysql } from "interfaces/mysql/roomInterfaceMysql"
 import { DataTypes, Model } from "sequelize"
-import { sequelize } from '../../utils/databaseMysql'
-import { RoomInterfaceMysql } from "../../interfaces/mysql/roomInterfaceMysql"
-import { RoomType } from "../../enums/roomType"
-import { RoomAmenities } from "../../enums/roomAmenities"
+import { sequelize } from 'utils/databaseMysql'
 
 
 export class RoomModelMysql extends Model<RoomInterfaceMysql> {

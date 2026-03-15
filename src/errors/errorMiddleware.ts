@@ -1,6 +1,7 @@
 
-import { Request, Response, NextFunction, ErrorRequestHandler } from 'express'
-import { ApiError } from './ApiError'
+import { ErrorRequestHandler, NextFunction, Request, Response } from 'express'
+
+import { ApiError } from 'errors/ApiError'
 
 
 export const errorMiddleware: ErrorRequestHandler = (

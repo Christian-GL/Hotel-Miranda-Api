@@ -1,9 +1,9 @@
 
-import mongoose from "mongoose"
 import * as dotenv from 'dotenv'
+import mongoose from "mongoose"
+
 
 dotenv.config()
-
 
 export const connectMongodbDB = async (): Promise<void> => {
     try {
@@ -13,5 +13,5 @@ export const connectMongodbDB = async (): Promise<void> => {
         console.error('Error trying to connect to Mongodb', error)
         process.exit(1)
     }
-    
+
 }

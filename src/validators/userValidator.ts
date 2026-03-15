@@ -1,10 +1,18 @@
 
+ import { UserInterface } from 'interfaces/mongodb/userInterfaceMongodb'
 import {
-    validateString, validateDate, validatePhoto, validateFullName,
-    validateEmail, validatePhoneNumber, validateDateRelativeToAnother,
-    validateTextArea, validateRole, validateNewPassword, validateOptionYesNo
-} from './validators'
-import { UserInterface } from '../interfaces/mongodb/userInterfaceMongodb'
+    validateDate,
+    validateDateRelativeToAnother,
+    validateEmail,
+    validateFullName,
+    validateNewPassword,
+    validateOptionYesNo,
+    validatePhoneNumber,
+    validatePhoto,
+    validateRole,
+    validateString,
+    validateTextArea
+} from 'validators/validators'
 
 
 export class UserValidator {

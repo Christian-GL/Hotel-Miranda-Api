@@ -1,11 +1,16 @@
 
+import { BookingInterface, BookingInterfaceCheckInOut, BookingInterfaceCheckInOutId, BookingInterfaceId } from "interfaces/mongodb/bookingInterfaceMongodb"
 import {
-    validateDate, validateString, validateNumber, validateOptionYesNo,
-    validateCheckInCheckOutNewBooking, validateDateIsOccupied,
-    validateDateIsOccupiedIfBookingExists, validateTextArea, validateStringList,
-    validateCheckInCheckOutExistingBooking
-} from "./validators"
-import { BookingInterfaceCheckInOutId, BookingInterfaceCheckInOut, BookingInterface, BookingInterfaceId } from "../interfaces/mongodb/bookingInterfaceMongodb"
+    validateCheckInCheckOutExistingBooking,
+    validateCheckInCheckOutNewBooking,
+    validateDate,
+    validateDateIsOccupied,
+    validateDateIsOccupiedIfBookingExists,
+    validateNumber, validateOptionYesNo,
+    validateString,
+    validateStringList,
+    validateTextArea
+} from "validators/validators"
 
 
 export class BookingValidator {

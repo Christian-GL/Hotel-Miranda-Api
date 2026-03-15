@@ -1,5 +1,5 @@
 
-import { Request, Response, NextFunction } from 'express'
+import { NextFunction, Request, Response } from 'express'
 
 
 export const adminOnly = (req: Request, res: Response, next: NextFunction): void => {

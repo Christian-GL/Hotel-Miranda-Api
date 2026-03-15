@@ -1,7 +1,7 @@
 
 
-import { validateString, validateOptionYesNo } from './validators'
-import { OptionYesNo } from '../enums/optionYesNo'
+import { OptionYesNo } from 'enums/optionYesNo'
+import { validateOptionYesNo, validateString } from 'validators/validators'
 
 
 export class CommonValidators {

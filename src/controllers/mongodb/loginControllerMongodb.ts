@@ -1,13 +1,13 @@
 
-import { Request, Response, Router, NextFunction } from "express"
 import bcrypt from 'bcryptjs'
+import { NextFunction, Request, Response, Router } from "express"
 import jwt from 'jsonwebtoken'
 
-import { ApiError } from '../../errors/ApiError'
-import { UserInterfaceIdMongodb } from "../../interfaces/mongodb/userInterfaceMongodb"
-import { UserServiceMongodb } from "../../services/mongodb/userServiceMongodb"
-import { LoginRequestInterface } from "../../interfaces/mongodb/request/loginRequestInterface"
-import { LoginResponseInterface } from "../../interfaces/mongodb/response/loginResponseInterface"
+import { ApiError } from 'errors/ApiError'
+import { LoginRequestInterface } from "interfaces/mongodb/request/loginRequestInterface"
+import { LoginResponseInterface } from "interfaces/mongodb/response/loginResponseInterface"
+import { UserInterfaceIdMongodb } from "interfaces/mongodb/userInterfaceMongodb"
+import { UserServiceMongodb } from "services/mongodb/userServiceMongodb"
 
 
 export const loginRouterMongodb = Router()

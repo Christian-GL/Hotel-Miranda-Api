@@ -1,10 +1,18 @@
 
+import { RoomInterface } from "interfaces/mongodb/roomInterfaceMongodb"
 import {
-    validateString, validateStringList, validateNumber, validateRoomPhotoList,
-    validateRoomNumber, validateRoomType, validateAmenities, validateRoomPrice,
-    validateRoomDiscount, validateOptionYesNo, validateMongoDBObjectIdList
-} from "./validators"
-import { RoomInterface } from "../interfaces/mongodb/roomInterfaceMongodb"
+    validateAmenities,
+    validateMongoDBObjectIdList,
+    validateNumber,
+    validateOptionYesNo,
+    validateRoomDiscount,
+    validateRoomNumber,
+    validateRoomPhotoList,
+    validateRoomPrice,
+    validateRoomType,
+    validateString,
+    validateStringList
+} from "validators/validators"
 
 
 export class RoomValidator {

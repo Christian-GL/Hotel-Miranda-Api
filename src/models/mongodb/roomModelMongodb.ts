@@ -1,9 +1,10 @@
 
 import { Schema, model } from "mongoose"
-import { RoomInterfaceIdMongodb } from "../../interfaces/mongodb/roomInterfaceMongodb"
-import { RoomType } from "../../enums/roomType"
-import { RoomAmenities } from "../../enums/roomAmenities"
-import { OptionYesNo } from "../../enums/optionYesNo"
+
+import { OptionYesNo } from "enums/optionYesNo"
+import { RoomAmenities } from "enums/roomAmenities"
+import { RoomType } from "enums/roomType"
+import { RoomInterfaceIdMongodb } from "interfaces/mongodb/roomInterfaceMongodb"
 
 
 const RoomSchemaMongodb = new Schema<RoomInterfaceIdMongodb>

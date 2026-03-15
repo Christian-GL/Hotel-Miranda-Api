@@ -1,6 +1,6 @@
 
-import { BookingInterfaceIdMongodb } from "../../bookingInterfaceMongodb"
-import { ClientInterfaceIdMongodb } from "../../clientInterfaceMongodb"
+import { BookingInterfaceIdMongodb } from "bookingInterfaceMongodb"
+import { ClientInterfaceIdMongodb } from "clientInterfaceMongodb"
 
 
 export interface ClientArchiveResponseInterface {

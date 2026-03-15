@@ -1,6 +1,6 @@
 
 
-import { ContactArchived } from "../../enums/contactArchived"
+import { ContactArchived } from "enums/contactArchived"
 
 export interface ContactInterfaceMysql {
     _id: number

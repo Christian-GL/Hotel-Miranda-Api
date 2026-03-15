@@ -1,7 +1,7 @@
 
-import { Request, Response, NextFunction } from 'express'
+import { NextFunction, Request, Response } from 'express'
+import { DecodedUser } from 'interfaces/common/decodedUser'
 import jwt from 'jsonwebtoken'
-import { DecodedUser } from '../interfaces/common/decodedUser'
 
 
 export const authMiddleware = (req: Request, res: Response, next: NextFunction): void => {

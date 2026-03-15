@@ -1,8 +1,9 @@
 
 import { Schema, model } from "mongoose"
-import { UserInterfaceIdMongodb } from "../../interfaces/mongodb/userInterfaceMongodb"
-import { Role } from "../../enums/role"
-import { OptionYesNo } from "../../enums/optionYesNo"
+
+import { OptionYesNo } from "enums/optionYesNo"
+import { Role } from "enums/role"
+import { UserInterfaceIdMongodb } from "interfaces/mongodb/userInterfaceMongodb"
 
 
 const UserSchemaMongodb = new Schema<UserInterfaceIdMongodb>

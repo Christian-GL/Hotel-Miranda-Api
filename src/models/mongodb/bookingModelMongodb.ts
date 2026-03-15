@@ -1,7 +1,8 @@
 
 import { Schema, model } from "mongoose"
-import { BookingInterfaceIdMongodb } from "../../interfaces/mongodb/bookingInterfaceMongodb"
-import { OptionYesNo } from "../../enums/optionYesNo"
+
+import { OptionYesNo } from "enums/optionYesNo"
+import { BookingInterfaceIdMongodb } from "interfaces/mongodb/bookingInterfaceMongodb"
 
 
 const BookingSchemaMongodb = new Schema<BookingInterfaceIdMongodb>

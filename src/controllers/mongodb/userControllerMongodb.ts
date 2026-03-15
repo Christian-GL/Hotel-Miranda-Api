@@ -1,18 +1,17 @@
 
-import { Request, Response, NextFunction } from 'express'
-import Router from 'express'
+import Router, { NextFunction, Request, Response } from 'express'
 import mongoose from 'mongoose'
 
-import { ApiError } from '../../errors/ApiError'
-import { authMiddleware } from '../../middleware/authMiddleware'
-import { adminOnly } from '../../middleware/adminOnly'
-import { hashPassword } from '../../utils/hashPassword'
-import { UserInterface } from '../../interfaces/mongodb/userInterfaceMongodb'
-import { UserModelMongodb } from '../../models/mongodb/userModelMongodb'
-import { UserServiceMongodb } from '../../services/mongodb/userServiceMongodb'
-import { UserValidator } from '../../validators/userValidator'
-import { CommonValidators } from "../../validators/commonValidators"
-import { OptionYesNo } from '../../enums/optionYesNo'
+import { OptionYesNo } from 'enums/optionYesNo'
+import { ApiError } from 'errors/ApiError'
+import { UserInterface } from 'interfaces/mongodb/userInterfaceMongodb'
+import { adminOnly } from 'middleware/adminOnly'
+import { authMiddleware } from 'middleware/authMiddleware'
+import { UserModelMongodb } from 'models/mongodb/userModelMongodb'
+import { UserServiceMongodb } from 'services/mongodb/userServiceMongodb'
+import { hashPassword } from 'utils/hashPassword'
+import { CommonValidators } from "validators/commonValidators"
+import { UserValidator } from 'validators/userValidator'
 
 
 export const userRouterMongodb = Router()
@@ -217,6 +216,7 @@ userRouterMongodb.put('/:id', adminOnly, async (req: Request, res: Response, nex
             throw new ApiError(404, `User #${userId} not found`)
         }
 
+        // !!! QUE TRAIGA TODO EL USER NO SOLO _id y password (el existingUser) PARA PODER USAR EN isArchived existingUser.isArchived (se mantiene valor).
         const newPassword = req.body.password
         const isSamePassword: boolean = (newPassword === existingUser.password)
         const userToValidate: UserInterface = {
@@ -229,8 +229,9 @@ userRouterMongodb.put('/:id', adminOnly, async (req: Request, res: Response, nex
             job_position: req.body.job_position.trim(),
             role: req.body.role.trim(),
             password: isSamePassword ? existingUser.password : newPassword,
-            isArchived: existingUser.isArchived
+            isArchived: req.body.isArchived
         }
+        
         const userValidator = new UserValidator()
         const totalErrors = userValidator.validateExistingUser(userToValidate, isSamePassword)
         if (totalErrors.length > 0) {

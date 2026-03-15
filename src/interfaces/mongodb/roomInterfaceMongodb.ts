@@ -1,8 +1,9 @@
 
 import { Document } from "mongoose"
-import { RoomType } from "../../enums/roomType"
-import { RoomAmenities } from "../../enums/roomAmenities"
-import { OptionYesNo } from "../../enums/optionYesNo"
+
+import { OptionYesNo } from "enums/optionYesNo"
+import { RoomAmenities } from "enums/roomAmenities"
+import { RoomType } from "enums/roomType"
 
 
 export interface RoomInterfacePriceAndDiscount {

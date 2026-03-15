@@ -1,10 +1,9 @@
 
-import { Request, Response } from 'express'
-import Router from 'express'
-import { authMiddleware } from '../../middleware/authMiddleware'
-import { UserModelMysql } from '../../models/mysql/userModelMysql'
-import { UserServiceMysql } from '../../services/mysql/userServiceMysql'
-import { UserValidator } from '../../validators/userValidator'
+import Router, { Request, Response } from 'express'
+import { authMiddleware } from 'middleware/authMiddleware'
+import { UserModelMysql } from 'models/mysql/userModelMysql'
+import { UserServiceMysql } from 'services/mysql/userServiceMysql'
+import { UserValidator } from 'validators/userValidator'
 
 
 export const userRouterMysql = Router()

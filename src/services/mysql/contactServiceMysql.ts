@@ -1,7 +1,7 @@
 
-import { ServiceInterfaceMysql } from '../../interfaces/mysql/serviceInterfaceMysql'
-import { ContactModelMysql } from '../../models/mysql/contactModelMysql'
-import { ContactInterfaceMysql } from '../../interfaces/mysql/contactInterfaceMysql'
+import { ContactInterfaceMysql } from 'interfaces/mysql/contactInterfaceMysql'
+import { ServiceInterfaceMysql } from 'interfaces/mysql/serviceInterfaceMysql'
+import { ContactModelMysql } from 'models/mysql/contactModelMysql'
 
 
 export class ContactServiceMysql implements ServiceInterfaceMysql<ContactInterfaceMysql> {

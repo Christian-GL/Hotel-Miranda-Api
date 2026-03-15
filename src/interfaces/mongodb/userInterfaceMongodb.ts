@@ -1,8 +1,9 @@
 
 import { Document } from "mongoose"
-import { JobPosition } from "../../enums/jobPosition"
-import { Role } from "../../enums/role"
-import { OptionYesNo } from "../../enums/optionYesNo"
+
+import { JobPosition } from "enums/jobPosition"
+import { OptionYesNo } from "enums/optionYesNo"
+import { Role } from "enums/role"
 
 
 export interface UserInterface {

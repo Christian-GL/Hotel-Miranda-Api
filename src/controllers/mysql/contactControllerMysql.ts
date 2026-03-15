@@ -1,9 +1,8 @@
 
-import { Request, Response } from 'express'
-import Router from 'express'
-import { authMiddleware } from '../../middleware/authMiddleware'
-import { ContactServiceMysql } from '../../services/mysql/contactServiceMysql'
-// import { ContactValidator } from '../../validators/contactValidator'
+import Router, { Request, Response } from 'express'
+import { authMiddleware } from 'middleware/authMiddleware'
+import { ContactServiceMysql } from 'services/mysql/contactServiceMysql'
+// import { ContactValidator } from 'validators/contactValidator'
 
 
 export const contactRouterMysql = Router()

@@ -1,11 +1,14 @@
 
+import { ClientInterface } from "interfaces/mongodb/clientInterfaceMongodb"
 import {
-    validateString, validateStringList,
-    validateFullName, validateEmail, validatePhoneNumber,
-    validateOptionYesNo, validateMongoDBObjectIdList,
-    validateExistingListItemsInAnotherList
-} from "./validators"
-import { ClientInterface } from "../interfaces/mongodb/clientInterfaceMongodb"
+    validateEmail,
+    validateFullName,
+    validateMongoDBObjectIdList,
+    validateOptionYesNo,
+    validatePhoneNumber,
+    validateString,
+    validateStringList
+} from "validators/validators"
 
 
 export class ClientValidator {

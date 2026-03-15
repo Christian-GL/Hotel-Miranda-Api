@@ -1,7 +1,7 @@
 
-import { ServiceInterfaceMysql } from '../../interfaces/mysql/serviceInterfaceMysql'
-import { BookingModelMysql } from '../../models/mysql/bookingModelMysql'
-import { BookingInterfaceMysql } from '../../interfaces/mysql/bookingInterfaceMysql'
+import { BookingInterfaceMysql } from 'interfaces/mysql/bookingInterfaceMysql'
+import { ServiceInterfaceMysql } from 'interfaces/mysql/serviceInterfaceMysql'
+import { BookingModelMysql } from 'models/mysql/bookingModelMysql'
 
 
 export class BookingServiceMysql implements ServiceInterfaceMysql<BookingInterfaceMysql> {

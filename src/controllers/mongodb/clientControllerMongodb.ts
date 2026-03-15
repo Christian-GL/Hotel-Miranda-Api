@@ -1,18 +1,17 @@
 
-import { Request, Response, NextFunction } from 'express'
-import Router from 'express'
+import Router, { NextFunction, Request, Response } from 'express'
 import mongoose from 'mongoose'
 
-import { ApiError } from '../../errors/ApiError'
-import { authMiddleware } from '../../middleware/authMiddleware'
-import { adminOnly } from '../../middleware/adminOnly'
-import { ClientInterface } from '../../interfaces/mongodb/clientInterfaceMongodb'
-import { ClientModelMongodb } from '../../models/mongodb/clientModelMongodb'
-import { ClientServiceMongodb } from '../../services/mongodb/clientServiceMongodb'
-import { ClientValidator } from '../../validators/clientValidator'
-import { CommonValidators } from "../../validators/commonValidators"
-import { OptionYesNo } from '../../enums/optionYesNo'
-import { BookingModelMongodb } from '../../models/mongodb/bookingModelMongodb'
+import { OptionYesNo } from 'enums/optionYesNo'
+import { ApiError } from 'errors/ApiError'
+import { ClientInterface } from 'interfaces/mongodb/clientInterfaceMongodb'
+import { adminOnly } from 'middleware/adminOnly'
+import { authMiddleware } from 'middleware/authMiddleware'
+import { BookingModelMongodb } from 'models/mongodb/bookingModelMongodb'
+import { ClientModelMongodb } from 'models/mongodb/clientModelMongodb'
+import { ClientServiceMongodb } from 'services/mongodb/clientServiceMongodb'
+import { ClientValidator } from 'validators/clientValidator'
+import { CommonValidators } from "validators/commonValidators"
 
 
 export const clientRouterMongodb = Router()

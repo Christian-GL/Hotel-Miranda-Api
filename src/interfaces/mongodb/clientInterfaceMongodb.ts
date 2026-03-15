@@ -1,6 +1,7 @@
 
 import { Document } from "mongoose"
-import { OptionYesNo } from "../../enums/optionYesNo"
+
+import { OptionYesNo } from "enums/optionYesNo"
 
 
 export interface ClientInterface {

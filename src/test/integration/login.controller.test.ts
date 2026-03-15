@@ -1,14 +1,14 @@
 
-import mongoose from 'mongoose'
-import { MongoMemoryServer } from 'mongodb-memory-server'
-import request from 'supertest'
 import bcrypt from 'bcryptjs'
+import { MongoMemoryServer } from 'mongodb-memory-server'
+import mongoose from 'mongoose'
+import request from 'supertest'
 
-import { LoginRequestInterface } from '../../interfaces/mongodb/request/loginRequestInterface'
-import { UserModelMongodb } from '../../models/mongodb/userModelMongodb'
-import { Role } from '../../enums/role'
-import { OptionYesNo } from '../../enums/optionYesNo'
-import { appForTest } from '../appForTest'
+import { OptionYesNo } from 'enums/optionYesNo'
+import { Role } from 'enums/role'
+import { LoginRequestInterface } from 'interfaces/mongodb/request/loginRequestInterface'
+import { UserModelMongodb } from 'models/mongodb/userModelMongodb'
+import { appForTest } from 'test/appForTest'
 
 
 jest.setTimeout(30000)

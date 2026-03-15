@@ -1,18 +1,17 @@
 
-import { Request, Response, NextFunction } from 'express'
-import Router from 'express'
+import Router, { NextFunction, Request, Response } from 'express'
 import mongoose from 'mongoose'
 
-import { ApiError } from '../../errors/ApiError'
-import { authMiddleware } from '../../middleware/authMiddleware'
-import { adminOnly } from '../../middleware/adminOnly'
-import { BookingServiceMongodb } from '../../services/mongodb/bookingServiceMongodb'
-import { BookingValidator } from '../../validators/bookingValidator'
-import { BookingInterface } from '../../interfaces/mongodb/bookingInterfaceMongodb'
-import { RoomServiceMongodb } from '../../services/mongodb/roomServiceMongodb'
-import { ClientServiceMongodb } from '../../services/mongodb/clientServiceMongodb'
-import { CommonValidators } from '../../validators/commonValidators'
-import { OptionYesNo } from '../../enums/optionYesNo'
+import { OptionYesNo } from 'enums/optionYesNo'
+import { ApiError } from 'errors/ApiError'
+import { BookingInterface } from 'interfaces/mongodb/bookingInterfaceMongodb'
+import { adminOnly } from 'middleware/adminOnly'
+import { authMiddleware } from 'middleware/authMiddleware'
+import { BookingServiceMongodb } from 'services/mongodb/bookingServiceMongodb'
+import { ClientServiceMongodb } from 'services/mongodb/clientServiceMongodb'
+import { RoomServiceMongodb } from 'services/mongodb/roomServiceMongodb'
+import { BookingValidator } from 'validators/bookingValidator'
+import { CommonValidators } from 'validators/commonValidators'
 
 
 export const bookingRouterMongodb = Router()

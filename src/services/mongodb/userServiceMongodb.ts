@@ -1,10 +1,11 @@
 
-import { ServiceInterfaceMongodb } from '../../interfaces/mongodb/serviceInterfaceMongodb'
-import { UserModelMongodb } from '../../models/mongodb/userModelMongodb'
-import { UserInterface, UserInterfaceIdMongodb } from '../../interfaces/mongodb/userInterfaceMongodb'
-import { hashPassword } from '../../utils/hashPassword'
-import { OptionYesNo } from '../../enums/optionYesNo'
 import { ClientSession } from 'mongoose'
+
+import { OptionYesNo } from 'enums/optionYesNo'
+import { ServiceInterfaceMongodb } from 'interfaces/mongodb/serviceInterfaceMongodb'
+import { UserInterface, UserInterfaceIdMongodb } from 'interfaces/mongodb/userInterfaceMongodb'
+import { UserModelMongodb } from 'models/mongodb/userModelMongodb'
+import { hashPassword } from 'utils/hashPassword'
 
 
 export class UserServiceMongodb implements ServiceInterfaceMongodb<UserInterfaceIdMongodb> {
