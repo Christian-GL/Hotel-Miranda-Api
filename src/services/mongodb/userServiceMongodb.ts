@@ -44,7 +44,25 @@ export class UserServiceMongodb implements ServiceInterfaceMongodb<UserInterface
     }
 
     async update(id: string, user: UserInterface): Promise<UserInterfaceIdMongodb | null> {
+        // No actualiza el campo "password" (de eso se encarga el service "updateHashingPassword").
         try {
+            const { password, ...updateData } = user
+            const updatedUser = await UserModelMongodb.findOneAndUpdate(
+                { _id: id },
+                { $set: updateData },
+                { new: true }
+            ).lean() as UserInterfaceIdMongodb | null
+
+            return updatedUser
+        }
+        catch (error) {
+            throw error
+        }
+    }
+
+    async updateHashingPassword(id: string, user: UserInterface): Promise<UserInterfaceIdMongodb | null> {
+        try {
+            user.password = await hashPassword(user.password)
             const updatedUser: UserInterfaceIdMongodb | null = await UserModelMongodb.findOneAndUpdate(
                 { _id: id },
                 { $set: user },

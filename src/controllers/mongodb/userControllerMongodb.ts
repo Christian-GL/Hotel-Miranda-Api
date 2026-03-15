@@ -184,6 +184,7 @@ userRouterMongodb.post('/', adminOnly, async (req: Request, res: Response, next:
             password: req.body.password,
             isArchived: OptionYesNo.no
         }
+        
         const userValidator = new UserValidator()
         const totalErrors = userValidator.validateNewUser(userToValidate)
         if (totalErrors.length > 0) {
@@ -228,7 +229,7 @@ userRouterMongodb.put('/:id', adminOnly, async (req: Request, res: Response, nex
         }
 
         const userValidator = new UserValidator()
-        const totalErrors: string[] = []
+        const totalErrors =
         userToValidate.password === ""
             ? userValidator.validateExistingUser(userToValidate)
             : userValidator.validateExistingUserNewPassword(userToValidate, existingUser.password)
@@ -236,7 +237,10 @@ userRouterMongodb.put('/:id', adminOnly, async (req: Request, res: Response, nex
             throw new ApiError(400, totalErrors.join(', '))
         }
 
-        const response = await userServiceMongodb.update(userId, userToValidate)
+        const response =
+            userToValidate.password === ""
+                ? await userServiceMongodb.update(userId, userToValidate)
+                : await userServiceMongodb.updateHashingPassword(userId, userToValidate)
         if (response === null) {
             throw new ApiError(404, `User #${userId} not found`)
         }
