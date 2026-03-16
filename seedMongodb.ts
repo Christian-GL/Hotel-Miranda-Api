@@ -177,20 +177,21 @@ const createRandomRooms = async (numberRooms: number): Promise<void> => {
     }
 }
 
-const createRandomBookings = async (): Promise<void> => {
+const createRandomBookings = async (numberBookings: number): Promise<void> => {
+    // Deben existir clients y rooms para que funcione correctamente.
     await connectMongodbDB()
     try {
-        const allBookings: InstanceType<typeof BookingModelMongodb>[] = []
+        const newBookings: InstanceType<typeof BookingModelMongodb>[] = []
 
         const allBookingDatesNotArchived = await bookingServiceMongodb.fetchAllDatesNotArchived()
         const allRoomIdsNotArchived = await roomServiceMongodb.fetchAllIdsNotArchived()
         const allClientIdsNotArchived = await clientServiceMongodb.fetchAllIdsNotArchived()
+
         const bookingValidator = new BookingValidator()
         let totalRoomNumbers = []
         let actualNumber = ''
 
-        let totalErrors
-        for (let i = 0; i < 5; i++) {
+        for (let i = 0; i < numberBookings; i++) {
             const check_in_date = faker.date.future({ years: faker.number.float({ min: 0.2, max: 2 }) })
             actualNumber = String(faker.number.int({ min: 0, max: 999 })).padStart(3, '0')
             const fakeBooking = new BookingModelMongodb({
@@ -200,11 +201,12 @@ const createRandomBookings = async (): Promise<void> => {
                 price: faker.number.float({ min: 25, max: 10000, fractionDigits: 2 }),
                 special_request: faker.lorem.sentence(faker.number.int({ min: 10, max: 40 })),
                 isArchived: faker.helpers.arrayElement(Object.values(OptionYesNo)),
-                room_id_list: [],
-                client_id: "0"
+                room_id_list: faker.helpers.arrayElements(allRoomIdsNotArchived, faker.number.int({ min: 1, max: Math.min(5, allRoomIdsNotArchived.length) })),
+                client_id: faker.helpers.arrayElement(allClientIdsNotArchived)
             })
             totalRoomNumbers.push(actualNumber)
-            totalErrors = bookingValidator.validateNewBooking(
+
+            let totalErrors = bookingValidator.validateNewBooking(
                 fakeBooking.toObject() as BookingInterfaceIdMongodb,
                 allBookingDatesNotArchived,
                 allRoomIdsNotArchived,
@@ -212,15 +214,18 @@ const createRandomBookings = async (): Promise<void> => {
                 allClientIdsNotArchived
             )
             if (totalErrors.length === 0) {
-                allBookings.push(fakeBooking)
+                newBookings.push(fakeBooking)
             }
             else {
                 console.error(`Validación fallida en el fakeBooking #${i}: ${totalErrors.join(', ')}`)
                 continue
             }
         }
-        console.log(`Bookings válidas: ${allBookings}`)
-        await BookingModelMongodb.insertMany(allBookings)
+
+        for (let i = 0; i < newBookings.length; i++) {
+            await bookingServiceMongodb.create(newBookings[i])
+        }
+        console.log(`Total nuevas reservas insertadas: ${newBookings.length}`)
     }
     catch (error) {
         console.error('Error creating bookings with faker', error)
@@ -230,10 +235,10 @@ const createRandomBookings = async (): Promise<void> => {
 
 
 const main = async () => {
-    await createRandomUsers(5)
-    await createRandomClients(20)
-    await createRandomRooms(10)
-    // await createRandomBookings()
+    // await createRandomUsers(5)
+    // await createRandomClients(20)
+    // await createRandomRooms(10)
+    // await createRandomBookings(10)
 }
 main()
 

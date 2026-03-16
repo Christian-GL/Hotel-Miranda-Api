@@ -51,7 +51,12 @@ export class BookingValidator {
         return allErrorMessages
     }
 
-    private validateBooking(booking: BookingInterface, allRoomIdsNotArchived: string[], clientId: string, allClientIdsNotArchived: string[]): string[] {
+    private validateBooking(
+        booking: BookingInterface,
+        allRoomIdsNotArchived: string[],
+        clientId: string,
+        allClientIdsNotArchived: string[]
+    ): string[] {
         const allErrorMessages: string[] = []
 
         const errorsCheckingProperties = this.validatePropertyTypes(booking)
@@ -85,7 +90,13 @@ export class BookingValidator {
         return allErrorMessages
     }
 
-    validateNewBooking(booking: BookingInterface, allBookingDatesByRoomsNotArchived: BookingInterfaceCheckInOut[], allRoomIdsNotArchived: string[], clientID: string, allClientIdsNotArchived: string[]): string[] {
+    validateNewBooking(
+        booking: BookingInterface,
+        allBookingDatesByRoomsNotArchived: BookingInterfaceCheckInOut[],
+        allRoomIdsNotArchived: string[],
+        clientID: string,
+        allClientIdsNotArchived: string[]
+    ): string[] {
         const allErrorMessages: string[] = []
 
         this.validateBooking(booking, allRoomIdsNotArchived, clientID, allClientIdsNotArchived).map(
@@ -101,7 +112,13 @@ export class BookingValidator {
         return allErrorMessages
     }
 
-    validateExistingBooking(booking: BookingInterfaceId, allBookingDatesAndIdByRoomsNotArchived: BookingInterfaceCheckInOutId[], allRoomIdsNotArchived: string[], clientID: string, allClientIdsNotArchived: string[]): string[] {
+    validateExistingBooking(
+        booking: BookingInterfaceId,
+        allBookingDatesAndIdByRoomsNotArchived: BookingInterfaceCheckInOutId[],
+        allRoomIdsNotArchived: string[],
+        clientID: string,
+        allClientIdsNotArchived: string[]
+    ): string[] {
         const allErrorMessages: string[] = []
 
         this.validateBooking(booking, allRoomIdsNotArchived, clientID, allClientIdsNotArchived).map(
