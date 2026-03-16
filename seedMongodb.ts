@@ -28,6 +28,64 @@ const bookingServiceMongodb = new BookingServiceMongodb()
 const roomServiceMongodb = new RoomServiceMongodb()
 const clientServiceMongodb = new ClientServiceMongodb()
 
+const createDefaultUsers = async (): Promise<void> => {
+    await connectMongodbDB()
+
+    try {
+        const newUsers: InstanceType<typeof UserModelMongodb>[] = []
+        const userValidator = new UserValidator()
+
+        const fakeAdminDefault = new UserModelMongodb({
+            photo: faker.image.avatar(),
+            full_name: "Admin Default",
+            email: "admindefault@gmail.com",
+            phone_number: faker.string.numeric(9),
+            start_date: new Date(2025, 0, 1, 0, 0),
+            end_date: new Date(2050, 11, 31, 0, 0),
+            job_position: faker.lorem.paragraph(),
+            role: Role.admin,
+            password: 'Abcd1234.',
+            isArchived: OptionYesNo.no
+        })
+        let totalErrors = userValidator.validateNewUser(fakeAdminDefault.toObject() as UserInterfaceIdMongodb)
+        if (totalErrors.length === 0) {
+            fakeAdminDefault.password = await hashPassword(fakeAdminDefault.password)
+            newUsers.push(fakeAdminDefault)
+        }
+        else {
+            console.error(`Validación fallida en el fakeAdminDefault: ${totalErrors.join(', ')}`)
+        }
+
+        const fakeUserDefault = new UserModelMongodb({
+            photo: faker.image.avatar(),
+            full_name: "User Default",
+            email: "userdefault@gmail.com",
+            phone_number: faker.string.numeric(9),
+            start_date: new Date(2025, 0, 1, 0, 0),
+            end_date: new Date(2050, 11, 31, 0, 0),
+            job_position: faker.lorem.paragraph(),
+            role: Role.user,
+            password: 'Abcd1234.',
+            isArchived: OptionYesNo.no
+        })
+        totalErrors = userValidator.validateNewUser(fakeUserDefault.toObject() as UserInterfaceIdMongodb)
+        if (totalErrors.length === 0) {
+            fakeUserDefault.password = await hashPassword(fakeUserDefault.password)
+            newUsers.push(fakeUserDefault)
+        }
+        else {
+            console.error(`Validación fallida en el fakeUserDefault: ${totalErrors.join(', ')}`)
+        }
+
+        await UserModelMongodb.insertMany(newUsers)
+        console.log("Insertados usuarios por defecto")
+    }
+    catch (error) {
+        console.error('Error creating default users with faker', error)
+        throw error
+    }
+}
+
 const createRandomUsers = async (insertions: number): Promise<void> => {
     await connectMongodbDB()
 
@@ -235,6 +293,7 @@ const createRandomBookings = async (numberBookings: number): Promise<void> => {
 
 
 const main = async () => {
+    // await createDefaultUsers()
     // await createRandomUsers(5)
     // await createRandomClients(20)
     // await createRandomRooms(10)
