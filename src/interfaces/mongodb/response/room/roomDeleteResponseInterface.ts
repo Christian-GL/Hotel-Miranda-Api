@@ -1,6 +1,6 @@
 
-import { BookingInterfaceIdMongodb } from "bookingInterfaceMongodb"
-import { ClientInterfaceIdMongodb } from "clientInterfaceMongodb"
+import { BookingInterfaceIdMongodb } from "interfaces/mongodb/bookingInterfaceMongodb"
+import { ClientInterfaceIdMongodb } from "interfaces/mongodb/clientInterfaceMongodb"
 
 
 export interface RoomDeleteResponseInterface {

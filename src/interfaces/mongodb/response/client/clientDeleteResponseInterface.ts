@@ -1,5 +1,5 @@
 
-import { BookingInterface } from "bookingInterfaceMongodb"
+import { BookingInterface } from "interfaces/mongodb/bookingInterfaceMongodb"
 
 
 export interface ClientDeleteResponseInterface {

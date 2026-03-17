@@ -9,6 +9,10 @@ package:
     - "dist/**"
     - "data/**"
     - "public/**"
+    # EXCLUIR cachés y el paquete de test pesado:
+    - "!node_modules/mongodb-memory-server/**"
+    - "!node_modules/**/.cache/**"
+    - "!.cache/**"
 provider:
   name: aws
   region: eu-west-3
