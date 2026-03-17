@@ -49,7 +49,7 @@ runServer()
 
 
 
-/* ========== VERSION AWS SERVERLESS (MONGODB) ========== */
+/* ========== VERSION AWS SERVERLESS (MONGODB) ========== */      // NOTA: recordar actualizar "package.json/_moduleAliases" antes de hacer subida a AWS.
 // import cors from 'cors'
 // import express, { Request, Response } from 'express'
 // import serverless from 'serverless-http'
@@ -145,7 +145,7 @@ runServer()
 
 
 
-/* ========== VERSION AWS SERVERLESS (MYSQL) (OBSOLETA) ========== */
+/* ========== VERSION AWS SERVERLESS (MYSQL) (OBSOLETA) ========== */     // NOTA: recordar actualizar "package.json/_moduleAliases" antes de hacer subida a AWS.
 // import serverless from 'serverless-http'
 // import cors from 'cors'
 // import express, { Request, Response } from 'express'
@@ -195,6 +195,7 @@ runServer()
 
 
 /* ========== Comandos para generar carpeta de la API para subir a AmazonWebServices: ========== */
+// NOTA: recordar actualizar "package.json/_moduleAliases" antes de hacer subida a AWS.
 //  >> Remove-Item -Recurse -Force dist, .serverless      // Elimina el contenido generado por el "npx tsc" anterior
 // 	>> npx tsc
 //  >> serverless remove        // Eliminar configuración anterior (opcional pero recomendable si hay errores)
