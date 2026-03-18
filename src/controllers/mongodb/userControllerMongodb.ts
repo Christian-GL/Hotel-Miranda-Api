@@ -8,8 +8,8 @@ import { UserInterface } from 'interfaces/mongodb/userInterfaceMongodb'
 import { adminOnly } from 'middleware/adminOnly'
 import { authMiddleware } from 'middleware/authMiddleware'
 import { UserServiceMongodb } from 'services/mongodb/userServiceMongodb'
-import { CommonValidators } from "validators/commonValidators"
 import { UserValidator } from 'validators/userValidator'
+import { validateArchivedOption } from 'validators/validations'
 
 
 export const userRouterMongodb = Router()
@@ -260,8 +260,7 @@ userRouterMongodb.patch('/archive/:id', adminOnly, async (req: Request, res: Res
         }
 
         const newArchivedValue = req.body.isArchived
-        const commonValidator = new CommonValidators()
-        const totalErrors = commonValidator.validateArchivedOption(newArchivedValue)
+        const totalErrors = validateArchivedOption(newArchivedValue)
         if (totalErrors.length > 0) {
             throw new ApiError(400, totalErrors.join(', '))
         }

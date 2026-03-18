@@ -5,7 +5,7 @@ import { OptionYesNo } from 'enums/optionYesNo'
 import { ServiceInterfaceMongodb } from 'interfaces/mongodb/serviceInterfaceMongodb'
 import { UserInterface, UserInterfaceIdMongodb } from 'interfaces/mongodb/userInterfaceMongodb'
 import { UserModelMongodb } from 'models/mongodb/userModelMongodb'
-import { hashPassword } from 'utils/hashPassword'
+import { hashPassword } from 'utils/passwordOperations'
 
 
 export class UserServiceMongodb implements ServiceInterfaceMongodb<UserInterfaceIdMongodb> {

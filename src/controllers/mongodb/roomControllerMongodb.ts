@@ -9,8 +9,8 @@ import { adminOnly } from 'middleware/adminOnly'
 import { authMiddleware } from 'middleware/authMiddleware'
 import { BookingModelMongodb } from 'models/mongodb/bookingModelMongodb'
 import { RoomServiceMongodb } from 'services/mongodb/roomServiceMongodb'
-import { CommonValidators } from "validators/commonValidators"
 import { RoomValidator } from 'validators/roomValidator'
+import { validateArchivedOption } from 'validators/validations'
 
 
 export const roomRouterMongodb = Router()
@@ -297,8 +297,7 @@ roomRouterMongodb.patch('/archive/:id', adminOnly, async (req: Request, res: Res
         }
 
         const newArchivedValue = req.body.isArchived
-        const commonValidator = new CommonValidators()
-        const totalErrorsArchived = commonValidator.validateArchivedOption(newArchivedValue)
+        const totalErrorsArchived = validateArchivedOption(newArchivedValue)
         if (totalErrorsArchived.length > 0) {
             throw new ApiError(400, totalErrorsArchived.join(', '))
         }

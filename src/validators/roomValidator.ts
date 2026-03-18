@@ -12,7 +12,7 @@ import {
     validateRoomType,
     validateString,
     validateStringList
-} from "validators/validators"
+} from "validators/validations"
 
 
 export class RoomValidator {

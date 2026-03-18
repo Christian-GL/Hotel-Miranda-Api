@@ -11,7 +11,7 @@ import { BookingModelMongodb } from 'models/mongodb/bookingModelMongodb'
 import { ClientModelMongodb } from 'models/mongodb/clientModelMongodb'
 import { ClientServiceMongodb } from 'services/mongodb/clientServiceMongodb'
 import { ClientValidator } from 'validators/clientValidator'
-import { CommonValidators } from "validators/commonValidators"
+import { validateArchivedOption } from 'validators/validations'
 
 
 export const clientRouterMongodb = Router()
@@ -249,8 +249,7 @@ clientRouterMongodb.patch('/archive/:id', adminOnly, async (req: Request, res: R
         }
 
         const newArchivedValue = req.body.isArchived
-        const commonValidator = new CommonValidators()
-        const totalErrorsArchived = commonValidator.validateArchivedOption(newArchivedValue)
+        const totalErrorsArchived = validateArchivedOption(newArchivedValue)
         if (totalErrorsArchived.length > 0) {
             throw new ApiError(400, totalErrorsArchived.join(', '))
         }

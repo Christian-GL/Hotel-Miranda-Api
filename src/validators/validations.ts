@@ -192,6 +192,19 @@ export const validateMongoDBObjectIdList = (list: string[], fieldName: string = 
     return errorMessages
 }
 
+export const validateArchivedOption = (option: OptionYesNo): string[] => {
+    const errorMessages: string[] = []
+
+    validateString(option, 'isArchived').map(
+        error => errorMessages.push(error)
+    )
+    validateOptionYesNo(option, 'User isArchived').map(
+        error => errorMessages.push(error)
+    )
+
+    return errorMessages
+}
+
 
 /* OPERATION VALIDATORS */
 export const validateDateRelativeToAnother = (date1: Date, mustBeBeforeNow: boolean, date2: Date, fieldName: string = 'Date'): string[] => {

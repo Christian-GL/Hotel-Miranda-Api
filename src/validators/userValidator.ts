@@ -1,6 +1,6 @@
 
 import { UserInterface } from 'interfaces/mongodb/userInterfaceMongodb'
-import { comparePasswords } from 'utils/hashPassword'
+import { comparePasswords } from 'utils/passwordOperations'
 import {
     validateDate,
     validateDateRelativeToAnother,
@@ -13,7 +13,7 @@ import {
     validateRole,
     validateString,
     validateTextArea
-} from 'validators/validators'
+} from 'validators/validations'
 
 
 export class UserValidator {

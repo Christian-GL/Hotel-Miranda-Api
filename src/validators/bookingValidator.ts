@@ -10,7 +10,7 @@ import {
     validateString,
     validateStringList,
     validateTextArea
-} from "validators/validators"
+} from "validators/validations"
 
 
 export class BookingValidator {
