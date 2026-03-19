@@ -30,7 +30,7 @@ export class ClientValidator {
         validateString(client.phone_number, 'phone_number').map(
             error => allErrorMessages.push(error)
         )
-        validateString(client.isArchived, 'isArchived').map(
+        validateOptionYesNo(client.isArchived, 'isArchived').map(
             error => allErrorMessages.push(error)
         )
         validateStringList(client.booking_id_list, 'booking_id_list').map(

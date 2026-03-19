@@ -202,7 +202,7 @@ clientRouterMongodb.put('/:id', async (req: Request, res: Response, next: NextFu
             throw new ApiError(400, 'Invalid id format')
         }
 
-        const existingClient = await ClientModelMongodb.findById(clientId).select('password')
+        const existingClient = await ClientModelMongodb.findById(clientId)
         if (!existingClient) {
             throw new ApiError(404, `Client #${clientId} not found`)
         }

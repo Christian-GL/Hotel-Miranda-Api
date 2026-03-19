@@ -216,14 +216,15 @@ bookingRouterMongodb.post('/', async (req: Request, res: Response, next: NextFun
         const allBookingDatesNotArchived = await bookingServiceMongodb.fetchAllDatesByRoomsNotArchived(bookingToValidate.room_id_list)
         const allRoomIdsNotArchived = await roomServiceMongodb.fetchAllIdsNotArchived()
         const allClientIdsNotArchived = await clientServiceMongodb.fetchAllIdsNotArchived()
+        // !!! hacer return si client no existe
         const client = await clientServiceMongodb.fetchById(bookingToValidate.client_id)
-        const clientID: string = client ? String(client._id) : ''
+        const clientId: string = client ? String(client._id) : ''
         const bookingValidator = new BookingValidator()
         const totalErrors = bookingValidator.validateNewBooking(
             bookingToValidate,
             allBookingDatesNotArchived,
             allRoomIdsNotArchived,
-            clientID,
+            clientId,
             allClientIdsNotArchived)
         if (totalErrors.length > 0) {
             throw new ApiError(400, totalErrors.join(', '))
@@ -287,7 +288,7 @@ bookingRouterMongodb.put('/:id', async (req: Request, res: Response, next: NextF
             room_id_list: roomIds,
             client_id: req.body.client_id.trim()
         }
-        const allBookingDatesAndIdNotArchived = await bookingServiceMongodb.fetchAllDatesAndIdByRoomsNotArchived(bookingToValidate.room_id_list)
+        const allBookingDatesAndIdRoomsNotArchived = await bookingServiceMongodb.fetchAllDatesAndIdByRoomsNotArchived(bookingToValidate.room_id_list)
         const allRoomIdsNotArchived = await roomServiceMongodb.fetchAllIdsNotArchived()
         const allClientIdsNotArchived = await clientServiceMongodb.fetchAllIdsNotArchived()
         const client = await clientServiceMongodb.fetchById(bookingToValidate.client_id)
@@ -295,7 +296,7 @@ bookingRouterMongodb.put('/:id', async (req: Request, res: Response, next: NextF
         const bookingValidator = new BookingValidator()
         const totalErrors = bookingValidator.validateExistingBooking(
             { _id: bookingId, ...bookingToValidate } as any,
-            allBookingDatesAndIdNotArchived,
+            allBookingDatesAndIdRoomsNotArchived,
             allRoomIdsNotArchived,
             clientID,
             allClientIdsNotArchived
